@@ -1,3 +1,6 @@
+grep -RIl --binary-files=without-match -E 'shell_exec|passthru|system|assert\\s*\\(|base64_decode\\(|gzinflate\\(|preg_replace\\s*\\(.+?/e' /var/www 2>/dev/null
+grep -RIl --binary-files=without-match -E 'eval\\s*\\(|create_function\\s*\\(|assert\\s*\\(' /var/www 2>/dev/null
+find /var/www -type f -name '*.php' -mtime -14 -ls
 """
 IRC Scanner Bot Configuration
 """
