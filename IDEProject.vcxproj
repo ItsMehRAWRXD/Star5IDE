@@ -50,6 +50,7 @@
     <ClCompile Include="SolutionSettings.cpp" />
     <ClCompile Include="PropagationPreview.cpp" />
     <ClCompile Include="ReportsViewer.cpp" />
+    <ClCompile Include="OllamaClient.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Agent.h" />
@@ -61,6 +62,7 @@
     <ClInclude Include="SolutionSettings.h" />
     <ClInclude Include="ReportsViewer.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="OllamaClient.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources.rc" />

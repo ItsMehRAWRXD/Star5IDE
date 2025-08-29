@@ -12,6 +12,7 @@
 #include "ReportsViewer.h"
 #include "Config.h"
 #include "Agent.h"
+#include "OllamaClient.h"
 
 #pragma comment(lib,"comctl32.lib")
 
@@ -329,6 +330,178 @@ static void BuildSolution(HWND hwnd) {
     ShowBuildLogSummary(hwnd);
 }
 
+// Ollama integration functions
+static void TestOllamaConnection(HWND hwnd) {
+    try {
+        OllamaConfig config;
+        config.enabled = gConfig.ollamaEnabled;
+        config.host = gConfig.ollamaHost;
+        config.model = gConfig.ollamaModel;
+        config.timeout = gConfig.ollamaTimeout;
+        
+        OllamaClient client(config);
+        
+        if (client.TestConnection()) {
+            std::vector<std::wstring> models = client.ListModels();
+            std::wstring message = L"✓ Successfully connected to Ollama!\n\nAvailable models:\n";
+            
+            for (const auto& model : models) {
+                message += L"• " + model + L"\n";
+            }
+            
+            if (models.empty()) {
+                message += L"(No models found - you may need to pull a model)";
+            }
+            
+            MessageBoxW(hwnd, message.c_str(), L"Ollama Connection Test", MB_OK | MB_ICONINFORMATION);
+        } else {
+            std::wstring error = L"✗ Failed to connect to Ollama.\n\nError: " + client.GetLastError() + 
+                               L"\n\nPlease check:\n• Ollama is running\n• Host URL is correct\n• Network connectivity";
+            MessageBoxW(hwnd, error.c_str(), L"Ollama Connection Test", MB_OK | MB_ICONERROR);
+        }
+    } catch (const std::exception& e) {
+        std::wstring error = L"✗ Connection test failed with exception.\n\nMake sure Ollama is installed and running.";
+        MessageBoxW(hwnd, error.c_str(), L"Ollama Connection Test", MB_OK | MB_ICONERROR);
+    }
+}
+
+static void ShowOllamaSettings(HWND hwnd) {
+    // Simple settings dialog using input boxes for now
+    // In a full implementation, this would be a proper dialog
+    
+    std::wstring currentHost = gConfig.ollamaHost;
+    std::wstring currentModel = gConfig.ollamaModel;
+    bool currentEnabled = gConfig.ollamaEnabled;
+    
+    std::wstring message = L"Current Ollama Settings:\n\n";
+    message += L"Enabled: " + std::wstring(currentEnabled ? L"Yes" : L"No") + L"\n";
+    message += L"Host: " + currentHost + L"\n";
+    message += L"Model: " + currentModel + L"\n";
+    message += L"Timeout: " + std::to_wstring(gConfig.ollamaTimeout) + L"ms\n\n";
+    message += L"To modify settings, edit the IDEConfig.ini file directly.";
+    
+    MessageBoxW(hwnd, message.c_str(), L"Ollama Settings", MB_OK | MB_ICONINFORMATION);
+}
+
+static std::wstring GetCurrentEditorText() {
+    // Get text from the currently active editor
+    if (gCurrentEditor >= 0 && gCurrentEditor < static_cast<int>(gEditors.size())) {
+        HWND hEdit = gEditors[gCurrentEditor].hwndEdit;
+        int len = GetWindowTextLength(hEdit);
+        if (len > 0) {
+            std::wstring text(len + 1, L'\0');
+            GetWindowText(hEdit, &text[0], len + 1);
+            text.resize(len); // Remove null terminator
+            return text;
+        }
+    }
+    return L"";
+}
+
+static void ShowOllamaResult(HWND hwnd, const std::wstring& title, const OllamaResponse& response) {
+    if (response.success) {
+        MessageBoxW(hwnd, response.content.c_str(), title.c_str(), MB_OK | MB_ICONINFORMATION);
+    } else {
+        std::wstring error = L"Ollama request failed.\n\nError: " + response.error;
+        MessageBoxW(hwnd, error.c_str(), title.c_str(), MB_OK | MB_ICONERROR);
+    }
+}
+
+static void AnalyzeCurrentCode(HWND hwnd) {
+    if (!gConfig.ollamaEnabled) {
+        MessageBoxW(hwnd, L"Ollama is not enabled. Please enable it in settings.", L"Ollama Disabled", MB_OK | MB_ICONWARNING);
+        return;
+    }
+    
+    std::wstring code = GetCurrentEditorText();
+    if (code.empty()) {
+        MessageBoxW(hwnd, L"No code found in the current editor.", L"No Code", MB_OK | MB_ICONWARNING);
+        return;
+    }
+    
+    try {
+        OllamaConfig config;
+        config.enabled = true;
+        config.host = gConfig.ollamaHost;
+        config.model = gConfig.ollamaModel;
+        config.timeout = gConfig.ollamaTimeout;
+        
+        OllamaClient client(config);
+        OllamaResponse response = client.AnalyzeCode(code, L"cpp");
+        ShowOllamaResult(hwnd, L"Code Analysis", response);
+    } catch (const std::exception& e) {
+        MessageBoxW(hwnd, L"Failed to analyze code. Make sure Ollama is running.", L"Analysis Error", MB_OK | MB_ICONERROR);
+    }
+}
+
+static void SuggestCodeImprovements(HWND hwnd) {
+    if (!gConfig.ollamaEnabled) {
+        MessageBoxW(hwnd, L"Ollama is not enabled. Please enable it in settings.", L"Ollama Disabled", MB_OK | MB_ICONWARNING);
+        return;
+    }
+    
+    std::wstring code = GetCurrentEditorText();
+    if (code.empty()) {
+        MessageBoxW(hwnd, L"No code found in the current editor.", L"No Code", MB_OK | MB_ICONWARNING);
+        return;
+    }
+    
+    try {
+        OllamaConfig config;
+        config.enabled = true;
+        config.host = gConfig.ollamaHost;
+        config.model = gConfig.ollamaModel;
+        config.timeout = gConfig.ollamaTimeout;
+        
+        OllamaClient client(config);
+        OllamaResponse response = client.SuggestImprovements(code, L"cpp");
+        ShowOllamaResult(hwnd, L"Code Improvement Suggestions", response);
+    } catch (const std::exception& e) {
+        MessageBoxW(hwnd, L"Failed to get suggestions. Make sure Ollama is running.", L"Suggestion Error", MB_OK | MB_ICONERROR);
+    }
+}
+
+static void ExplainError(HWND hwnd) {
+    if (!gConfig.ollamaEnabled) {
+        MessageBoxW(hwnd, L"Ollama is not enabled. Please enable it in settings.", L"Ollama Disabled", MB_OK | MB_ICONWARNING);
+        return;
+    }
+    
+    // For now, use a simple input dialog to get error message
+    // In a full implementation, this would capture compilation errors automatically
+    std::wstring errorMsg = L"Please paste your error message here...";
+    
+    // Simple prompt - in production you'd use a proper input dialog
+    MessageBoxW(hwnd, L"Error explanation feature requires an error message.\n\nThis feature would be enhanced to automatically capture compilation errors.", L"Explain Error", MB_OK | MB_ICONINFORMATION);
+}
+
+static void GenerateDocumentation(HWND hwnd) {
+    if (!gConfig.ollamaEnabled) {
+        MessageBoxW(hwnd, L"Ollama is not enabled. Please enable it in settings.", L"Ollama Disabled", MB_OK | MB_ICONWARNING);
+        return;
+    }
+    
+    std::wstring code = GetCurrentEditorText();
+    if (code.empty()) {
+        MessageBoxW(hwnd, L"No code found in the current editor.", L"No Code", MB_OK | MB_ICONWARNING);
+        return;
+    }
+    
+    try {
+        OllamaConfig config;
+        config.enabled = true;
+        config.host = gConfig.ollamaHost;
+        config.model = gConfig.ollamaModel;
+        config.timeout = gConfig.ollamaTimeout;
+        
+        OllamaClient client(config);
+        OllamaResponse response = client.GenerateDocumentation(code, L"cpp");
+        ShowOllamaResult(hwnd, L"Generated Documentation", response);
+    } catch (const std::exception& e) {
+        MessageBoxW(hwnd, L"Failed to generate documentation. Make sure Ollama is running.", L"Documentation Error", MB_OK | MB_ICONERROR);
+    }
+}
+
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg) {
         case WM_CREATE: {
@@ -388,6 +561,24 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                 case 50021:
                     BuildSolution(hwnd);
                     break;
+                case ID_OLLAMA_TEST:
+                    TestOllamaConnection(hwnd);
+                    break;
+                case ID_OLLAMA_SETTINGS:
+                    ShowOllamaSettings(hwnd);
+                    break;
+                case ID_OLLAMA_ANALYZE:
+                    AnalyzeCurrentCode(hwnd);
+                    break;
+                case ID_OLLAMA_SUGGEST:
+                    SuggestCodeImprovements(hwnd);
+                    break;
+                case ID_OLLAMA_EXPLAIN:
+                    ExplainError(hwnd);
+                    break;
+                case ID_OLLAMA_DOCUMENT:
+                    GenerateDocumentation(hwnd);
+                    break;
                 default:
                     break;
             }
@@ -413,6 +604,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     HMENU hFileMenu = CreateMenu();
     HMENU hEditMenu = CreateMenu();
     HMENU hViewMenu = CreateMenu();
+    HMENU hOllamaMenu = CreateMenu();
     HMENU hHelpMenu = CreateMenu();
 
     AppendMenu(hFileMenu, MF_STRING, ID_FILE_EXIT, L"E&xit");
@@ -427,9 +619,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     AppendMenu(hFileMenu, MF_STRING, 50020, L"Select Build System...");
     AppendMenu(hFileMenu, MF_STRING, 50021, L"Build Solution");
 
+    // Ollama menu items
+    AppendMenu(hOllamaMenu, MF_STRING, ID_OLLAMA_TEST, L"Test Connection");
+    AppendMenu(hOllamaMenu, MF_STRING, ID_OLLAMA_SETTINGS, L"Settings...");
+    AppendMenu(hOllamaMenu, MF_SEPARATOR, 0, NULL);
+    AppendMenu(hOllamaMenu, MF_STRING, ID_OLLAMA_ANALYZE, L"Analyze Code");
+    AppendMenu(hOllamaMenu, MF_STRING, ID_OLLAMA_SUGGEST, L"Suggest Improvements");
+    AppendMenu(hOllamaMenu, MF_STRING, ID_OLLAMA_EXPLAIN, L"Explain Error");
+    AppendMenu(hOllamaMenu, MF_STRING, ID_OLLAMA_DOCUMENT, L"Generate Documentation");
+
     AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hFileMenu, L"&File");
     AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hEditMenu, L"&Edit");
     AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hViewMenu, L"&View");
+    AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hOllamaMenu, L"&Ollama");
     AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hHelpMenu, L"&Help");
 
     HWND hwnd = CreateWindow(L"IDEWndClass", L"CoPilot IDE", WS_OVERLAPPEDWINDOW,

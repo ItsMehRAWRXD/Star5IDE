@@ -24,6 +24,12 @@ void SaveConfig(const std::wstring& path) {
     WriteKey(out,L"defaultCompiler", gConfig.defaultCompiler==COMPILER_MSVC?L"MSVC":L"GPP");
     WriteKey(out,L"defaultGraphZoom", std::to_wstring(gConfig.defaultGraphZoom));
     WriteKey(out,L"theme", gConfig.theme==THEME_LIGHT?L"Light":gConfig.theme==THEME_DARK?L"Dark":L"System");
+    
+    // Ollama configuration
+    WriteKey(out,L"ollamaEnabled", gConfig.ollamaEnabled?L"1":L"0");
+    WriteKey(out,L"ollamaHost", gConfig.ollamaHost);
+    WriteKey(out,L"ollamaModel", gConfig.ollamaModel);
+    WriteKey(out,L"ollamaTimeout", std::to_wstring(gConfig.ollamaTimeout));
 }
 
 void LoadConfig(const std::wstring& path) {
@@ -41,6 +47,12 @@ void LoadConfig(const std::wstring& path) {
             else if(v==L"Dark") gConfig.theme=THEME_DARK;
             else gConfig.theme=THEME_SYSTEM;
         }
+        
+        // Ollama configuration
+        v=ReadVal(line,L"ollamaEnabled"); if(!v.empty()) gConfig.ollamaEnabled=(v==L"1");
+        v=ReadVal(line,L"ollamaHost"); if(!v.empty()) gConfig.ollamaHost=v;
+        v=ReadVal(line,L"ollamaModel"); if(!v.empty()) gConfig.ollamaModel=v;
+        v=ReadVal(line,L"ollamaTimeout"); if(!v.empty()) gConfig.ollamaTimeout=_wtoi(v.c_str());
     }
 }
 
