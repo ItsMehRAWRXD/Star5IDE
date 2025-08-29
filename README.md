@@ -23,3 +23,15 @@
   - `npm i openai`
   - `API_KEY=... BASE_URL=https://openrouter.ai/api/v1 MODEL=nousresearch/hermes-3-llama-3.1-8b node agents/minimal_agent.js`
 - Works with Groq/Together/DeepSeek/etc. by changing BASE_URL and API_KEY.
+
+## VS Code Extension: LLM prompt command
+- Command: `LLM: Send Prompt` (id: `hello.sayHello`)
+- What it does: prompts for text and sends it to an OpenAI-compatible API, prints reply in the `LLM Output` panel.
+- Required env vars (choose provider):
+  - `API_KEY` and `BASE_URL` and `MODEL`, or
+  - Provider-specific: `OPENROUTER_API_KEY`/`OPENROUTER_BASE_URL`/`OPENROUTER_MODEL`, `DEEPSEEK_API_KEY`, `GROQ_API_KEY`, etc.
+- Defaults if unset:
+  - `BASE_URL`: `https://openrouter.ai/api/v1`
+  - `MODEL`: `nousresearch/hermes-3-llama-3.1-8b`
+- Build: `npm run build`
+- Run: open folder in VS Code, press F5 to launch Extension Development Host, run command `LLM: Send Prompt`.
