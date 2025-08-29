@@ -24,6 +24,19 @@ A modernized, educational security tool for detecting Remote File Inclusion (RFI
    pip install -r requirements.txt
    ```
 
+### Optional: Local LLM via Ollama
+
+- Install Ollama from `https://ollama.com`
+- Start the daemon in a terminal: `ollama serve`
+- Pull a model (example): `ollama pull llama3.1`
+- Verify connection with the provided script:
+
+```bash
+python test_ollama_connection.py --model llama3.1 --prompt "Hello"
+```
+
+If the daemon is on a different host/port, pass `--base-url http://HOST:PORT`.
+
 ## Usage
 
 ### Basic Usage
