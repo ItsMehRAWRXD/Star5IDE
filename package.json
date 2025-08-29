@@ -11,8 +11,39 @@
       {
         "command": "hello.sayHello",
         "title": "Hello: Say Hello"
+      },
+      {
+        "command": "ollama.showStatus",
+        "title": "Ollama: Show Status",
+        "category": "Ollama"
+      },
+      {
+        "command": "ollama.analyzeFile",
+        "title": "Ollama: Analyze Current File",
+        "category": "Ollama"
+      },
+      {
+        "command": "ollama.quickQuery",
+        "title": "Ollama: Quick Query",
+        "category": "Ollama"
       }
-    ]
+    ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "ollama.showStatus",
+          "when": "true"
+        },
+        {
+          "command": "ollama.analyzeFile",
+          "when": "editorTextFocus"
+        },
+        {
+          "command": "ollama.quickQuery",
+          "when": "true"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run build",
@@ -23,5 +54,8 @@
   "devDependencies": {
     "@types/vscode": "^1.85.0",
     "typescript": "^5.4.0"
+  },
+  "dependencies": {
+    "ollama": "^0.4.4"
   }
 }
