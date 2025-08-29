@@ -28,6 +28,14 @@ from dataclasses import dataclass
 from concurrent.futures import ThreadPoolExecutor
 import json
 
+# Import Ollama client
+try:
+    from ollama_client import OllamaClient, OllamaConfig
+    OLLAMA_AVAILABLE = True
+except ImportError:
+    OLLAMA_AVAILABLE = False
+    print("Warning: Ollama client not available. Install with: pip install ollama")
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -324,6 +332,10 @@ Examples:
                        help="Output file for results")
     parser.add_argument("--verbose", "-v", action="store_true",
                        help="Verbose output")
+    parser.add_argument("--ai-analysis", action="store_true",
+                       help="Enable AI analysis of scan results using Ollama")
+    parser.add_argument("--ollama-model", default="llama2",
+                       help="Ollama model to use for AI analysis")
     
     args = parser.parse_args()
     
@@ -361,6 +373,61 @@ Examples:
             # Generate and display report
             report = ReportGenerator.generate_text_report(results)
             print(report)
+            
+            # AI Analysis if enabled
+            if args.ai_analysis and OLLAMA_AVAILABLE:
+                print("\n" + "="*60)
+                print("AI ANALYSIS WITH OLLAMA")
+                print("="*60)
+                
+                try:
+                    ollama_config = OllamaConfig(model=args.ollama_model)
+                    ollama_client = OllamaClient(ollama_config)
+                    
+                    # Check if Ollama is running
+                    if await ollama_client.check_connection():
+                        print(f"✓ Ollama is running, using model: {args.ollama_model}")
+                        
+                        # Convert results to dict format for analysis
+                        results_dict = [
+                            {
+                                'url': r.url,
+                                'vulnerable': r.vulnerable,
+                                'response_code': r.response_code,
+                                'response_size': r.response_size,
+                                'payload_used': r.payload_used,
+                                'response_preview': r.response_preview,
+                                'scan_time': r.scan_time
+                            }
+                            for r in results
+                        ]
+                        
+                        print("🤖 Analyzing scan results with AI...")
+                        ai_analysis = await ollama_client.analyze_scan_results(results_dict)
+                        
+                        print("\nAI ANALYSIS REPORT:")
+                        print("-" * 40)
+                        print(ai_analysis)
+                        
+                        # Save AI analysis to file
+                        ai_output_file = args.output.replace('.json', '_ai_analysis.txt')
+                        with open(ai_output_file, 'w') as f:
+                            f.write(f"AI Analysis Report\n")
+                            f.write(f"Generated at: {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
+                            f.write(f"Model used: {args.ollama_model}\n")
+                            f.write(f"{'='*60}\n\n")
+                            f.write(ai_analysis)
+                        
+                        print(f"\nAI analysis saved to: {ai_output_file}")
+                        
+                    else:
+                        print("✗ Ollama is not running or not accessible")
+                        print("Please start Ollama with: ollama serve")
+                        print("Or install a model with: ollama pull llama2")
+                        
+                except Exception as e:
+                    print(f"✗ AI analysis failed: {e}")
+                    logger.error(f"AI analysis error: {e}")
             
             return len([r for r in results if r.vulnerable])
     
