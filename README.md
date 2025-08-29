@@ -8,25 +8,66 @@ A modernized, educational security tool for detecting Remote File Inclusion (RFI
 
 ## Features
 
-- **Modern Python Implementation**: Written in Python 3.8+ with async/await for better performance
-- **Multiple Scan Types**: Supports both RFI and LFI vulnerability scanning
-- **Concurrent Scanning**: Configurable concurrent connections for faster scanning
-- **Comprehensive Reporting**: JSON and text-based reports with detailed vulnerability information
-- **User Agent Rotation**: Built-in user agent rotation to avoid detection
-- **Error Handling**: Robust error handling and logging
-- **Rate Limiting**: Built-in rate limiting to avoid overwhelming target servers
+- **Modern C++ IDE**: Windows-based IDE with project management and code editing capabilities
+- **Multiple Build Systems**: Support for Visual Studio (MSBuild) and MSYS2 (GCC)
+- **Integrated Development Environment**: Solution explorer, tabbed editor, and status bar
+- **Project Configuration**: Configurable compiler settings, themes, and build options
+- **Layout Management**: Customizable window layouts and editor arrangements
+- **Reports Viewer**: Integrated build output and error reporting
+- **Configuration Management**: Persistent settings with INI-based configuration
+- **Ollama Integration**: AI-powered code analysis and assistance (NEW!)
 
 ## Installation
 
+### C++ IDE Setup
+
 1. **Clone or download the repository**
-2. **Install Python dependencies**:
+2. **Open in Visual Studio**:
+   - Open `IDEProject.sln` in Visual Studio 2019 or later
+   - Ensure Windows SDK 10.0.19041.0 or later is installed
+   - Build the solution (F7)
+
+### Ollama Integration Setup
+
+1. **Install Ollama**:
+   - Download from [https://ollama.ai](https://ollama.ai)
+   - Follow installation instructions for your platform
+   
+2. **Pull a model**:
    ```bash
-   pip install -r requirements.txt
+   ollama pull llama2
+   # or any other compatible model
    ```
+
+3. **Configure the IDE**:
+   - Copy `IDEConfig.ini.example` to `IDEConfig.ini`
+   - Set `ollamaEnabled=1`
+   - Adjust `ollamaHost`, `ollamaModel`, and `ollamaTimeout` as needed
+
+### Python Tools (Optional)
+
+For the legacy Python tools, install dependencies:
+```bash
+pip install -r requirements.txt
+```
 
 ## Usage
 
-### Basic Usage
+### C++ IDE Usage
+
+1. **Start the IDE**:
+   - Run the compiled executable
+   - The IDE will open with a solution explorer, editor area, and status bar
+
+2. **Ollama Features** (available in Ollama menu):
+   - **Test Connection**: Verify Ollama is running and accessible
+   - **Settings**: View current Ollama configuration
+   - **Analyze Code**: Get AI analysis of the current code in the editor
+   - **Suggest Improvements**: Get AI suggestions for code improvements
+   - **Explain Error**: Get AI help explaining compilation errors
+   - **Generate Documentation**: Generate documentation for the current code
+
+### Python Tools Usage (Legacy)
 
 ```bash
 # Scan a single URL for RFI vulnerabilities

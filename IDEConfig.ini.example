@@ -1,0 +1,17 @@
+# IDE Configuration File
+# Copy this to IDEConfig.ini and modify as needed
+
+# General IDE Settings
+autoClearTrash=1
+askRestoreTrash=1
+autoSaveReports=1
+defaultCompiler=MSVC
+defaultGraphZoom=1.0
+theme=System
+
+# Ollama Configuration
+# Set ollamaEnabled=1 to enable Ollama integration
+ollamaEnabled=0
+ollamaHost=http://localhost:11434
+ollamaModel=llama2
+ollamaTimeout=30000

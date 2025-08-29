@@ -18,3 +18,11 @@
 #define ID_SOLUTION_SETTINGS    40003
 #define ID_TOOLS_REPORTS        40004
 #define ID_VIEW_LAYOUTMGR       40005
+
+// Ollama commands
+#define ID_OLLAMA_TEST          40010
+#define ID_OLLAMA_SETTINGS      40011
+#define ID_OLLAMA_ANALYZE       40012
+#define ID_OLLAMA_SUGGEST       40013
+#define ID_OLLAMA_EXPLAIN       40014
+#define ID_OLLAMA_DOCUMENT      40015

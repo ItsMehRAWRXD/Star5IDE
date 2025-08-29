@@ -23,6 +23,12 @@ struct IDEConfig {
     DefaultCompiler defaultCompiler = COMPILER_MSVC;
     float defaultGraphZoom = 1.0f;
     UITheme theme = THEME_SYSTEM;
+    
+    // Ollama configuration
+    bool ollamaEnabled = false;
+    std::wstring ollamaHost = L"http://localhost:11434";
+    std::wstring ollamaModel = L"llama2";
+    int ollamaTimeout = 30000;
 };
 
 struct SolutionConfig {
