@@ -27,6 +27,7 @@ from urllib.parse import urljoin, urlparse
 from dataclasses import dataclass
 from concurrent.futures import ThreadPoolExecutor
 import json
+import ollama
 
 # Configure logging
 logging.basicConfig(
@@ -49,6 +50,116 @@ class ScanResult:
     payload_used: str
     response_preview: str
     scan_time: float
+    ollama_analysis: Optional[str] = None
+
+class OllamaClient:
+    """Client for interacting with local Ollama instance"""
+    
+    def __init__(self, model: str = "llama2", host: str = "http://localhost:11434"):
+        self.model = model
+        self.host = host
+        self.client = ollama.Client(host=host)
+        
+    def test_connection(self) -> bool:
+        """Test connection to Ollama instance"""
+        try:
+            # Try to list models to test connection
+            models = self.client.list()
+            available_models = [model['name'] for model in models['models']]
+            
+            if self.model not in available_models:
+                logger.warning(f"Model '{self.model}' not found. Available models: {available_models}")
+                if available_models:
+                    self.model = available_models[0]
+                    logger.info(f"Switching to available model: {self.model}")
+                else:
+                    logger.error("No models available in Ollama")
+                    return False
+            
+            logger.info(f"Successfully connected to Ollama at {self.host}")
+            logger.info(f"Using model: {self.model}")
+            return True
+        except Exception as e:
+            logger.error(f"Failed to connect to Ollama at {self.host}: {e}")
+            return False
+    
+    def analyze_vulnerability(self, scan_result: ScanResult) -> Optional[str]:
+        """Analyze a vulnerability using Ollama"""
+        try:
+            prompt = f"""
+As a cybersecurity expert, analyze this web vulnerability scan result:
+
+URL: {scan_result.url}
+Payload Used: {scan_result.payload_used}
+Response Code: {scan_result.response_code}
+Response Size: {scan_result.response_size} bytes
+Response Preview: {scan_result.response_preview[:500]}
+
+Please provide:
+1. Vulnerability assessment (high/medium/low risk)
+2. Potential impact
+3. Recommended remediation steps
+4. Additional security considerations
+
+Keep the analysis concise but informative.
+"""
+            
+            response = self.client.chat(model=self.model, messages=[
+                {
+                    'role': 'user',
+                    'content': prompt
+                }
+            ])
+            
+            return response['message']['content']
+            
+        except Exception as e:
+            logger.error(f"Error analyzing vulnerability with Ollama: {e}")
+            return None
+    
+    def generate_report_summary(self, results: List[ScanResult]) -> Optional[str]:
+        """Generate a comprehensive report summary using Ollama"""
+        try:
+            vulnerable_count = len([r for r in results if r.vulnerable])
+            total_count = len(results)
+            
+            vulnerable_summary = []
+            for result in results[:5]:  # Limit to first 5 for context
+                if result.vulnerable:
+                    vulnerable_summary.append(f"- {result.url} (Payload: {result.payload_used})")
+            
+            prompt = f"""
+As a cybersecurity analyst, provide an executive summary for this vulnerability scan:
+
+Scan Results Summary:
+- Total URLs scanned: {total_count}
+- Vulnerable URLs found: {vulnerable_count}
+- Success rate: {(vulnerable_count/total_count*100) if total_count > 0 else 0:.2f}%
+
+Sample vulnerable targets:
+{chr(10).join(vulnerable_summary)}
+
+Please provide:
+1. Executive summary of findings
+2. Overall risk assessment
+3. Priority recommendations
+4. Strategic security improvements
+
+Format as a professional security report summary.
+"""
+            
+            response = self.client.chat(model=self.model, messages=[
+                {
+                    'role': 'user',
+                    'content': prompt
+                }
+            ])
+            
+            return response['message']['content']
+            
+        except Exception as e:
+            logger.error(f"Error generating report summary with Ollama: {e}")
+            return None
 
 class UserAgentRotator:
     """Rotates user agents to avoid detection"""
