@@ -1,0 +1,91 @@
+name: Validate
+on: 
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  validate:
+    name: "🔍 Validate Code"
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      
+      - name: Install validators
+        run: |
+          pip install yamllint
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
+          
+          # Install git-secrets
+          git clone https://github.com/awslabs/git-secrets.git
+          cd git-secrets && sudo make install && cd ..
+          
+          # Configure git-secrets
+          git secrets --register-aws
+          git secrets --install
+      
+      - name: "🔐 Scan for secrets"
+        run: |
+          echo "🔐 Scanning for exposed secrets..."
+          
+          # Check for common token patterns
+          if grep -RPn --exclude-dir=node_modules --exclude-dir=.git \
+               -E '(ghp_[A-Za-z0-9]{36}|dop_v1_[a-f0-9]{64}|sk_live_|AKIA[0-9A-Z]{16})' . ; then
+              echo "❌ SECRETS DETECTED! Build failed."
+              exit 1
+          fi
+          
+          echo "✅ No secrets found"
+      
+      - name: "🔀 Check for merge conflicts"
+        run: |
+          echo "🔀 Checking for merge conflicts..."
+          if grep -rn "<<<<<<\|>>>>>>" . --exclude-dir=.git; then
+              echo "❌ MERGE CONFLICTS DETECTED!"
+              exit 1
+          fi
+          echo "✅ No merge conflicts"
+      
+      - name: "📋 Validate YAML"
+        run: |
+          echo "📋 Validating YAML files..."
+          find . -name "*.yml" -o -name "*.yaml" | grep -v node_modules | while read file; do
+              echo "Checking: $file"
+              python -c "import yaml; yaml.safe_load(open('$file'))" || exit 1
+          done
+          echo "✅ All YAML files valid"
+      
+      - name: "🐚 Validate Shell Scripts"
+        run: |
+          echo "🐚 Validating shell scripts..."
+          find . -name "*.sh" | while read file; do
+              echo "Checking: $file"
+              shellcheck "$file" || bash -n "$file" || exit 1
+          done
+          echo "✅ All shell scripts valid"
+      
+      - name: "📦 Validate JSON"
+        run: |
+          echo "📦 Validating JSON files..."
+          find . -name "*.json" | grep -v node_modules | while read file; do
+              echo "Checking: $file"
+              python -m json.tool "$file" > /dev/null || exit 1
+          done
+          echo "✅ All JSON files valid"
+      
+      - name: "✅ Summary"
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "✅ All validation checks passed!"
+          echo "Repository is well-formed and ready to deploy!"
