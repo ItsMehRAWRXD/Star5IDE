@@ -17,6 +17,7 @@ function parseArgs(argv) {
   for (let i = 2; i < argv.length; i++) {
     const a = argv[i];
     if (a === "--patch") { (args.patches ||= []).push(argv[++i] || ""); continue; }
+    if (a === "--patch-file") { (args.patchFiles ||= []).push(argv[++i] || ""); continue; }
     if (a === "--run") { args.run = true; continue; }
     if (a === "--tsc") { args.tsc = argv[++i]; continue; }
     args._.push(a);
@@ -51,7 +52,16 @@ function main() {
   }
 
   const source = fs.readFileSync(target, "utf8");
-  const patches = args.patches || [];
+  const patches = [];
+  // Prefer patch files first (multi-line), then inline --patch entries
+  if (Array.isArray(args.patchFiles)) {
+    for (const f of args.patchFiles) {
+      if (!f) continue;
+      const body = fs.readFileSync(f, "utf8");
+      patches.push(body);
+    }
+  }
+  if (Array.isArray(args.patches)) patches.push(...args.patches);
   const { code, used } = patchSource(source, patches);
 
   if (!args.run) {
