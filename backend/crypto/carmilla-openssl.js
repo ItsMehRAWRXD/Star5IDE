@@ -19,9 +19,9 @@ function _opensslEncryptSync(data, passphrase) {
   const outFile = tmpFile('out_');
   fs.writeFileSync(inFile, data, 'utf8');
   try {
-    execSync(`openssl enc -aes-256-cbc -salt -pbkdf2 -pass pass:${passphrase} -in "${inFile}" -out "${outFile}"`);
-    const enc = fs.readFileSync(outFile);
-    return enc.toString('base64');
+    execSync(`openssl enc -aes-256-cbc -salt -pbkdf2 -base64 -pass pass:${passphrase} -in "${inFile}" -out "${outFile}"`);
+    const enc = fs.readFileSync(outFile, 'utf8');
+    return enc;
   } finally {
     fs.rmSync(inFile, { force: true });
     fs.rmSync(outFile, { force: true });
@@ -33,9 +33,9 @@ async function _opensslEncrypt(data, passphrase) {
   const outFile = tmpFile('out_');
   await fs.promises.writeFile(inFile, data, 'utf8');
   try {
-    await execAsync(`openssl enc -aes-256-cbc -salt -pbkdf2 -pass pass:${passphrase} -in "${inFile}" -out "${outFile}"`);
-    const enc = await fs.promises.readFile(outFile);
-    return enc.toString('base64');
+    await execAsync(`openssl enc -aes-256-cbc -salt -pbkdf2 -base64 -pass pass:${passphrase} -in "${inFile}" -out "${outFile}"`);
+    const enc = await fs.promises.readFile(outFile, 'utf8');
+    return enc;
   } finally {
     fs.rmSync(inFile, { force: true });
     fs.rmSync(outFile, { force: true });
@@ -45,9 +45,9 @@ async function _opensslEncrypt(data, passphrase) {
 function _opensslDecryptSync(base64Data, passphrase) {
   const inFile = tmpFile('in_');
   const outFile = tmpFile('out_');
-  fs.writeFileSync(inFile, Buffer.from(base64Data, 'base64'));
+  fs.writeFileSync(inFile, base64Data);
   try {
-    execSync(`openssl enc -d -aes-256-cbc -pbkdf2 -pass pass:${passphrase} -in "${inFile}" -out "${outFile}"`);
+    execSync(`openssl enc -d -aes-256-cbc -pbkdf2 -base64 -pass pass:${passphrase} -in "${inFile}" -out "${outFile}"`);
     return fs.readFileSync(outFile, 'utf8');
   } finally {
     fs.rmSync(inFile, { force: true });
@@ -58,9 +58,9 @@ function _opensslDecryptSync(base64Data, passphrase) {
 async function _opensslDecrypt(base64Data, passphrase) {
   const inFile = tmpFile('in_');
   const outFile = tmpFile('out_');
-  await fs.promises.writeFile(inFile, Buffer.from(base64Data, 'base64'));
+  await fs.promises.writeFile(inFile, base64Data);
   try {
-    await execAsync(`openssl enc -d -aes-256-cbc -pbkdf2 -pass pass:${passphrase} -in "${inFile}" -out "${outFile}"`);
+    await execAsync(`openssl enc -d -aes-256-cbc -pbkdf2 -base64 -pass pass:${passphrase} -in "${inFile}" -out "${outFile}"`);
     return await fs.promises.readFile(outFile, 'utf8');
   } finally {
     fs.rmSync(inFile, { force: true });
