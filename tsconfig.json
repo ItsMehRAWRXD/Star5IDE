@@ -1,10 +1,14 @@
-import * as vscode from 'vscode';
-
-export function activate(context: vscode.ExtensionContext) {
-  const disposable = vscode.commands.registerCommand('hello.sayHello', () => {
-    vscode.window.showInformationMessage('Hello from your extension!');
-  });
-  context.subscriptions.push(disposable);
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["ES2020"],
+    "module": "commonjs",
+    "outDir": "out",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "sourceMap": true
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", ".vscode-test"]
 }
-
-export function deactivate() {}
