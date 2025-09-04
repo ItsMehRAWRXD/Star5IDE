@@ -1,27 +1,42 @@
 {
-  "name": "hello-world-ext",
-  "displayName": "Hello World Ext",
-  "version": "0.0.1",
-  "publisher": "you",
-  "engines": { "vscode": "^1.85.0" },
-  "activationEvents": [ "onCommand:hello.sayHello" ],
-  "main": "./out/extension.js",
-  "contributes": {
-    "commands": [
-      {
-        "command": "hello.sayHello",
-        "title": "Hello: Say Hello"
-      }
-    ]
+  "name": "droplet-forge",
+  "version": "1.0.0",
+  "description": "🔨 Bulletproof DigitalOcean Droplet deployment - destroy and rebuild identical servers in 60 seconds",
+  "keywords": [
+    "digitalocean",
+    "droplet",
+    "deployment",
+    "devops",
+    "cloud-init",
+    "infrastructure",
+    "iaas",
+    "server",
+    "automation",
+    "docker",
+    "nodejs",
+    "pm2"
+  ],
+  "homepage": "https://github.com/YOUR_USERNAME/droplet-forge",
+  "bugs": {
+    "url": "https://github.com/YOUR_USERNAME/droplet-forge/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YOUR_USERNAME/droplet-forge.git"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Your Name",
+    "email": "your.email@example.com"
   },
   "scripts": {
-    "vscode:prepublish": "npm run build",
-    "build": "tsc -p ./",
-    "watch": "tsc -w -p ./",
-    "test": "echo \"(optional)\""
+    "deploy": "./deploy.sh",
+    "rebuild": "./scripts/destroy-and-rebuild.sh",
+    "health": "./scripts/health-check.sh",
+    "backup": "./scripts/backup.sh",
+    "ssl": "./scripts/setup-ssl.sh"
   },
-  "devDependencies": {
-    "@types/vscode": "^1.85.0",
-    "typescript": "^5.4.0"
+  "engines": {
+    "node": ">=16.0.0"
   }
 }

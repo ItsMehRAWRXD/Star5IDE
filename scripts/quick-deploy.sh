@@ -7,7 +7,7 @@ set -e
 
 # Configuration
 APP_REPO="${1:-https://github.com/YOUR_USERNAME/YOUR_REPO.git}"
-APP_NAME="${2:-screenpilot}"
+APP_NAME="${2:-app}"
 
 # Colors for output
 GREEN='\033[0;32m'

@@ -6,7 +6,7 @@
 set -e
 
 # Configuration
-DROPLET_NAME="${DROPLET_NAME:-screenpilot}"
+DROPLET_NAME="${DROPLET_NAME:-forge-droplet}"
 
 # Colors for output
 RED='\033[0;31m'

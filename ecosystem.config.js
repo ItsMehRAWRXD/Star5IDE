@@ -6,9 +6,9 @@ module.exports = {
   apps: [
     {
       // Application Configuration
-      name: 'screenpilot',
+      name: 'app',
       script: './server.js', // or './dist/server.js' for TypeScript
-      cwd: '/home/rawr/apps/screenpilot',
+      cwd: '/home/rawr/apps/app',
       
       // Cluster mode for better performance
       instances: 'max', // Use all available CPU cores
@@ -71,7 +71,7 @@ module.exports = {
       host: ['YOUR_DROPLET_IP'], // Replace with actual IP
       ref: 'origin/main',
       repo: 'git@github.com:YOUR_USERNAME/YOUR_REPO.git',
-      path: '/home/rawr/apps/screenpilot',
+      path: '/home/rawr/apps/app',
       'pre-deploy-local': '',
       'post-deploy': 'npm install && npm run build && pm2 reload ecosystem.config.js --env production',
       'pre-setup': '',
@@ -83,7 +83,7 @@ module.exports = {
       host: ['YOUR_STAGING_IP'],
       ref: 'origin/develop',
       repo: 'git@github.com:YOUR_USERNAME/YOUR_REPO.git',
-      path: '/home/rawr/apps/screenpilot-staging',
+      path: '/home/rawr/apps/app-staging',
       'post-deploy': 'npm install && npm run build && pm2 reload ecosystem.config.js --env staging',
       env: {
         NODE_ENV: 'staging',

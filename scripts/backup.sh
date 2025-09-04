@@ -6,7 +6,7 @@
 set -e
 
 # Configuration
-DROPLET_NAME="${DROPLET_NAME:-screenpilot}"
+DROPLET_NAME="${DROPLET_NAME:-forge-droplet}"
 SNAPSHOT_PREFIX="${DROPLET_NAME}-backup"
 
 # Colors for output

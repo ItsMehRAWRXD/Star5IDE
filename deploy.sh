@@ -6,7 +6,7 @@
 set -e
 
 # Configuration
-DROPLET_NAME="${DROPLET_NAME:-screenpilot}"
+DROPLET_NAME="${DROPLET_NAME:-forge-droplet}"
 REGION="${REGION:-nyc3}"
 SIZE="${SIZE:-s-2vcpu-2gb}"
 IMAGE="${IMAGE:-ubuntu-22-04-x64}"

@@ -1,8 +1,12 @@
-# 🚀 DigitalOcean Droplet One-Shot Deployment
+# 🔨 Droplet Forge
 
-> **"Can't break it" production server setup** - Destroy and rebuild your entire infrastructure in 60 seconds with identical configuration every time.
+> **Bulletproof DigitalOcean infrastructure** - Forge indestructible servers that rebuild identically in 60 seconds. Because your infrastructure should be as reliable as `ctrl+z`.
 
-This repository contains everything you need to deploy a hardened, production-ready DigitalOcean Droplet with Docker, Node.js, PM2, and automatic security updates. The entire setup is **idempotent** - run it as many times as you want, you'll get the same result.
+## What is Droplet Forge?
+
+Droplet Forge is a complete Infrastructure-as-Code solution for DigitalOcean that creates **unbreakable**, **reproducible** server deployments. Using cloud-init and automation scripts, it provisions hardened Ubuntu servers with Docker, Node.js, PM2, and enterprise-grade security - all configured automatically.
+
+**The killer feature:** If anything breaks, just run one command to destroy and rebuild an identical server in 60 seconds. No manual configuration. No "works on my machine" issues. Just consistent, bulletproof infrastructure.
 
 ## ✨ Features
 
