@@ -1,0 +1,10 @@
+{"id":"do-basic","name":"DigitalOcean Basic","provider":"digitalocean","size":"s-1vcpu-1gb","region":"nyc3","image":"ubuntu-22-04-x64","tags":["web"],"encrypted":false}
+{"id":"do-production","name":"DigitalOcean Production","provider":"digitalocean","size":"s-4vcpu-8gb","region":"nyc3","image":"ubuntu-22-04-x64","tags":["prod","web"],"monitoring":true,"backups":true,"encrypted":true}
+{"id":"do-kubernetes","name":"DigitalOcean Kubernetes","provider":"digitalocean","type":"kubernetes","node_pool":"s-2vcpu-4gb","nodes":3,"region":"nyc3","version":"latest","encrypted":true}
+{"id":"gh-actions","name":"GitHub Actions Deploy","provider":"github","workflow":"deploy.yml","on":"push","branch":"main","secrets":["DO_TOKEN","SSH_KEY"],"encrypted":true}
+{"id":"gh-pages","name":"GitHub Pages","provider":"github","type":"pages","branch":"gh-pages","domain":"custom.com","encrypted":false}
+{"id":"gh-release","name":"GitHub Release Automation","provider":"github","workflow":"release.yml","on":"tag","artifacts":true,"encrypted":true}
+{"id":"hybrid-do-gh","name":"Hybrid DO+GitHub","providers":["digitalocean","github"],"do_config":"do-production","gh_config":"gh-actions","encrypted":true}
+{"id":"multi-region","name":"Multi-Region Deploy","provider":"digitalocean","regions":["nyc3","sfo3","ams3"],"size":"s-2vcpu-2gb","load_balancer":true,"encrypted":true}
+{"id":"docker-swarm","name":"Docker Swarm Cluster","provider":"digitalocean","nodes":5,"size":"s-2vcpu-4gb","network":"overlay","encrypted":true}
+{"id":"mongodb-cluster","name":"MongoDB Replica Set","provider":"digitalocean","type":"database","engine":"mongodb","nodes":3,"size":"db-s-2vcpu-4gb","encrypted":true}
