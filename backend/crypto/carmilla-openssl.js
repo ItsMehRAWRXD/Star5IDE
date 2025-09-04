@@ -73,4 +73,22 @@ module.exports = {
   decryptSync: _opensslDecryptSync,
   encryptAsync: _opensslEncrypt,
   decryptAsync: _opensslDecrypt,
+  // Add repack/unpack helpers
+  repackSync(dataBase64, meta = {}) {
+    const pack = {
+      meta: { timestamp: new Date().toISOString(), ...meta, method: 'openssl' },
+      data: dataBase64,
+    };
+    return Buffer.from(JSON.stringify(pack)).toString('base64');
+  },
+  unpackSync(packagedBase64) {
+    const json = Buffer.from(packagedBase64, 'base64').toString('utf8');
+    return JSON.parse(json);
+  },
+  async repack(dataBase64, meta = {}) {
+    return this.repackSync(dataBase64, meta);
+  },
+  async unpack(packagedBase64) {
+    return this.unpackSync(packagedBase64);
+  },
 };
