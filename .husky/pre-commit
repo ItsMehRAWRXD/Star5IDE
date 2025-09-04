@@ -1,0 +1,40 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Pre-commit validation hook
+echo "🔍 Running pre-commit validation..."
+
+# 1. Scan for secrets
+echo "🔐 Scanning for secrets..."
+git secrets --scan || {
+    echo "❌ SECRETS DETECTED! Commit blocked."
+    echo "Remove sensitive data before committing."
+    exit 1
+}
+
+# 2. Check YAML files
+echo "📋 Validating YAML files..."
+for file in $(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(yml|yaml)$'); do
+    python -m yaml "$file" 2>/dev/null || yamllint "$file" || {
+        echo "❌ MALFORMED YAML: $file"
+        exit 1
+    }
+done
+
+# 3. Check shell scripts
+echo "🐚 Validating shell scripts..."
+for file in $(git diff --cached --name-only --diff-filter=ACM | grep -E '\.sh$'); do
+    bash -n "$file" || {
+        echo "❌ MALFORMED SHELL SCRIPT: $file"
+        exit 1
+    }
+done
+
+# 4. Check for merge conflicts
+echo "🔀 Checking for merge conflicts..."
+git diff --cached --name-only | xargs grep -l "<<<<<<\|>>>>>>" && {
+    echo "❌ MERGE CONFLICTS DETECTED!"
+    exit 1
+}
+
+echo "✅ All validation checks passed!"
