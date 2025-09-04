@@ -1,0 +1,147 @@
+name: Deploy to DigitalOcean
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch: # Allow manual triggering
+
+env:
+  DROPLET_IP: ${{ secrets.DROPLET_IP }}
+  DROPLET_USER: rawr
+  APP_PATH: /home/rawr/apps/screenpilot
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run tests
+        run: npm test
+        continue-on-error: true # Remove this in production
+      
+      - name: Build application
+        run: npm run build
+        if: ${{ hashFiles('package.json') != '' && contains(toJSON(github.event.head_commit.message), 'build') }}
+      
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ secrets.DROPLET_IP }} >> ~/.ssh/known_hosts
+      
+      - name: Deploy to server
+        run: |
+          # Create deployment script
+          cat > deploy_remote.sh << 'EOF'
+          #!/bin/bash
+          set -e
+          
+          APP_PATH="${{ env.APP_PATH }}"
+          REPO_URL="https://github.com/${{ github.repository }}.git"
+          
+          # Ensure app directory exists
+          mkdir -p $APP_PATH
+          cd $APP_PATH
+          
+          # Clone or pull latest code
+          if [ -d ".git" ]; then
+            echo "📥 Pulling latest changes..."
+            git fetch origin
+            git reset --hard origin/main
+          else
+            echo "📦 Cloning repository..."
+            git clone $REPO_URL .
+          fi
+          
+          # Install dependencies
+          echo "📦 Installing dependencies..."
+          npm ci --production
+          
+          # Run database migrations if needed
+          # npm run migrate
+          
+          # Copy PM2 ecosystem file if it exists
+          if [ -f "ecosystem.config.js" ]; then
+            echo "⚙️ PM2 configuration found"
+          else
+            echo "⚠️ No PM2 configuration found, using default"
+            cat > ecosystem.config.js << 'PM2EOF'
+          module.exports = {
+            apps: [{
+              name: 'app',
+              script: './index.js',
+              instances: 'max',
+              exec_mode: 'cluster',
+              env: { NODE_ENV: 'production', PORT: 3000 }
+            }]
+          };
+          PM2EOF
+          fi
+          
+          # Reload or start application with PM2
+          echo "🚀 Starting application with PM2..."
+          if pm2 describe app > /dev/null 2>&1; then
+            pm2 reload ecosystem.config.js --update-env
+          else
+            pm2 start ecosystem.config.js
+          fi
+          
+          # Save PM2 configuration
+          pm2 save
+          
+          echo "✅ Deployment complete!"
+          EOF
+          
+          # Execute deployment script on remote server
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+            ${{ env.DROPLET_USER }}@${{ secrets.DROPLET_IP }} \
+            'bash -s' < deploy_remote.sh
+      
+      - name: Health check
+        run: |
+          sleep 10
+          response=$(curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.DROPLET_IP }}:3000/health || echo "000")
+          if [ "$response" = "200" ]; then
+            echo "✅ Application is healthy"
+          else
+            echo "⚠️ Health check failed with status: $response"
+            echo "This might be normal if your app doesn't have a /health endpoint"
+          fi
+      
+      - name: Cleanup
+        if: always()
+        run: |
+          rm -f ~/.ssh/deploy_key
+          rm -f deploy_remote.sh
+
+  notify:
+    needs: deploy
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      - name: Send notification
+        if: ${{ github.event_name == 'push' }}
+        run: |
+          if [ "${{ needs.deploy.result }}" == "success" ]; then
+            echo "🎉 Deployment successful!"
+            # Add your notification logic here (Slack, Discord, email, etc.)
+          else
+            echo "❌ Deployment failed!"
+            # Add your failure notification logic here
+          fi

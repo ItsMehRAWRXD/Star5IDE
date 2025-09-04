@@ -1,0 +1,178 @@
+#cloud-config
+# DigitalOcean Droplet Cloud-Init Configuration
+# This file configures a production-ready Ubuntu server with:
+# - Non-root user with sudo access
+# - Docker, Node.js, and PM2 for application deployment
+# - UFW firewall and Fail2Ban for security
+# - Automatic security updates
+
+timezone: America/New_York
+package_update: true
+package_upgrade: true
+
+# Create a non-root user with sudo privileges
+users:
+  - default
+  - name: rawr
+    groups: [sudo, docker]
+    shell: /bin/bash
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    ssh_authorized_keys:
+      # REPLACE THIS WITH YOUR ACTUAL PUBLIC KEY
+      # Generate with: ssh-keygen -t ed25519 -C "rawr@screenpilot"
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG...YOUR_PUBLIC_KEY_HERE...
+
+# Install essential packages
+packages:
+  # Security
+  - ufw
+  - fail2ban
+  - unattended-upgrades
+  
+  # Development tools
+  - git
+  - curl
+  - wget
+  - vim
+  - htop
+  
+  # Node.js and npm
+  - nodejs
+  - npm
+  
+  # Docker
+  - docker.io
+  - docker-compose
+  
+  # Build essentials
+  - build-essential
+  - software-properties-common
+  
+  # SSL/TLS
+  - certbot
+  - python3-certbot-nginx
+  
+  # Web server (optional, uncomment if needed)
+  # - nginx
+
+# Configure the system
+runcmd:
+  # Configure UFW firewall
+  - ufw allow OpenSSH
+  - ufw allow 80/tcp
+  - ufw allow 443/tcp
+  - ufw allow 3000/tcp  # Node.js development port
+  - ufw --force enable
+  
+  # Enable and start Docker
+  - systemctl enable --now docker
+  - usermod -aG docker rawr
+  
+  # Install global npm packages
+  - npm install -g pm2@latest
+  - npm install -g yarn
+  
+  # Configure PM2 to start on boot
+  - su - rawr -c "pm2 startup systemd -u rawr --hp /home/rawr"
+  - systemctl enable pm2-rawr
+  
+  # Configure Fail2Ban
+  - |
+    cat > /etc/fail2ban/jail.local <<EOF
+    [DEFAULT]
+    bantime = 3600
+    findtime = 600
+    maxretry = 5
+    
+    [sshd]
+    enabled = true
+    port = ssh
+    logpath = /var/log/auth.log
+    maxretry = 3
+    EOF
+  - systemctl enable --now fail2ban
+  
+  # Configure automatic security updates
+  - |
+    cat > /etc/apt/apt.conf.d/50unattended-upgrades <<EOF
+    Unattended-Upgrade::Allowed-Origins {
+        "\${distro_id}:\${distro_codename}-security";
+        "\${distro_id}ESMApps:\${distro_codename}-apps-security";
+        "\${distro_id}ESM:\${distro_codename}-infra-security";
+    };
+    Unattended-Upgrade::AutoFixInterruptedDpkg "true";
+    Unattended-Upgrade::MinimalSteps "true";
+    Unattended-Upgrade::Remove-Unused-Dependencies "true";
+    Unattended-Upgrade::Automatic-Reboot "false";
+    EOF
+  
+  # Set up swap file (2GB)
+  - fallocate -l 2G /swapfile
+  - chmod 600 /swapfile
+  - mkswap /swapfile
+  - swapon /swapfile
+  - echo '/swapfile none swap sw 0 0' >> /etc/fstab
+  
+  # Configure sysctl for better performance
+  - |
+    cat >> /etc/sysctl.conf <<EOF
+    # Network optimizations
+    net.core.somaxconn = 65535
+    net.ipv4.tcp_max_syn_backlog = 8192
+    net.ipv4.ip_local_port_range = 1024 65535
+    
+    # Swap configuration
+    vm.swappiness = 10
+    EOF
+  - sysctl -p
+  
+  # Create application directory
+  - mkdir -p /home/rawr/apps
+  - chown -R rawr:rawr /home/rawr/apps
+  
+  # Log completion
+  - echo "✅ DigitalOcean Droplet setup complete!" | systemd-cat -t cloud-init
+  - echo "🔒 Server hardened with UFW and Fail2Ban" | systemd-cat -t cloud-init
+  - echo "🐳 Docker installed and ready" | systemd-cat -t cloud-init
+  - echo "📦 Node.js and PM2 installed" | systemd-cat -t cloud-init
+  - echo "👤 User 'rawr' created with sudo access" | systemd-cat -t cloud-init
+
+# Write files during cloud-init
+write_files:
+  # Create a welcome message
+  - path: /etc/motd
+    content: |
+      ╔══════════════════════════════════════════════════════════╗
+      ║     🚀 ScreenPilot Production Server                      ║
+      ║     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━                      ║
+      ║     • Docker & PM2 Ready                                  ║
+      ║     • UFW Firewall Enabled                                ║
+      ║     • Fail2Ban Active                                     ║
+      ║     • Auto Security Updates                               ║
+      ╚══════════════════════════════════════════════════════════╝
+  
+  # Create a basic nginx config (if using nginx)
+  - path: /home/rawr/nginx-site.conf.example
+    owner: rawr:rawr
+    content: |
+      server {
+          listen 80;
+          server_name screenpilot.dev www.screenpilot.dev;
+          
+          location / {
+              proxy_pass http://localhost:3000;
+              proxy_http_version 1.1;
+              proxy_set_header Upgrade $http_upgrade;
+              proxy_set_header Connection 'upgrade';
+              proxy_set_header Host $host;
+              proxy_cache_bypass $http_upgrade;
+              proxy_set_header X-Real-IP $remote_addr;
+              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto $scheme;
+          }
+      }
+
+# Configure automatic reboots if required
+power_state:
+  mode: reboot
+  condition: True
