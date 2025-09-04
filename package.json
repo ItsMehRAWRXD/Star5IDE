@@ -34,7 +34,17 @@
     "rebuild": "./scripts/destroy-and-rebuild.sh",
     "health": "./scripts/health-check.sh",
     "backup": "./scripts/backup.sh",
-    "ssl": "./scripts/setup-ssl.sh"
+    "ssl": "./scripts/setup-ssl.sh",
+    "validate": "./scripts/validate.sh",
+    "validate:secrets": "git secrets --scan",
+    "validate:yaml": "yamllint -d relaxed .",
+    "validate:shell": "shellcheck *.sh scripts/*.sh",
+    "prepare": "husky install",
+    "pre-commit": "npm run validate"
+  },
+  "devDependencies": {
+    "husky": "^8.0.3",
+    "prettier": "^3.0.0"
   },
   "engines": {
     "node": ">=16.0.0"
