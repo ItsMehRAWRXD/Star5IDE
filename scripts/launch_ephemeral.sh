@@ -56,6 +56,17 @@ fi
 AGENT_SOCK="/tmp/ssh-agent.$$"
 eval "$(ssh-agent -a "$AGENT_SOCK" -s)" >/dev/null
 
+# ────────────────────── Aggressive agent killer ─────────────────────────────
+# If any *other* ssh-agent is running under this UID, kill it immediately so
+#   we don’t leak additional sockets or private keys that might have been
+#   inherited from interrupted runs.  "His toes get stepped on → they get 86’d".
+if command -v pgrep &>/dev/null; then
+  while IFS= read -r other; do
+    [[ $other == $SSH_AGENT_PID ]] && continue  # skip the one we just spawned
+    kill "$other" 2>/dev/null || true
+  done < <(pgrep -u "$(id -u)" ssh-agent || true)
+fi
+
 # ─────────────────────────────── Clean-up Handler ────────────────────────────
 cleanup() {
   echo "🧹  Cleaning up…"
