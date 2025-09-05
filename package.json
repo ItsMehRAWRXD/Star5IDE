@@ -12,6 +12,11 @@
         "command": "hello.sayHello",
         "title": "Hello: Say Hello"
       }
+      ,
+      {
+        "command": "carmilla.generateAndEncryptStub",
+        "title": "Carmilla: Generate + Encrypt Stub"
+      }
     ]
   },
   "scripts": {

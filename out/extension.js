@@ -37,10 +37,37 @@ exports.activate = activate;
 exports.deactivate = deactivate;
 const vscode = __importStar(require("vscode"));
 function activate(context) {
-    const disposable = vscode.commands.registerCommand('hello.sayHello', () => {
+    const helloCmd = vscode.commands.registerCommand('hello.sayHello', () => {
         vscode.window.showInformationMessage('Hello from your extension!');
     });
-    context.subscriptions.push(disposable);
+    const genEncStubCmd = vscode.commands.registerCommand('carmilla.generateAndEncryptStub', async () => {
+        try {
+            const language = await vscode.window.showQuickPick(['node', 'python', 'ruby', 'text'], { placeHolder: 'Select stub language' });
+            if (!language)
+                return;
+            const uri = await vscode.window.showSaveDialog({ saveLabel: 'Save stub before encrypting' });
+            if (!uri)
+                return;
+            const passphrase = await vscode.window.showInputBox({ prompt: 'Enter passphrase for encryption', password: true });
+            if (!passphrase)
+                return;
+            const mod = await Promise.resolve().then(() => __importStar(require('./utils/stubGenerator')));
+            const packaged = await mod.writeAndEncryptStub(uri.fsPath, language, passphrase, { createdBy: 'VSCodeCmd' });
+            // Offer to save the packaged data alongside (optional)
+            const savePkg = await vscode.window.showQuickPick(['Yes', 'No'], { placeHolder: 'Save packaged (.pkg.b64) alongside stub?' });
+            if (savePkg === 'Yes') {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const B = globalThis.Buffer || require('buffer').Buffer;
+                const pkgUri = uri.with({ path: uri.path + '.pkg.b64' });
+                await vscode.workspace.fs.writeFile(pkgUri, B.from(packaged, 'utf-8'));
+            }
+            vscode.window.showInformationMessage('Stub generated and encrypted successfully.');
+        }
+        catch (e) {
+            vscode.window.showErrorMessage(`Failed to generate/encrypt stub: ${e?.message ?? e}`);
+        }
+    });
+    context.subscriptions.push(helloCmd, genEncStubCmd);
 }
 function deactivate() { }
 //# sourceMappingURL=extension.js.map
