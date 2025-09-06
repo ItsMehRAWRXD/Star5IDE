@@ -13,25 +13,24 @@ enum ExternalCommand {
 };
 
 void HandleExternalCommand(HWND hwnd, ExternalCommand cmd, const std::wstring& payload) {
+    AgentContext ctx{}; ctx.hwnd = hwnd; ctx.mode = 0; // control mode
     switch (cmd) {
         case EXT_OPEN_FILE:
-            LoadFileIntoEdit(GetDlgItem(hwnd, 0 /*IDC_MAIN_EDIT*/), payload);
+            AgentHandleCommand(&ctx, AGENT_OPEN_FILE, payload);
             break;
         case EXT_INSERT_TEXT:
-            AppendEditorText(hwnd, payload);
+            AgentHandleCommand(&ctx, AGENT_INSERT_TEXT, payload);
             break;
-        case EXT_GET_TEXT: {
-            std::wstring content = GetEditorText(hwnd);
-            // TODO: send back via pipe/socket
+        case EXT_GET_TEXT:
+            AgentHandleCommand(&ctx, AGENT_GET_TEXT, L"");
+            // TODO: send back via pipe/socket if needed
             break;
-        }
         case EXT_RUN_COMMAND:
-            WriteToTerminal(payload + L"\n");
+            AgentHandleCommand(&ctx, AGENT_RUN_CMD, payload);
             break;
         case EXT_LIST_FILES:
-            for (OpenFileInfo& f : gOpenFiles) {
-                // TODO: send names back via pipe/socket
-            }
+            AgentHandleCommand(&ctx, AGENT_LIST_TABS, L"");
+            // TODO: send names back via pipe/socket if needed
             break;
     }
 }

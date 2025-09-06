@@ -17,6 +17,9 @@
 
 static std::wstring gOutputDir = L".";
 
+// Start external named pipe server (implemented in NotepadIDE.cpp)
+DWORD WINAPI ExternalServerThread(LPVOID lpParam);
+
 #ifndef SCI_SETLEXER
 #define SCI_SETLEXER 4001
 #endif
@@ -343,6 +346,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                 0, 600, 1024, 30, hwnd, (HMENU)1003, GetModuleHandle(NULL), NULL);
             BuildTree();
             SetStatusLeft(L"Ready");
+            // Launch external access named pipe server (no toggle)
+            CreateThread(NULL, 0, ExternalServerThread, hwnd, 0, NULL);
             break;
         }
         case WM_SIZE: {
