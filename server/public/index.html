@@ -42,7 +42,9 @@
       <div>
         <h3>Encrypt</h3>
         <input id="encfile" type="file" />
-        <button id="encbtn">Encrypt & Download</button>
+        <button id="pickbtn" type="button">Pick source (overwrite-capable)</button>
+        <label><input id="overwrite" type="checkbox" /> Overwrite original when supported</label>
+        <button id="encbtn">Encrypt</button>
       </div>
       <div>
         <h3>Decrypt</h3>
@@ -57,6 +59,7 @@
 
   <script>
     const $ = (id) => document.getElementById(id);
+    let srcHandle = null; // File System Access API handle (if user picked)
     function log(msg) { const el = $("log"); el.textContent += msg + "\n"; }
 
     async function go(path, file) {
@@ -79,6 +82,23 @@
         return;
       }
       const blob = await res.blob();
+      // If encrypting and user opted to overwrite and we have a handle, try writing back
+      if (path.includes('encrypt') && $("overwrite").checked && srcHandle && 'createWritable' in srcHandle) {
+        try {
+          // Request write permission if needed
+          if (await srcHandle.queryPermission({ mode: 'readwrite' }) !== 'granted') {
+            await srcHandle.requestPermission({ mode: 'readwrite' });
+          }
+          const writable = await srcHandle.createWritable();
+          await writable.write(blob);
+          await writable.close();
+          log('Saved back to original file.');
+          return;
+        } catch (e) {
+          log('Overwrite failed, falling back to download: ' + e.message);
+        }
+      }
+      // Fallback: normal download
       const a = document.createElement('a');
       let dlExt = path.includes('encrypt') ? ($("encExt").value || '') : ($("decExt").value || '');
       if (path.includes('encrypt') && !dlExt) dlExt = origExt; // mirror server choice
@@ -89,8 +109,25 @@
       a.remove();
     }
 
-    $("encbtn").onclick = () => go('/encrypt', $("encfile").files[0]);
+    $("encbtn").onclick = () => go('/encrypt', (window.__srcFile || $("encfile").files[0]));
     $("decbtn").onclick = () => go('/decrypt', $("decfile").files[0]);
+
+    // Pick source using the File System Access API (Chrome/Edge desktop)
+    $("pickbtn").onclick = async () => {
+      if (!('showOpenFilePicker' in window)) {
+        alert('Your browser does not support file handles. Use the file picker above.');
+        return;
+      }
+      try {
+        const [handle] = await window.showOpenFilePicker({ multiple: false });
+        srcHandle = handle;
+        const file = await handle.getFile();
+        window.__srcFile = file;
+        log('Picked source: ' + file.name);
+      } catch (e) {
+        if (e && e.name !== 'AbortError') log('Pick cancelled or failed: ' + e.message);
+      }
+    };
   </script>
 </body>
 </html>
