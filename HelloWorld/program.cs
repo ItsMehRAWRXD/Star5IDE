@@ -1,10 +1,11 @@
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Collections.Generic;
+using System.Security.Cryptography;
+using System.Diagnostics;
 
 class Program {
     static int Main(string[] args) {
@@ -17,14 +18,14 @@ class Program {
             var cmd = args[0].ToLowerInvariant();
             switch (cmd) {
                 case "encrypt":
-                    // encrypt <inputText> <passphrase>
+                    // encrypt <inputText> <passphrase> [--engine native|openssl]
                     RequireArgs(args, 3);
-                    Console.Write(EncryptBase64(args[1], args[2]));
+                    Console.Write(EncryptBase64(args[1], args[2], ParseEngine(args)));
                     return 0;
                 case "decrypt":
-                    // decrypt <encryptedBase64> <passphrase>
+                    // decrypt <encryptedBase64> <passphrase> [--engine native|openssl]
                     RequireArgs(args, 3);
-                    Console.Write(DecryptBase64(args[1], args[2]));
+                    Console.Write(DecryptBase64(args[1], args[2], ParseEngine(args)));
                     return 0;
                 case "repack":
                     // repack <encryptedBase64> [metaJson]
@@ -39,16 +40,16 @@ class Program {
                     Console.Write(Unpack(args[1]));
                     return 0;
                 case "stub-to":
-                    // stub-to <language> <targetFilePath> <passphrase>
+                    // stub-to <language> <targetFilePath> <passphrase> [--engine native|openssl]
                     RequireArgs(args, 4);
                     var stub = GenerateStub(args[1]);
-                    var enc = EncryptBase64(stub, args[3]);
+                    var enc = EncryptBase64(stub, args[3], ParseEngine(args));
                     var pkgJson = Repack(enc, JsonSerializer.Serialize(new { language = args[1], target = args[2] }));
                     File.WriteAllText(args[2], pkgJson, new UTF8Encoding(false));
                     Console.WriteLine("OK");
                     return 0;
                 case "package":
-                    // package <targetFilePath> <passphrase> [--text <text>] [--exts <.txt,.md>] [--root <dir>]
+                    // package <targetFilePath> <passphrase> [--text <text>] [--exts <.txt,.md>] [--root <dir>] [--engine native|openssl]
                     return PackageCommand(args.Skip(1).ToArray());
                 default:
                     Console.Error.WriteLine($"Unknown command: {cmd}");
