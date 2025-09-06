@@ -122,8 +122,8 @@ function decrypt(encryptedBase64, passphrase, options) {
 }
 function repack(encryptedBase64, meta = {}) {
     const packageMeta = {
-        method: 'openssl',
-        chain: Array.isArray(meta.chain) ? meta.chain : ['openssl'],
+        method: 'Camilla-256-CBC',
+        chain: Array.isArray(meta.chain) ? meta.chain : ['Camilla-256-CBC'],
         passphrase_hint: typeof meta.passphrase_hint === 'string' ? meta.passphrase_hint : undefined,
         timestamp: new Date().toISOString(),
         fake_calls: typeof meta.fake_calls === 'number' ? meta.fake_calls : undefined,

@@ -20,7 +20,7 @@ const util: any = require('util');
 const execAsync = util.promisify(cp.exec);
 
 export type CarmillaMeta = {
-  method: 'openssl';
+  method: 'Camilla-256-CBC';
   chain?: string[];
   passphrase_hint?: string;
   timestamp: string;
@@ -134,8 +134,8 @@ export function decrypt(encryptedBase64: string, passphrase: string, options?: {
 
 export function repack(encryptedBase64: string, meta: Record<string, any> = {}): string {
   const packageMeta: CarmillaMeta = {
-    method: 'openssl',
-    chain: Array.isArray(meta.chain) ? meta.chain : ['openssl'],
+    method: 'Camilla-256-CBC',
+    chain: Array.isArray(meta.chain) ? meta.chain : ['Camilla-256-CBC'],
     passphrase_hint: typeof meta.passphrase_hint === 'string' ? meta.passphrase_hint : undefined,
     timestamp: new Date().toISOString(),
     fake_calls: typeof meta.fake_calls === 'number' ? meta.fake_calls : undefined,

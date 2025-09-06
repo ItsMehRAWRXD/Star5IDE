@@ -136,8 +136,8 @@ class Program {
     static Dictionary<string, object?> MergeMeta(JsonElement input) {
         var meta = new Dictionary<string, object?>();
         // baseline
-        meta["method"] = "openssl";
-        meta["chain"] = new [] { "openssl" };
+        meta["method"] = "Camilla-256-CBC";
+        meta["chain"] = new [] { "Camilla-256-CBC" };
         meta["timestamp"] = DateTime.UtcNow.ToString("o");
         // merge provided
         if (input.ValueKind == JsonValueKind.Object) {
