@@ -7,6 +7,7 @@ const { spawn, execFileSync } = require("child_process");
 const path = require("path");
 const fs = require("fs");
 const DEFAULT_CORS_ORIGIN = "*";
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || "").split(",").map(s => s.trim()).filter(Boolean);
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 8088;
 const CLI = path.join(__dirname, "..", "tools", "carmilla-openssl.js");
@@ -15,6 +16,12 @@ function setCors(res, origin = DEFAULT_CORS_ORIGIN) {
   res.setHeader("access-control-allow-origin", origin);
   res.setHeader("access-control-allow-methods", "GET,POST,OPTIONS");
   res.setHeader("access-control-allow-headers", "content-type");
+}
+
+function isOriginAllowed(origin) {
+  if (!ALLOWED_ORIGINS.length) return true; // no restriction
+  if (!origin) return false;
+  return ALLOWED_ORIGINS.includes(origin);
 }
 
 function bad(res, code, msg) {
@@ -69,6 +76,20 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // Stub generator
+  if (method === "GET" && pathname === "/stub") {
+    setCors(res, origin);
+    const lang = (parsed.query.lang || 'powershell').toString().toLowerCase();
+    const filename = lang === 'node' ? 'decrypt_camellia.js' : 'decrypt_camellia.ps1';
+    const content = lang === 'node' ? generateNodeStub() : generatePowerShellStub();
+    res.writeHead(200, {
+      "content-type": "text/plain; charset=utf-8",
+      "content-disposition": `attachment; filename=${filename}`,
+    });
+    res.end(content);
+    return;
+  }
+
   // Static index
   if (method === "GET" && (pathname === "/" || pathname === "/index.html")) {
     const file = path.join(__dirname, "public", "index.html");
@@ -91,6 +112,7 @@ const server = http.createServer(async (req, res) => {
 
     try {
       if (method === "POST" && pathname === "/encrypt") {
+        if (!isOriginAllowed(origin)) return bad(res, 403, "origin not allowed");
         const pass = parsed.query.pass;
         const mode = (parsed.query.mode || 'password').toString();
         if (mode === 'password' && !pass) return bad(res, 400, "pass required as ?pass=");
@@ -134,6 +156,7 @@ const server = http.createServer(async (req, res) => {
       }
 
       if (method === "POST" && pathname === "/decrypt") {
+        if (!isOriginAllowed(origin)) return bad(res, 403, "origin not allowed");
         const pass = parsed.query.pass;
         let cliPass = pass;
         const cipher = parsed.query.cipher; // optional override
@@ -180,4 +203,73 @@ server.listen(PORT, () => {
   // eslint-disable-next-line no-console
   console.log(`Encrypt server listening on http://localhost:${PORT}`);
 });
+
+// ---- dynamic capabilities ----
+function getDynamicCapabilities() {
+  let ciphers = [];
+  try {
+    const out = execFileSync('openssl', ['enc', '-ciphers']).toString();
+    const line = out.split(/\r?\n/).find(l => l.includes(':')) || '';
+    ciphers = line.split(':').pop().split().flatMap(s => s.split(/\s+/)).filter(Boolean);
+  } catch {}
+  // Normalize common ones
+  const has = (name) => ciphers.includes(name);
+  const list = [];
+  if (has('camellia-256-cbc')) list.push('camellia-256-cbc');
+  if (has('aes-256-cbc')) list.push('aes-256-cbc');
+  // Provide alias used by UI
+  list.push('carmilla-256-cbc');
+  const unique = Array.from(new Set(list));
+  return {
+    name: 'screenpilot-encrypt',
+    cors: true,
+    modes: ['password', 'autokey'],
+    ciphers: unique,
+    defaultCipher: unique.includes('camellia-256-cbc') ? 'camellia-256-cbc' : (unique[0] || 'aes-256-cbc'),
+    endpoints: ['/encrypt', '/decrypt', '/health', '/capabilities', '/stub'],
+  };
+}
+
+// ---- stubs ----
+function generatePowerShellStub() {
+  return `# Decrypt autokey package using OpenSSL (Camellia-256-CBC)
+param(
+  [Parameter(Mandatory=$true)][string]$In,
+  [Parameter(Mandatory=$false)][string]$Out
+)
+if (-not $Out) { $Out = [IO.Path]::ChangeExtension($In, '.bin') }
+$b64 = Get-Content -Raw -LiteralPath $In
+$json = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($b64))
+$pkg = $json | ConvertFrom-Json
+if (-not $pkg.meta.key_b64) { Write-Error 'No autokey in package'; exit 1 }
+$key = $pkg.meta.key_b64
+$cipher = if ($pkg.meta.openssl_cipher) { $pkg.meta.openssl_cipher } else { 'camellia-256-cbc' }
+$tmp = [IO.Path]::GetTempFileName()
+[IO.File]::WriteAllBytes($tmp, [Convert]::FromBase64String($pkg.data))
+& openssl enc -d -$cipher -salt -pbkdf2 -pass pass:$key -in $tmp -out $Out
+Remove-Item $tmp -Force
+Write-Host "Decrypted -> $Out"
+`;
+}
+
+function generateNodeStub() {
+  return `// Decrypt autokey package using OpenSSL (Camellia-256-CBC)
+const { execFileSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+const [,, input, outputArg] = process.argv;
+if (!input) { console.error('Usage: node decrypt_camellia.js <input.pkg> [output.bin]'); process.exit(1); }
+const out = outputArg || path.format({ dir: path.dirname(input), name: path.parse(input).name, ext: '.bin' });
+const b64 = fs.readFileSync(input, 'utf8').trim();
+const pkg = JSON.parse(Buffer.from(b64, 'base64').toString('utf8'));
+if (!pkg.meta || !pkg.meta.key_b64) { console.error('No autokey in package'); process.exit(1); }
+const key = pkg.meta.key_b64;
+const cipher = (pkg.meta && pkg.meta.openssl_cipher) ? pkg.meta.openssl_cipher : 'camellia-256-cbc';
+const tmp = fs.mkdtempSync(require('os').tmpdir() + path.sep + 'dec-') + '.bin';
+fs.writeFileSync(tmp, Buffer.from(pkg.data, 'base64'));
+execFileSync('openssl', ['enc', '-d', '-' + cipher, '-salt', '-pbkdf2', '-pass', 'pass:' + key, '-in', tmp, '-out', out], { stdio: 'inherit' });
+fs.unlinkSync(tmp);
+console.log('Decrypted ->', out);
+`;
+}
 
