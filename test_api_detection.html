@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Detection Test</title>
+</head>
+<body>
+    <h1>API Detection Test</h1>
+    <div id="result"></div>
+    
+    <script>
+        const apiBase = new URLSearchParams(location.search).get('api') || `${location.protocol}//${location.host}`;
+        document.getElementById('result').innerHTML = `
+            <p><strong>Current URL:</strong> ${location.href}</p>
+            <p><strong>Detected API Base:</strong> ${apiBase}</p>
+            <p><strong>Protocol:</strong> ${location.protocol}</p>
+            <p><strong>Host:</strong> ${location.host}</p>
+        `;
+    </script>
+</body>
+</html>
