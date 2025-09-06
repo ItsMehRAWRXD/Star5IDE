@@ -1,0 +1,47 @@
+#cloud-config
+timezone: America/New_York
+package_update: true
+package_upgrade: true
+
+users:
+  - default
+
+packages:
+  - ufw
+  - fail2ban
+  - curl
+  - debian-keyring
+  - debian-archive-keyring
+  - apt-transport-https
+
+write_files:
+  - path: /var/www/index.html
+    permissions: '0644'
+    content: |
+      <!doctype html>
+      <html><head><meta charset="utf-8"/><title>ScreenPilot</title></head>
+      <body><h1>ScreenPilot</h1><p>Landing page is live.</p></body></html>
+  - path: /etc/caddy/Caddyfile
+    permissions: '0644'
+    content: |
+      screenpilot.dev, www.screenpilot.dev {
+        encode gzip
+        root * /var/www
+        file_server browse
+      }
+
+runcmd:
+  - ufw allow OpenSSH
+  - ufw allow 80
+  - ufw allow 443
+  - ufw --force enable
+  - |
+      curl -1sLf "https://dl.cloudsmith.io/public/caddy/stable/gpg.key" | gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+  - |
+      curl -1sLf "https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt" | tee /etc/apt/sources.list.d/caddy-stable.list
+  - apt-get update -y
+  - apt-get install -y caddy
+  - systemctl enable --now caddy
+  - systemctl reload caddy || true
+  - echo "✅ static caddy online" | systemd-cat -t cloud-init
+
