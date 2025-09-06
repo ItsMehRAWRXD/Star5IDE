@@ -24,7 +24,6 @@ export type CarmillaMeta = {
   chain?: string[];
   passphrase_hint?: string;
   timestamp: string;
-  fake_calls?: number;
   [key: string]: any;
 };
 
@@ -47,26 +46,7 @@ function safeRmdir(dirPath?: string): void {
   try { fs.rmdirSync(dirPath); } catch { /* ignore */ }
 }
 
-function runFakeCallsSync(times: number): void {
-  for (let i = 0; i < times; i += 1) {
-    try {
-      // Cheap decoy: generate random data or run a no-op enc that discards output
-      cp.execSync('openssl rand -base64 32', { stdio: 'ignore' });
-    } catch {
-      // ignore any failures; these are decoys
-    }
-  }
-}
-
-async function runFakeCallsAsync(times: number): Promise<void> {
-  for (let i = 0; i < times; i += 1) {
-    try {
-      await execAsync('openssl rand -base64 32');
-    } catch {
-      // ignore
-    }
-  }
-}
+// decoy/fake-call logic removed
 
 // Core OpenSSL helpers (stdin/stdout, base64)
 function opensslEncryptBase64Sync(plainText: string, passphrase: string): string {
@@ -120,15 +100,11 @@ async function opensslDecryptRawAsync(encryptedBytes: any, passphrase: string): 
 }
 
 // Public API — Sync
-export function encrypt(plainText: string, passphrase: string, options?: { decoyCalls?: number; meta?: Record<string, any> }): string {
-  const decoys = options?.decoyCalls ?? 0;
-  if (decoys > 0) runFakeCallsSync(decoys);
+export function encrypt(plainText: string, passphrase: string): string {
   return opensslEncryptBase64Sync(plainText, passphrase);
 }
 
-export function decrypt(encryptedBase64: string, passphrase: string, options?: { decoyCalls?: number }): string {
-  const decoys = options?.decoyCalls ?? 0;
-  if (decoys > 0) runFakeCallsSync(decoys);
+export function decrypt(encryptedBase64: string, passphrase: string): string {
   return opensslDecryptBase64Sync(encryptedBase64, passphrase);
 }
 
@@ -138,7 +114,6 @@ export function repack(encryptedBase64: string, meta: Record<string, any> = {}):
     chain: Array.isArray(meta.chain) ? meta.chain : ['Camilla-256-CBC'],
     passphrase_hint: typeof meta.passphrase_hint === 'string' ? meta.passphrase_hint : undefined,
     timestamp: new Date().toISOString(),
-    fake_calls: typeof meta.fake_calls === 'number' ? meta.fake_calls : undefined,
     ...meta,
   };
   const pkg: CarmillaPackage = { meta: packageMeta, data: encryptedBase64 };
@@ -152,15 +127,11 @@ export function unpack(packagedBase64: string): CarmillaPackage {
 }
 
 // Public API — Async (non-blocking)
-export async function encryptAsync(plainText: string, passphrase: string, options?: { decoyCalls?: number; meta?: Record<string, any> }): Promise<string> {
-  const decoys = options?.decoyCalls ?? 0;
-  if (decoys > 0) await runFakeCallsAsync(decoys);
+export async function encryptAsync(plainText: string, passphrase: string): Promise<string> {
   return opensslEncryptBase64Async(plainText, passphrase);
 }
 
-export async function decryptAsync(encryptedBase64: string, passphrase: string, options?: { decoyCalls?: number }): Promise<string> {
-  const decoys = options?.decoyCalls ?? 0;
-  if (decoys > 0) await runFakeCallsAsync(decoys);
+export async function decryptAsync(encryptedBase64: string, passphrase: string): Promise<string> {
   return opensslDecryptBase64Async(encryptedBase64, passphrase);
 }
 
@@ -175,11 +146,10 @@ export async function writeEncryptedToFile(
   targetFilePath: string,
   plainText: string,
   passphrase: string,
-  options?: { outputMode?: OutputMode; decoyCalls?: number }
+  options?: { outputMode?: OutputMode }
 ): Promise<void> {
   const mode = options?.outputMode ?? 'match';
   const effective: OutputMode = mode === 'match' ? (isBinaryPath(targetFilePath) ? 'binary' : 'text') : mode;
-  if ((options?.decoyCalls ?? 0) > 0) await runFakeCallsAsync(options!.decoyCalls!);
   if (effective === 'binary') {
     const buf = await opensslEncryptRawAsync(plainText, passphrase);
     await fs.promises.writeFile(targetFilePath, buf);

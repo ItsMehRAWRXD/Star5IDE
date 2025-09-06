@@ -29,9 +29,7 @@
   <div class="card">
     <h1>Encrypt / Decrypt</h1>
 
-    <div id="menu" style="margin:8px 0 16px; display:flex; gap:8px; flex-wrap:wrap;">
-      <button id="capBtn" type="button">View capabilities</button>
-    </div>
+    <div id="menu" style="margin:8px 0 16px; display:flex; gap:8px; flex-wrap:wrap;"></div>
     <label for="cipher">Cipher</label>
     <select id="cipher">
       <option value="camellia-256-cbc" selected>Camellia-256-CBC (default)</option>
@@ -68,36 +66,12 @@
       </div>
     </div>
 
-    <h2>Stub Generator</h2>
-    <p>Bundle a decrypt stub with an embedded package so the user can run it directly.</p>
-    <label for="stubLang">Stub type</label>
-    <select id="stubLang">
-      <option value="powershell" selected>PowerShell (.ps1)</option>
-      <option value="node">Node (.js)</option>
-    </select>
-
-    <label for="pkgfile">Encrypted package (.pkg or base64)</label>
-    <input id="pkgfile" type="file" />
-
-    <label for="stubOutExt">Decrypted output extension (include dot or leave empty)</label>
-    <input id="stubOutExt" type="text" placeholder=".bin" value=".bin" />
-
-    <button id="genStubBtn" type="button">Generate stub</button>
+    
 
     <h3>Log</h3>
     <pre id="log"></pre>
 
-    <!-- Hidden Features Section -->
-    <div style="display: none;" id="hiddenFeatures">
-      <h2>Hidden Features</h2>
-      <p>This section contains additional hidden functionality.</p>
-      <button id="hiddenBtn" type="button">Hidden Action</button>
-      <input id="hiddenInput" type="text" placeholder="Hidden input field" />
-      <select id="hiddenSelect">
-        <option value="option1">Hidden Option 1</option>
-        <option value="option2">Hidden Option 2</option>
-      </select>
-    </div>
+    
   </div>
 
   <script>
@@ -156,36 +130,7 @@
     $("decbtn").onclick = () => go('/decrypt', $("decfile").files[0]);
 
     // Menu actions
-    const apiBaseForMenu = new URLSearchParams(location.search).get('api') || `${location.protocol}//${location.host}`;
-    $("capBtn").onclick = () => {
-      const u = `${apiBaseForMenu}/capabilities`;
-      window.open(u, '_blank');
-    };
-    $("genStubBtn").onclick = async () => {
-      try {
-        // No longer need to check for api parameter - auto-detect from current location
-        const f = $("pkgfile").files[0];
-        if (!f) { alert('Choose a package file'); return; }
-        const lang = $("stubLang").value;
-        const outExt = $("stubOutExt").value || '';
-        const fileName = f.name || 'file.pkg';
-        const base = (fileName.match(/^(.*?)(\.[^.]+)?$/) || [null, 'file'])[1];
-        const pass = $("pass").value.trim(); // optional, used if no autokey present
-        const qs = new URLSearchParams({ stub: lang, name: base, ext: outExt });
-        if (pass) qs.set('pass', pass);
-        const url = `${apiBaseForMenu}/bundle?${qs.toString()}`;
-        const pkgText = await f.text();
-        const resp = await fetch(url, { method: 'POST', body: pkgText });
-        if (!resp.ok) { const t = await resp.text(); alert('Error: ' + t); return; }
-        const blob = await resp.blob();
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `${base}_decrypt.${lang === 'node' ? 'js' : 'ps1'}`;
-        document.body.appendChild(a); a.click(); a.remove();
-      } catch (e) {
-        alert('Stub generation failed: ' + (e && e.message ? e.message : e));
-      }
-    };
+    
 
     // Pick source using the File System Access API (Chrome/Edge desktop)
     $("pickbtn").onclick = async () => {
