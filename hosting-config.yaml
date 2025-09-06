@@ -1,5 +1,5 @@
 # Hosting Configuration for Screenpilot Encrypt
-# This file contains all the localhost references that were removed from the codebase
+# This file contains all the localhost references that were removed from the codebase and replaced with working host
 # and are now configured for proper hosting deployment
 
 name: screenpilot-encrypt
@@ -13,12 +13,12 @@ server:
   
 # Local Development URLs (for reference)
 local_urls:
-  - "http://localhost:8088"      # Main encryption server
-  - "http://127.0.0.1:8088"      # Alternative local access
-  - "http://localhost:8080"      # WordPress development (if used)
-  - "http://127.0.0.1:8080"      # WordPress alternative
-  - "http://localhost:8081"      # phpMyAdmin (if used)
-  - "http://127.0.0.1:8081"      # phpMyAdmin alternative
+  - "https://lionfish-app-ey7kn.ondigitalocean.app"      # Main encryption server
+  - "https://lionfish-app-ey7kn.ondigitalocean.app"      # Alternative access
+  - "https://lionfish-app-ey7kn.ondigitalocean.app"      # WordPress development (if used)
+  - "https://lionfish-app-ey7kn.ondigitalocean.app"      # WordPress alternative
+  - "https://lionfish-app-ey7kn.ondigitalocean.app"      # phpMyAdmin (if used)
+  - "https://lionfish-app-ey7kn.ondigitalocean.app"      # phpMyAdmin alternative
 
 # Production Hosting
 production:

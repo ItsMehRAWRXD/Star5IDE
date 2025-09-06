@@ -9,7 +9,7 @@ WP_DB_NAME=star5ide
 WP_DB_USER=star5ide
 WP_DB_PASSWORD=supersecret
 WP_TABLE_PREFIX=wp_
-WP_URL=http://127.0.0.1:8080
+WP_URL=https://lionfish-app-ey7kn.ondigitalocean.app
 '@; New-Item -ItemType Directory -Force -Path wordpress ^| Out-Null; Set-Content -Path wordpress\.env -Value $c -Encoding UTF8"
 
 REM -- wp-cli.yml
