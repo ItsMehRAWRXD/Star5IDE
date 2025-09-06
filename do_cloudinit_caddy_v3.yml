@@ -1,0 +1,73 @@
+#cloud-config
+timezone: America/New_York
+package_update: true
+package_upgrade: true
+
+users:
+  - default
+  - name: rawr
+    groups: [sudo]
+    shell: /bin/bash
+    sudo: ALL=(ALL) NOPASSWD:ALL
+
+packages:
+  - ufw
+  - fail2ban
+  - git
+  - curl
+  - nodejs
+  - npm
+  - debian-keyring
+  - debian-archive-keyring
+  - apt-transport-https
+
+write_files:
+  - path: /etc/systemd/system/encryptor.service
+    permissions: '0644'
+    content: |
+      [Unit]
+      Description=Star5IDE Encrypt Server
+      Wants=network-online.target
+      After=network-online.target
+
+      [Service]
+      WorkingDirectory=/opt/star5ide
+      Environment=PORT=8088
+      ExecStart=/usr/bin/env node /opt/star5ide/server/encrypt_server.js
+      Restart=always
+      RestartSec=3
+      User=root
+
+      [Install]
+      WantedBy=multi-user.target
+
+runcmd:
+  - ufw allow OpenSSH
+  - ufw allow 80
+  - ufw allow 443
+  - ufw --force enable
+  - mkdir -p /opt/star5ide
+  - git clone https://github.com/ItsMehRAWRXD/Star5IDE.git /opt/star5ide || (cd /opt/star5ide && git pull)
+  - |
+      if ! command -v node >/dev/null 2>&1; then
+        if command -v nodejs >/dev/null 2>&1; then ln -sf "$(command -v nodejs)" /usr/bin/node; fi
+      fi
+  - systemctl daemon-reload
+  - systemctl enable --now encryptor
+  - |
+      curl -1sLf "https://dl.cloudsmith.io/public/caddy/stable/gpg.key" | gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+  - |
+      curl -1sLf "https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt" | tee /etc/apt/sources.list.d/caddy-stable.list
+  - apt-get update -y
+  - apt-get install -y caddy
+  - |
+      cat > /etc/caddy/Caddyfile <<'EOF'
+      screenpilot.dev, www.screenpilot.dev {
+        encode gzip
+        reverse_proxy 127.0.0.1:8088
+      }
+      EOF
+  - systemctl enable --now caddy
+  - systemctl reload caddy || true
+  - echo "✅ caddy (official) + encryptor online (v3)" | systemd-cat -t cloud-init
+
