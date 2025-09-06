@@ -32,6 +32,19 @@
     <label for="pass">Passphrase (ignored in autokey)</label>
     <input id="pass" type="password" placeholder="Enter passphrase" />
 
+    <label for="encExt">Encrypted extension</label>
+    <select id="encExt">
+      <option value=".pkg" selected>.pkg</option>
+      <option value=".enc">.enc</option>
+      <option value=".cml">.cml</option>
+    </select>
+
+    <label for="decExt">Decrypted extension</label>
+    <select id="decExt">
+      <option value=".bin" selected>.bin</option>
+      <option value="">(no extension)</option>
+    </select>
+
     <div class="row">
       <div>
         <h3>Encrypt</h3>
@@ -69,7 +82,7 @@
       }
       const blob = await res.blob();
       const a = document.createElement('a');
-      const ext = path.includes('encrypt') ? '.pkg' : '.bin';
+      const ext = path.includes('encrypt') ? ($("encExt").value || '.pkg') : ($("decExt").value || '.bin');
       a.href = URL.createObjectURL(blob);
       a.download = (file.name || 'file') + ext;
       document.body.appendChild(a);
