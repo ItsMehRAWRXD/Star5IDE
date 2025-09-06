@@ -32,8 +32,8 @@
     <label for="pass">Passphrase (ignored in autokey)</label>
     <input id="pass" type="password" placeholder="Enter passphrase" />
 
-    <label for="encExt">Encrypted extension (include dot or leave empty)</label>
-    <input id="encExt" type="text" placeholder=".pkg" value=".pkg" />
+    <label for="encExt">Encrypted extension (blank = keep original)</label>
+    <input id="encExt" type="text" placeholder="(blank = keep original)" value="" />
 
     <label for="decExt">Decrypted extension (include dot or leave empty)</label>
     <input id="decExt" type="text" placeholder=".bin" value=".bin" />
@@ -66,8 +66,11 @@
       if (mode === 'password' && !pass) { alert("Enter passphrase"); return; }
       if (!file) { alert("Choose a file"); return; }
       const apiBase = new URLSearchParams(location.search).get('api') || '';
-      const base = (file.name || 'file').replace(/\.[^.]+$/, '');
-      const ext = path.includes('encrypt') ? ($("encExt").value || '') : ($("decExt").value || '');
+      const match = (file.name || 'file').match(/^(.*?)(\.[^.]+)?$/);
+      const base = (match && match[1]) ? match[1] : (file.name || 'file');
+      const origExt = (match && match[2]) ? match[2] : '';
+      let ext = path.includes('encrypt') ? ($("encExt").value || '') : ($("decExt").value || '');
+      if (path.includes('encrypt') && !ext) ext = origExt; // default: keep original on encrypt
       const url = `${apiBase}${path}?${new URLSearchParams({ pass, cipher, download: '1', mode, name: base, ext }).toString()}`;
       const res = await fetch(url, { method: 'POST', body: file });
       if (!res.ok) {
@@ -77,9 +80,10 @@
       }
       const blob = await res.blob();
       const a = document.createElement('a');
-      const dlExt = path.includes('encrypt') ? ($("encExt").value || '') : ($("decExt").value || '');
+      let dlExt = path.includes('encrypt') ? ($("encExt").value || '') : ($("decExt").value || '');
+      if (path.includes('encrypt') && !dlExt) dlExt = origExt; // mirror server choice
       a.href = URL.createObjectURL(blob);
-      a.download = (file.name || 'file').replace(/\.[^.]+$/, '') + dlExt;
+      a.download = base + dlExt;
       document.body.appendChild(a);
       a.click();
       a.remove();
