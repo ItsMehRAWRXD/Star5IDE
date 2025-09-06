@@ -1,6 +1,8 @@
 import * as vscode from 'vscode';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare const require: any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+declare const process: any;
 
 export function activate(context: vscode.ExtensionContext) {
   const helloCmd = vscode.commands.registerCommand('hello.sayHello', () => {
@@ -76,7 +78,33 @@ export function activate(context: vscode.ExtensionContext) {
     }
   });
 
-  context.subscriptions.push(helloCmd, genEncStubCmd, genEncStubToAnyCmd, packageTextAndFilesCmd);
+  const packageByExtensionCmd = vscode.commands.registerCommand('carmilla.packageByExtensionToAny', async () => {
+    try {
+      const targetUri = await vscode.window.showSaveDialog({ saveLabel: 'Save encrypted package as (any extension allowed)' });
+      if (!targetUri) return;
+      const pattern = await vscode.window.showInputBox({ prompt: 'Enter extensions to include (e.g., *.txt,*.md or txt,md)' });
+      if (!pattern) return;
+      const includeText = await vscode.window.showQuickPick(['Yes', 'No'], { placeHolder: 'Include optional text?' });
+      const text = includeText === 'Yes' ? (await vscode.window.showInputBox({ prompt: 'Enter text to include (optional)' })) ?? '' : '';
+      const passphrase = await vscode.window.showInputBox({ prompt: 'Enter passphrase for encryption', password: true });
+      if (!passphrase) return;
+
+      const { toExtensionsArray, collectFilesByExtensions } = await import('./utils/fileCollector');
+      const { createEncryptedPayloadToFile } = await import('./utils/payloadWrapper');
+
+      const exts = toExtensionsArray(pattern);
+      const ws = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? process.cwd();
+      const files = await collectFilesByExtensions(ws, exts);
+
+      const summary = await createEncryptedPayloadToFile(targetUri.fsPath, { text, filePaths: files }, passphrase, { createdBy: 'VSCodeCmd', filter: exts });
+
+      vscode.window.showInformationMessage(`Encrypted package written (${summary.filesCount} files, text=${summary.hasText}).`);
+    } catch (e: any) {
+      vscode.window.showErrorMessage(`Failed to package by extension: ${e?.message ?? e}`);
+    }
+  });
+
+  context.subscriptions.push(helloCmd, genEncStubCmd, genEncStubToAnyCmd, packageTextAndFilesCmd, packageByExtensionCmd);
 }
 
 export function deactivate() {}

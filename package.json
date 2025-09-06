@@ -27,6 +27,11 @@
         "command": "carmilla.packageTextAndFilesToAny",
         "title": "Carmilla: Package Text & Files To Any File"
       }
+      ,
+      {
+        "command": "carmilla.packageByExtensionToAny",
+        "title": "Carmilla: Package *.extension Type + Files To Any File"
+      }
     ]
   },
   "scripts": {
