@@ -60,6 +60,23 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // Capabilities (what the server supports)
+  if (method === "GET" && pathname === "/capabilities") {
+    setCors(res, origin);
+    res.writeHead(200, { "content-type": "application/json" });
+    res.end(
+      JSON.stringify({
+        name: "screenpilot-encrypt",
+        cors: true,
+        modes: ["password", "autokey"],
+        ciphers: ["camellia-256-cbc", "carmilla-256-cbc"],
+        defaultCipher: "camellia-256-cbc",
+        endpoints: ["/encrypt", "/decrypt", "/health", "/capabilities"],
+      })
+    );
+    return;
+  }
+
   // Static index
   if (method === "GET" && (pathname === "/" || pathname === "/index.html")) {
     const file = path.join(__dirname, "public", "index.html");
