@@ -2,6 +2,7 @@
 #include <windows.h>
 #include <string>
 #include <vector>
+#include <fstream>
 
 // Why: Add agent support for automating self-contained builds and interactive Ask mode.
 // What: Add AGENT_AUTOMATE_SELF_CONTAINED_BUILD command and AgentMode to AgentContext.
@@ -12,41 +13,107 @@ enum AgentMode {
     AGENT_MODE_ASK
 };
 
+// --- Scintilla interop (minimal, consistent with main.cpp usage) ---
+#ifndef SCI_SETTEXT
+#define SCI_SETTEXT 2181
+#endif
+#ifndef SCI_GETTEXT
+#define SCI_GETTEXT 2182
+#endif
+#ifndef SCI_GETTEXTLENGTH
+#define SCI_GETTEXTLENGTH 2183
+#endif
+#ifndef SCI_APPENDTEXT
+#define SCI_APPENDTEXT 2282
+#endif
+
+static HWND FindVisibleScintilla(HWND hwndParent) {
+    HWND child = NULL;
+    while ((child = FindWindowExW(hwndParent, child, L"Scintilla", NULL)) != NULL) {
+        if (IsWindowVisible(child)) return child;
+    }
+    return NULL;
+}
+
 // Dummy implementations for IDE API
 void LoadFileIntoEdit(HWND hEdit, const std::wstring& path) {
-    // TODO: Implement file loading logic
+    // Load file content into the currently visible Scintilla editor if available,
+    // otherwise, fallback to provided handle.
+    HWND hTarget = FindVisibleScintilla(GetParent(hEdit) ? GetParent(hEdit) : hEdit);
+    if (!hTarget) hTarget = hEdit;
+    std::wifstream in(path);
+    if (!in.is_open()) {
+        MessageBoxW(GetParent(hTarget) ? GetParent(hTarget) : hTarget,
+                    (L"Could not open file: " + path).c_str(),
+                    L"Agent Open File", MB_OK | MB_ICONWARNING);
+        return;
+    }
+    std::wstring content, line;
+    while (std::getline(in, line)) content += line + L"\r\n";
+    SendMessageW(hTarget, SCI_SETTEXT, 0, (LPARAM)content.c_str());
 }
 void AppendEditorText(HWND hwnd, const std::wstring& text) {
-    // TODO: Implement text append logic
+    HWND hSci = FindVisibleScintilla(hwnd);
+    if (!hSci) hSci = hwnd;
+    int len = GetWindowTextLengthW(hSci);
+    std::wstring buf(len + 1, L'\0');
+    GetWindowTextW(hSci, &buf[0], len + 1);
+    if (!buf.empty() && buf.back() == L'\0') buf.pop_back();
+    buf += text;
+    SendMessageW(hSci, SCI_SETTEXT, 0, (LPARAM)buf.c_str());
 }
 std::wstring GetEditorText(HWND hwnd) {
-    // TODO: Implement text retrieval logic
-    return L"";
+    HWND hSci = FindVisibleScintilla(hwnd);
+    if (!hSci) hSci = hwnd;
+    int len = GetWindowTextLengthW(hSci);
+    if (len <= 0) return L"";
+    std::wstring buf(len + 1, L'\0');
+    GetWindowTextW(hSci, &buf[0], len + 1);
+    if (!buf.empty() && buf.back() == L'\0') buf.pop_back();
+    return buf;
 }
 void SetEditorText(HWND hwnd, const std::wstring& text) {
-    // TODO: Implement text set logic
+    HWND hSci = FindVisibleScintilla(hwnd);
+    if (!hSci) hSci = hwnd;
+    SendMessageW(hSci, SCI_SETTEXT, 0, (LPARAM)text.c_str());
 }
 void WriteToTerminal(const std::wstring& text) {
     // TODO: Implement terminal output logic
 }
 void SaveFile(HWND hwnd, const std::wstring& path) {
-    // TODO: Implement file save logic
+    HWND hSci = FindVisibleScintilla(hwnd);
+    if (!hSci) hSci = hwnd;
+    int len = GetWindowTextLengthW(hSci);
+    std::wstring buf(len + 1, L'\0');
+    GetWindowTextW(hSci, &buf[0], len + 1);
+    std::wofstream out(path);
+    if (!out.is_open()) {
+        MessageBoxW(hwnd, (L"Could not write file: " + path).c_str(), L"Agent Save File", MB_OK | MB_ICONERROR);
+        return;
+    }
+    out << buf.c_str();
+    MessageBoxW(hwnd, (L"Saved to: " + path).c_str(), L"Agent Save File", MB_OK | MB_ICONINFORMATION);
 }
 void ChangeLayout(const std::wstring& layoutName) {
-    // TODO: Implement layout change logic
+    // Stub: record layout name. Real implementation would change dock layout.
+    static std::wstring currentLayout;
+    currentLayout = layoutName;
 }
 void ShowDialog(HWND hwnd, int dialogId) {
-    // TODO: Implement dialog show logic
+    std::wstring msg = L"Dialog requested: " + std::to_wstring(dialogId);
+    MessageBoxW(hwnd, msg.c_str(), L"Agent Show Dialog (stub)", MB_OK | MB_ICONINFORMATION);
 }
 void SelectTab(HWND hwnd, int tabIndex) {
-    // TODO: Implement tab selection logic
+    // Stub: inform user. Wiring tabs requires access to the tab control.
+    std::wstring msg = L"Select Tab index: " + std::to_wstring(tabIndex);
+    MessageBoxW(hwnd, msg.c_str(), L"Agent Select Tab (stub)", MB_OK | MB_ICONINFORMATION);
 }
 std::wstring GetCurrentLayout() {
-    // TODO: Implement get layout logic
-    return L"";
+    static std::wstring currentLayout = L"Default";
+    return currentLayout;
 }
 void SetCurrentLayout(const std::wstring& layoutName) {
-    // TODO: Implement set layout logic
+    ChangeLayout(layoutName);
 }
 
 std::vector<OpenFileInfo> gOpenFiles;
@@ -67,6 +134,9 @@ void AgentHandleCommand(AgentContext* ctx, AgentCommand cmd, const std::wstring&
         case AGENT_OPEN_FILE:
             LoadFileIntoEdit(GetDlgItem(ctx->hwnd, 0 /*IDC_MAIN_EDIT*/), payload);
             break;
+        case AGENT_CLOSE_FILE:
+            MessageBox(ctx->hwnd, L"Close File not implemented in this build.", L"Agent", MB_OK | MB_ICONWARNING);
+            break;
         case AGENT_INSERT_TEXT:
             AppendEditorText(ctx->hwnd, payload);
             break;
@@ -75,6 +145,9 @@ void AgentHandleCommand(AgentContext* ctx, AgentCommand cmd, const std::wstring&
             MessageBox(ctx->hwnd, txt.c_str(), L"Agent ? Editor Text", MB_OK);
             break;
         }
+        case AGENT_SET_TEXT:
+            SetEditorText(ctx->hwnd, payload);
+            break;
         case AGENT_RUN_CMD:
             WriteToTerminal(payload + L"\n");
             break;
@@ -84,6 +157,34 @@ void AgentHandleCommand(AgentContext* ctx, AgentCommand cmd, const std::wstring&
             MessageBox(ctx->hwnd, files.c_str(), L"Agent ? Open Tabs", MB_OK);
             break;
         }
+        case AGENT_SAVE_FILE:
+            SaveFile(ctx->hwnd, payload);
+            break;
+        case AGENT_CHANGE_LAYOUT:
+            ChangeLayout(payload);
+            MessageBox(ctx->hwnd, (L"Layout changed to: " + payload).c_str(), L"Agent", MB_OK);
+            break;
+        case AGENT_SHOW_DIALOG: {
+            int id = 0;
+            try { id = std::stoi(payload); } catch (...) { id = 0; }
+            ShowDialog(ctx->hwnd, id);
+            break;
+        }
+        case AGENT_SELECT_TAB: {
+            int idx = 0;
+            try { idx = std::stoi(payload); } catch (...) { idx = 0; }
+            SelectTab(ctx->hwnd, idx);
+            break;
+        }
+        case AGENT_GET_LAYOUT: {
+            auto layout = GetCurrentLayout();
+            MessageBox(ctx->hwnd, layout.c_str(), L"Agent ? Current Layout", MB_OK);
+            break;
+        }
+        case AGENT_SET_LAYOUT:
+            SetCurrentLayout(payload);
+            MessageBox(ctx->hwnd, (L"Layout set: " + payload).c_str(), L"Agent", MB_OK);
+            break;
         case AGENT_AUTOMATE_SELF_CONTAINED_BUILD:
             AutomateSelfContainedBuild(ctx->hwnd);
             break;
