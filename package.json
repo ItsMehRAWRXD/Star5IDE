@@ -18,7 +18,11 @@
     "vscode:prepublish": "npm run build",
     "build": "tsc -p ./",
     "watch": "tsc -w -p ./",
-    "test": "echo \"(optional)\""
+    "test": "echo \"(optional)\"",
+    "start:api": "node ./out/src/api/encryptionServer.js"
+  },
+  "bin": {
+    "carmilla": "./out/src/cli/carmilla.js"
   },
   "devDependencies": {
     "@types/vscode": "^1.85.0",
