@@ -6,11 +6,19 @@ const url = require("url");
 const { spawn } = require("child_process");
 const path = require("path");
 const fs = require("fs");
+const DEFAULT_CORS_ORIGIN = "*";
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 8088;
 const CLI = path.join(__dirname, "..", "tools", "carmilla-openssl.js");
 
+function setCors(res, origin = DEFAULT_CORS_ORIGIN) {
+  res.setHeader("access-control-allow-origin", origin);
+  res.setHeader("access-control-allow-methods", "GET,POST,OPTIONS");
+  res.setHeader("access-control-allow-headers", "content-type");
+}
+
 function bad(res, code, msg) {
+  setCors(res);
   res.writeHead(code, { "content-type": "application/json" });
   res.end(JSON.stringify({ error: msg }));
 }
@@ -35,9 +43,18 @@ const server = http.createServer(async (req, res) => {
   const { method } = req;
   const parsed = url.parse(req.url, true);
   const pathname = parsed.pathname || "/";
+  const origin = req.headers["origin"] || DEFAULT_CORS_ORIGIN;
+
+  // CORS preflight
+  if (method === "OPTIONS") {
+    setCors(res, origin);
+    res.writeHead(204);
+    return res.end();
+  }
 
   // Health
   if (method === "GET" && pathname === "/health") {
+    setCors(res, origin);
     res.writeHead(200, { "content-type": "application/json" });
     res.end(JSON.stringify({ ok: true }));
     return;
@@ -48,6 +65,7 @@ const server = http.createServer(async (req, res) => {
     const file = path.join(__dirname, "public", "index.html");
     try {
       const html = fs.readFileSync(file);
+      setCors(res, origin);
       res.writeHead(200, { "content-type": "text/html; charset=utf-8" });
       res.end(html);
     } catch {
@@ -90,6 +108,7 @@ const server = http.createServer(async (req, res) => {
         } else {
           packaged = await runCli(["encrypt", "--pass", String(cliPass), "--cipher", String(cipher)], body);
         }
+        setCors(res, origin);
         res.writeHead(200, {
           "content-type": "application/octet-stream",
           ...(download ? { "content-disposition": "attachment; filename=encrypted.pkg" } : {}),
@@ -118,6 +137,7 @@ const server = http.createServer(async (req, res) => {
         const cliArgs = ["decrypt", "--pass", String(cliPass)];
         if (cipher) { cliArgs.push("--cipher", String(cipher)); }
         const out = await runCli(cliArgs, body);
+        setCors(res, origin);
         res.writeHead(200, {
           "content-type": "application/octet-stream",
           ...(download ? { "content-disposition": "attachment; filename=decrypted.bin" } : {}),
