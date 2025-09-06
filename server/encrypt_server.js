@@ -232,7 +232,7 @@ const server = http.createServer(async (req, res) => {
 
 server.listen(PORT, () => {
   // eslint-disable-next-line no-console
-  console.log(`Encrypt server listening on http://localhost:${PORT}`);
+  console.log(`Encrypt server listening on port ${PORT}`);
 });
 
 // ---- dynamic capabilities ----
