@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Encrypt/Decrypt (Browser‑only)</title>
+  <style>
+    body { font: 16px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial; margin: 0; padding: 24px; }
+    .card { max-width: 640px; margin: 0 auto; border: 1px solid #ddd; border-radius: 12px; padding: 16px; }
+    h1 { margin-top: 0; }
+    label { display: block; margin: 8px 0 4px; }
+    input[type=file], input[type=password], button { width: 100%; padding: 10px; margin-bottom: 10px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    pre { white-space: pre-wrap; word-break: break-word; background: #f7f7f7; padding: 10px; border-radius: 8px; }
+    small { color: #666; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Encrypt / Decrypt (Browser‑only)</h1>
+    <p><small>Temporary in‑browser encryption using AES‑256‑CBC (PBKDF2). No server required.</small></p>
+
+    <label for="pass">Passphrase</label>
+    <input id="pass" type="password" placeholder="Enter passphrase" />
+
+    <div class="row">
+      <div>
+        <h3>Encrypt</h3>
+        <input id="encfile" type="file" />
+        <button id="encbtn">Encrypt & Download (.pkg)</button>
+      </div>
+      <div>
+        <h3>Decrypt</h3>
+        <input id="decfile" type="file" />
+        <button id="decbtn">Decrypt & Download (.bin)</button>
+      </div>
+    </div>
+
+    <h3>Log</h3>
+    <pre id="log"></pre>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const log = (m) => { $("log").textContent += m + "\n"; };
+
+    // PBKDF2 (SHA-256) derive key from passphrase
+    async function deriveKey(pass, salt) {
+      const enc = new TextEncoder();
+      const keyMaterial = await crypto.subtle.importKey(
+        'raw', enc.encode(pass), { name: 'PBKDF2' }, false, ['deriveKey']
+      );
+      return crypto.subtle.deriveKey(
+        { name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
+        keyMaterial,
+        { name: 'AES-CBC', length: 256 },
+        false,
+        ['encrypt', 'decrypt']
+      );
+    }
+
+    async function encryptBytes(bytes, pass) {
+      const salt = crypto.getRandomValues(new Uint8Array(16));
+      const iv = crypto.getRandomValues(new Uint8Array(16));
+      const key = await deriveKey(pass, salt);
+      const ct = await crypto.subtle.encrypt({ name: 'AES-CBC', iv }, key, bytes);
+      const pkg = {
+        meta: { method: 'aes-256-cbc', kdf: 'pbkdf2-sha256', iter: 100000, ts: new Date().toISOString() },
+        salt: Array.from(salt),
+        iv: Array.from(iv),
+        data: Array.from(new Uint8Array(ct)),
+      };
+      const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(pkg))));
+      return new TextEncoder().encode(b64);
+    }
+
+    async function decryptPkg(pkgBytes, pass) {
+      const b64 = new TextDecoder().decode(pkgBytes);
+      let obj;
+      try { obj = JSON.parse(decodeURIComponent(escape(atob(b64)))); } catch (e) { throw new Error('Invalid package'); }
+      const salt = new Uint8Array(obj.salt);
+      const iv = new Uint8Array(obj.iv);
+      const data = new Uint8Array(obj.data);
+      const key = await deriveKey(pass, salt);
+      const pt = await crypto.subtle.decrypt({ name: 'AES-CBC', iv }, key, data);
+      return new Uint8Array(pt);
+    }
+
+    async function readFileAsArrayBuffer(file) {
+      return new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result);
+        r.onerror = reject;
+        r.readAsArrayBuffer(file);
+      });
+    }
+
+    function downloadBytes(name, bytes) {
+      const blob = new Blob([bytes]);
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    $("encbtn").onclick = async () => {
+      try {
+        const file = $("encfile").files[0];
+        const pass = $("pass").value.trim();
+        if (!file) return alert('Choose a file');
+        if (!pass) return alert('Enter passphrase');
+        const ab = await readFileAsArrayBuffer(file);
+        const out = await encryptBytes(new Uint8Array(ab), pass);
+        downloadBytes((file.name || 'file') + '.pkg', out);
+        log('Encrypted.');
+      } catch (e) { log('Error: ' + e.message); }
+    };
+
+    $("decbtn").onclick = async () => {
+      try {
+        const file = $("decfile").files[0];
+        const pass = $("pass").value.trim();
+        if (!file) return alert('Choose a file');
+        if (!pass) return alert('Enter passphrase');
+        const ab = await readFileAsArrayBuffer(file);
+        const out = await decryptPkg(new Uint8Array(ab), pass);
+        downloadBytes((file.name || 'file') + '.bin', out);
+        log('Decrypted.');
+      } catch (e) { log('Error: ' + e.message); }
+    };
+  </script>
+</body>
+</html>
+
