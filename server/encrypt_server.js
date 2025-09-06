@@ -3,7 +3,7 @@
 
 const http = require("http");
 const url = require("url");
-const { spawn } = require("child_process");
+const { spawn, execFileSync } = require("child_process");
 const path = require("path");
 const fs = require("fs");
 const DEFAULT_CORS_ORIGIN = "*";
@@ -64,16 +64,8 @@ const server = http.createServer(async (req, res) => {
   if (method === "GET" && pathname === "/capabilities") {
     setCors(res, origin);
     res.writeHead(200, { "content-type": "application/json" });
-    res.end(
-      JSON.stringify({
-        name: "screenpilot-encrypt",
-        cors: true,
-        modes: ["password", "autokey"],
-        ciphers: ["camellia-256-cbc", "carmilla-256-cbc"],
-        defaultCipher: "camellia-256-cbc",
-        endpoints: ["/encrypt", "/decrypt", "/health", "/capabilities"],
-      })
-    );
+    const caps = getDynamicCapabilities();
+    res.end(JSON.stringify(caps));
     return;
   }
 
