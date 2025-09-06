@@ -23,7 +23,13 @@
       <option value="carmilla-256-cbc">Carmilla-256-CBC (AES-256-CBC)</option>
     </select>
 
-    <label for="pass">Passphrase</label>
+    <label for="mode">Mode</label>
+    <select id="mode">
+      <option value="password" selected>Password required</option>
+      <option value="autokey">No password (embed random key)</option>
+    </select>
+
+    <label for="pass">Passphrase (ignored in autokey)</label>
     <input id="pass" type="password" placeholder="Enter passphrase" />
 
     <div class="row">
@@ -49,11 +55,12 @@
 
     async function go(path, file) {
       const pass = $("pass").value.trim();
+      const mode = $("mode").value;
       const cipher = $("cipher").value;
-      if (!pass) { alert("Enter passphrase"); return; }
+      if (mode === 'password' && !pass) { alert("Enter passphrase"); return; }
       if (!file) { alert("Choose a file"); return; }
       const apiBase = new URLSearchParams(location.search).get('api') || '';
-      const url = `${apiBase}${path}?pass=${encodeURIComponent(pass)}&cipher=${encodeURIComponent(cipher)}&download=1`;
+      const url = `${apiBase}${path}?${new URLSearchParams({ pass, cipher, download: '1', mode }).toString()}`;
       const res = await fetch(url, { method: 'POST', body: file });
       if (!res.ok) {
         const t = await res.text();

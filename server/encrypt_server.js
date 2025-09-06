@@ -65,24 +65,57 @@ const server = http.createServer(async (req, res) => {
     try {
       if (method === "POST" && pathname === "/encrypt") {
         const pass = parsed.query.pass;
-        if (!pass) return bad(res, 400, "pass required as ?pass=");
+        const mode = (parsed.query.mode || 'password').toString();
+        if (mode === 'password' && !pass) return bad(res, 400, "pass required as ?pass=");
         const cipher = parsed.query.cipher || "camellia-256-cbc";
         const download = parsed.query.download === "1";
-        const out = await runCli(["encrypt", "--pass", String(pass), "--cipher", String(cipher)], body);
+        let cliPass = pass;
+        let packaged = null;
+        if (mode === 'autokey') {
+          // Generate random 32-byte key, base64 encode
+          const keyBytes = crypto.getRandomValues(new Uint8Array(32));
+          const keyB64 = Buffer.from(keyBytes).toString('base64');
+          cliPass = keyB64;
+          const out = await runCli(["encrypt", "--pass", String(cliPass), "--cipher", String(cipher)], body);
+          // Inject autokey metadata with embedded key
+          try {
+            const pkgJsonStr = Buffer.from(String(out), 'base64').toString('utf8');
+            const pkg = JSON.parse(pkgJsonStr);
+            pkg.meta = Object.assign({}, pkg.meta || {}, { autokey: true, key_b64: keyB64 });
+            const newB64 = Buffer.from(JSON.stringify(pkg), 'utf8').toString('base64');
+            packaged = Buffer.from(newB64, 'utf8');
+          } catch {
+            packaged = out;
+          }
+        } else {
+          packaged = await runCli(["encrypt", "--pass", String(cliPass), "--cipher", String(cipher)], body);
+        }
         res.writeHead(200, {
           "content-type": "application/octet-stream",
           ...(download ? { "content-disposition": "attachment; filename=encrypted.pkg" } : {}),
         });
-        res.end(out);
+        res.end(packaged);
         return;
       }
 
       if (method === "POST" && pathname === "/decrypt") {
         const pass = parsed.query.pass;
-        if (!pass) return bad(res, 400, "pass required as ?pass=");
+        let cliPass = pass;
         const cipher = parsed.query.cipher; // optional override
         const download = parsed.query.download === "1";
-        const cliArgs = ["decrypt", "--pass", String(pass)];
+        // If no pass provided, try to extract embedded autokey from package
+        if (!cliPass) {
+          try {
+            const packagedStr = body.toString('utf8').trim();
+            const pkgJsonStr = Buffer.from(packagedStr, 'base64').toString('utf8');
+            const pkg = JSON.parse(pkgJsonStr);
+            if (pkg && pkg.meta && pkg.meta.key_b64) {
+              cliPass = String(pkg.meta.key_b64);
+            }
+          } catch {}
+        }
+        if (!cliPass) return bad(res, 400, "pass required or package must contain autokey");
+        const cliArgs = ["decrypt", "--pass", String(cliPass)];
         if (cipher) { cliArgs.push("--cipher", String(cipher)); }
         const out = await runCli(cliArgs, body);
         res.writeHead(200, {
