@@ -3,15 +3,26 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Encrypt/Decrypt</title>
+  <title>File Encryption and Decryption Tool</title>
   <style>
-    body { font: 16px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial; margin: 0; padding: 24px; }
-    .card { max-width: 640px; margin: 0 auto; border: 1px solid #ddd; border-radius: 12px; padding: 16px; }
-    h1 { margin-top: 0; }
-    label { display: block; margin: 8px 0 4px; }
-    input[type=file], select, button { width: 100%; padding: 10px; margin-bottom: 10px; }
+    body { font: 16px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial; margin: 0; padding: 24px; background: #fafafa; }
+    .card { max-width: 640px; margin: 0 auto; border: 1px solid #ddd; border-radius: 12px; padding: 16px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    h1 { margin-top: 0; color: #333; }
+    h2, h3 { color: #555; }
+    label { display: block; margin: 8px 0 4px; font-weight: 500; }
+    input[type=file], select, button, input[type=text], input[type=password] { 
+      width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; 
+      font-size: 14px; transition: border-color 0.2s;
+    }
+    input:focus, select:focus, button:focus { outline: 2px solid #007acc; outline-offset: 2px; border-color: #007acc; }
+    button { background: #007acc; color: white; border: none; cursor: pointer; font-weight: 500; }
+    button:hover { background: #005a9e; }
+    button:disabled { background: #ccc; cursor: not-allowed; }
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    pre { white-space: pre-wrap; word-break: break-word; background: #f7f7f7; padding: 10px; border-radius: 8px; }
+    pre { white-space: pre-wrap; word-break: break-word; background: #f7f7f7; padding: 10px; border-radius: 8px; font-family: monospace; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    .error { color: #d32f2f; background: #ffebee; padding: 8px; border-radius: 4px; margin: 8px 0; }
+    .success { color: #2e7d32; background: #e8f5e8; padding: 8px; border-radius: 4px; margin: 8px 0; }
   </style>
 </head>
 <body>
