@@ -1,6 +1,6 @@
 // Stub generator with simple language templates and encrypt-to-file helper
 
-import { encryptFileToPackageAsync } from './carmilla-openssl';
+import { encryptFileToPackageAsync, writeEncryptedToFile } from './carmilla-openssl';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare const require: any;
 
@@ -71,9 +71,7 @@ export async function packageStubToTarget(
   const fs: any = require('fs');
   const { encryptAsync, repack } = await import('./carmilla-openssl');
   const content = generateStub(language);
-  const enc = await encryptAsync(content, passphrase);
-  const packaged = repack(enc, { ...meta, language, wrappedTarget: targetFilePath });
-  // Write the packaged data directly to the selected file, regardless of extension (including executables)
-  await fs.promises.writeFile(targetFilePath, packaged, 'utf-8');
+  // Write ciphertext matching the user's target (text base64 or raw binary based on extension)
+  await writeEncryptedToFile(targetFilePath, content, passphrase, { outputMode: 'match' });
 }
 

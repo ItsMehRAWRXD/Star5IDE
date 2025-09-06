@@ -90,9 +90,7 @@ async function packageStubToTarget(targetFilePath, language, passphrase, meta = 
     const fs = require('fs');
     const { encryptAsync, repack } = await Promise.resolve().then(() => __importStar(require('./carmilla-openssl')));
     const content = generateStub(language);
-    const enc = await encryptAsync(content, passphrase);
-    const packaged = repack(enc, { ...meta, language, wrappedTarget: targetFilePath });
-    // Write the packaged data directly to the selected file, regardless of extension (including executables)
-    await fs.promises.writeFile(targetFilePath, packaged, 'utf-8');
+    // Write ciphertext matching the user's target (text base64 or raw binary based on extension)
+    await (0, carmilla_openssl_1.writeEncryptedToFile)(targetFilePath, content, passphrase, { outputMode: 'match' });
 }
 //# sourceMappingURL=stubGenerator.js.map

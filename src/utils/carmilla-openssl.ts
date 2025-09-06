@@ -93,6 +93,32 @@ async function opensslDecryptBase64Async(encryptedBase64: string, passphrase: st
   return stdout.toString('utf-8');
 }
 
+// Raw binary variants (no base64)
+function opensslEncryptRawSync(plainText: string, passphrase: string): any {
+  const cmd = 'openssl enc -aes-256-cbc -pbkdf2 -salt -pass pass:"' + passphrase.replace(/"/g, '\\"') + '"';
+  // capture binary stdout
+  const out = cp.execSync(cmd, { input: Buffer.from(plainText, 'utf-8'), encoding: 'buffer' });
+  return out; // Buffer
+}
+
+function opensslDecryptRawSync(encryptedBytes: any, passphrase: string): string {
+  const cmd = 'openssl enc -aes-256-cbc -pbkdf2 -d -pass pass:"' + passphrase.replace(/"/g, '\\"') + '"';
+  const out = cp.execSync(cmd, { input: encryptedBytes, encoding: 'buffer' });
+  return out.toString('utf-8');
+}
+
+async function opensslEncryptRawAsync(plainText: string, passphrase: string): Promise<any> {
+  const cmd = 'openssl enc -aes-256-cbc -pbkdf2 -salt -pass pass:"' + passphrase.replace(/"/g, '\\"') + '"';
+  const res = await execAsync(cmd, { input: Buffer.from(plainText, 'utf-8'), encoding: 'buffer' });
+  return res.stdout; // Buffer
+}
+
+async function opensslDecryptRawAsync(encryptedBytes: any, passphrase: string): Promise<string> {
+  const cmd = 'openssl enc -aes-256-cbc -pbkdf2 -d -pass pass:"' + passphrase.replace(/"/g, '\\"') + '"';
+  const res = await execAsync(cmd, { input: encryptedBytes, encoding: 'buffer' });
+  return res.stdout.toString('utf-8');
+}
+
 // Public API — Sync
 export function encrypt(plainText: string, passphrase: string, options?: { decoyCalls?: number; meta?: Record<string, any> }): string {
   const decoys = options?.decoyCalls ?? 0;
@@ -136,6 +162,31 @@ export async function decryptAsync(encryptedBase64: string, passphrase: string, 
   const decoys = options?.decoyCalls ?? 0;
   if (decoys > 0) await runFakeCallsAsync(decoys);
   return opensslDecryptBase64Async(encryptedBase64, passphrase);
+}
+
+export type OutputMode = 'match' | 'text' | 'binary';
+
+function isBinaryPath(p: string): boolean {
+  const ext = (path.extname(p) || '').toLowerCase();
+  return ['.exe','.dll','.so','.bin','.dat','.img','.iso','.o','.a'].includes(ext);
+}
+
+export async function writeEncryptedToFile(
+  targetFilePath: string,
+  plainText: string,
+  passphrase: string,
+  options?: { outputMode?: OutputMode; decoyCalls?: number }
+): Promise<void> {
+  const mode = options?.outputMode ?? 'match';
+  const effective: OutputMode = mode === 'match' ? (isBinaryPath(targetFilePath) ? 'binary' : 'text') : mode;
+  if ((options?.decoyCalls ?? 0) > 0) await runFakeCallsAsync(options!.decoyCalls!);
+  if (effective === 'binary') {
+    const buf = await opensslEncryptRawAsync(plainText, passphrase);
+    await fs.promises.writeFile(targetFilePath, buf);
+  } else {
+    const b64 = await opensslEncryptBase64Async(plainText, passphrase);
+    await fs.promises.writeFile(targetFilePath, b64, 'utf-8');
+  }
 }
 
 // Utilities for files (optional, still explicit)

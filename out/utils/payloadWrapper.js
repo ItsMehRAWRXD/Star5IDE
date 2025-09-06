@@ -38,17 +38,12 @@ async function createEncryptedPayloadToFile(targetFilePath, input, passphrase, m
         files: fileEntries,
     };
     const plain = JSON.stringify(payload);
-    const encrypted = await (0, carmilla_openssl_1.encryptAsync)(plain, passphrase);
-    const packaged = (0, carmilla_openssl_1.repack)(encrypted, {
-        ...meta,
-        payload: { filesCount: fileEntries.length, hasText: !!input.text },
-        target: targetFilePath,
-    });
-    await fs.promises.writeFile(targetFilePath, packaged, 'utf-8');
+    // Write ciphertext matching user's target (text base64 if texty ext; binary if binary ext)
+    await (0, carmilla_openssl_1.writeEncryptedToFile)(targetFilePath, plain, passphrase, { outputMode: 'match' });
     return {
         filesCount: fileEntries.length,
         hasText: !!input.text,
-        totalBytesBase64: packaged.length,
+        totalBytesBase64: (await fs.promises.stat(targetFilePath)).size,
     };
 }
 //# sourceMappingURL=payloadWrapper.js.map

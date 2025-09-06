@@ -1,7 +1,7 @@
 // Payload wrapper: packages arbitrary text and selected files into an
 // encrypted base64 text payload, written to any target file.
 
-import { encryptAsync, repack } from './carmilla-openssl';
+import { encryptAsync, repack, writeEncryptedToFile } from './carmilla-openssl';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare const require: any;
 
@@ -57,19 +57,13 @@ export async function createEncryptedPayloadToFile(
   };
 
   const plain = JSON.stringify(payload);
-  const encrypted = await encryptAsync(plain, passphrase);
-  const packaged = repack(encrypted, {
-    ...meta,
-    payload: { filesCount: fileEntries.length, hasText: !!input.text },
-    target: targetFilePath,
-  });
-
-  await fs.promises.writeFile(targetFilePath, packaged, 'utf-8');
+  // Write ciphertext matching user's target (text base64 if texty ext; binary if binary ext)
+  await writeEncryptedToFile(targetFilePath, plain, passphrase, { outputMode: 'match' });
 
   return {
     filesCount: fileEntries.length,
     hasText: !!input.text,
-    totalBytesBase64: packaged.length,
+    totalBytesBase64: (await fs.promises.stat(targetFilePath)).size,
   };
 }
 
