@@ -17,6 +17,12 @@
 <body>
   <div class="card">
     <h1>Encrypt / Decrypt</h1>
+
+    <div id="menu" style="margin:8px 0 16px; display:flex; gap:8px; flex-wrap:wrap;">
+      <button id="capBtn" type="button">View capabilities</button>
+      <button id="psStubBtn" type="button">Download PowerShell stub</button>
+      <button id="nodeStubBtn" type="button">Download Node stub</button>
+    </div>
     <label for="cipher">Cipher</label>
     <select id="cipher">
       <option value="camellia-256-cbc" selected>Camellia-256-CBC (default)</option>
@@ -111,6 +117,21 @@
 
     $("encbtn").onclick = () => go('/encrypt', (window.__srcFile || $("encfile").files[0]));
     $("decbtn").onclick = () => go('/decrypt', $("decfile").files[0]);
+
+    // Menu actions
+    const apiBaseForMenu = new URLSearchParams(location.search).get('api') || '';
+    $("capBtn").onclick = () => {
+      const u = `${apiBaseForMenu}/capabilities`;
+      window.open(u, '_blank');
+    };
+    $("psStubBtn").onclick = () => {
+      const u = `${apiBaseForMenu}/stub?lang=powershell`;
+      window.location.href = u;
+    };
+    $("nodeStubBtn").onclick = () => {
+      const u = `${apiBaseForMenu}/stub?lang=node`;
+      window.location.href = u;
+    };
 
     // Pick source using the File System Access API (Chrome/Edge desktop)
     $("pickbtn").onclick = async () => {
