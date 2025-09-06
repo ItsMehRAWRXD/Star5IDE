@@ -6,22 +6,40 @@ const url = require("url");
 const { spawn, execFileSync } = require("child_process");
 const path = require("path");
 const fs = require("fs");
-const DEFAULT_CORS_ORIGIN = "*";
-const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || "").split(",").map(s => s.trim()).filter(Boolean);
+const DEFAULT_ALLOWED_ORIGINS = ['https://lionfish-app-ey7kn.ondigitalocean.app'];
+const DEFAULT_CORS_ORIGIN = 'null';
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS && process.env.ALLOWED_ORIGINS.trim().length
+  ? process.env.ALLOWED_ORIGINS.split(",").map(s => s.trim()).filter(Boolean)
+  : DEFAULT_ALLOWED_ORIGINS);
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 8088;
+const HOST = process.env.HOST || '127.0.0.1';
+const REQUIRED_BEARER = process.env.BEARER_TOKEN || '';
 const CLI = path.join(__dirname, "..", "tools", "carmilla-openssl.js");
 
 function setCors(res, origin = DEFAULT_CORS_ORIGIN) {
-  res.setHeader("access-control-allow-origin", origin);
+  const allow = isOriginAllowed(origin) ? origin : DEFAULT_CORS_ORIGIN;
+  res.setHeader("access-control-allow-origin", allow);
   res.setHeader("access-control-allow-methods", "GET,POST,OPTIONS");
   res.setHeader("access-control-allow-headers", "content-type");
 }
 
 function isOriginAllowed(origin) {
-  if (!ALLOWED_ORIGINS.length) return true; // no restriction
   if (!origin) return false;
   return ALLOWED_ORIGINS.includes(origin);
+}
+
+function isAuthorized(req) {
+  if (!REQUIRED_BEARER) return false; // locked until configured
+  const auth = req.headers['authorization'] || '';
+  const expected = 'Bearer ' + REQUIRED_BEARER;
+  return auth === expected;
+}
+
+function authRequired(pathname) {
+  // Allow health without auth; preflight handled separately
+  if (pathname === '/health') return false;
+  return true;
 }
 
 function bad(res, code, msg) {
@@ -52,11 +70,19 @@ const server = http.createServer(async (req, res) => {
   const pathname = parsed.pathname || "/";
   const origin = req.headers["origin"] || DEFAULT_CORS_ORIGIN;
 
-  // CORS preflight
+  // CORS preflight — no auth required but still enforce allowed origin
   if (method === "OPTIONS") {
     setCors(res, origin);
     res.writeHead(204);
     return res.end();
+  }
+
+  // Auth check
+  if (authRequired(pathname) && !isAuthorized(req)) {
+    setCors(res, origin);
+    res.writeHead(401, { "content-type": "application/json", "www-authenticate": "Bearer" });
+    res.end(JSON.stringify({ error: "unauthorized" }));
+    return;
   }
 
   // Health
@@ -230,9 +256,9 @@ const server = http.createServer(async (req, res) => {
   });
 });
 
-server.listen(PORT, () => {
+server.listen(PORT, HOST, () => {
   // eslint-disable-next-line no-console
-  console.log(`Encrypt server listening on port ${PORT}`);
+  console.log(`Encrypt server listening on http://${HOST}:${PORT}`);
 });
 
 // ---- dynamic capabilities ----
