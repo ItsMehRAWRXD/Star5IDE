@@ -52,8 +52,9 @@ const server = http.createServer(async (req, res) => {
       if (method === "POST" && pathname === "/encrypt") {
         const pass = parsed.query.pass;
         if (!pass) return bad(res, 400, "pass required as ?pass=");
+        const cipher = parsed.query.cipher || "carmilla-256-cbc";
         const download = parsed.query.download === "1";
-        const out = await runCli(["encrypt", "--pass", String(pass)], body);
+        const out = await runCli(["encrypt", "--pass", String(pass), "--cipher", String(cipher)], body);
         res.writeHead(200, {
           "content-type": "application/octet-stream",
           ...(download ? { "content-disposition": "attachment; filename=encrypted.pkg" } : {}),
@@ -65,8 +66,11 @@ const server = http.createServer(async (req, res) => {
       if (method === "POST" && pathname === "/decrypt") {
         const pass = parsed.query.pass;
         if (!pass) return bad(res, 400, "pass required as ?pass=");
+        const cipher = parsed.query.cipher; // optional override
         const download = parsed.query.download === "1";
-        const out = await runCli(["decrypt", "--pass", String(pass)], body);
+        const cliArgs = ["decrypt", "--pass", String(pass)];
+        if (cipher) { cliArgs.push("--cipher", String(cipher)); }
+        const out = await runCli(cliArgs, body);
         res.writeHead(200, {
           "content-type": "application/octet-stream",
           ...(download ? { "content-disposition": "attachment; filename=decrypted.bin" } : {}),

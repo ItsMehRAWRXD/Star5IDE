@@ -36,20 +36,28 @@ function runOpenSSL(args, inputBuffer) {
   return execFileSync("openssl", args, { input: inputBuffer });
 }
 
-function encryptBufferAes256Cbc(plainBuffer, passphrase) {
-  // Use PBKDF2 + salt; output is binary. We'll base64 encode for transport.
-  const out = runOpenSSL(["enc", "-aes-256-cbc", "-salt", "-pbkdf2", "-pass", `pass:${passphrase}`], plainBuffer);
+function resolveCipher(userCipher) {
+  const c = (userCipher || "").toString().toLowerCase();
+  if (!c) return { label: "carmilla-256-cbc", openssl: "-aes-256-cbc" };
+  if (c === "carmilla-256-cbc" || c === "camilla-256-cbc") return { label: "carmilla-256-cbc", openssl: "-aes-256-cbc" };
+  // Allow raw OpenSSL ciphers too (advanced users)
+  if (c.startsWith("-")) return { label: c.replace(/^-/,'openssl:'), openssl: c };
+  return { label: c, openssl: `-${c}` };
+}
+
+function encryptBufferWithCipher(plainBuffer, passphrase, opensslCipherFlag) {
+  const out = runOpenSSL(["enc", opensslCipherFlag, "-salt", "-pbkdf2", "-pass", `pass:${passphrase}`], plainBuffer);
   return Buffer.from(out).toString("base64");
 }
 
-function decryptToBufferAes256Cbc(encryptedBase64, passphrase) {
+function decryptToBufferWithCipher(encryptedBase64, passphrase, opensslCipherFlag) {
   const bin = Buffer.from(encryptedBase64.trim(), "base64");
-  const out = runOpenSSL(["enc", "-d", "-aes-256-cbc", "-salt", "-pbkdf2", "-pass", `pass:${passphrase}`], bin);
+  const out = runOpenSSL(["enc", "-d", opensslCipherFlag, "-salt", "-pbkdf2", "-pass", `pass:${passphrase}`], bin);
   return Buffer.from(out);
 }
 
 function repack(encryptedBase64, meta) {
-  const pkg = { meta: { method: "openssl", timestamp: new Date().toISOString(), ...meta }, data: encryptedBase64 };
+  const pkg = { meta: { method: "carmilla-256-cbc", timestamp: new Date().toISOString(), ...meta }, data: encryptedBase64 };
   return Buffer.from(JSON.stringify(pkg), "utf8").toString("base64");
 }
 
@@ -82,6 +90,7 @@ function parseArgs(argv) {
     if (a === "--out") { args.out = argv[++i]; continue; }
     if (a === "--pass" || a === "--passphrase") { args.pass = argv[++i]; continue; }
     if (a === "--hint") { args.hint = argv[++i]; continue; }
+    if (a === "--cipher") { args.cipher = argv[++i]; continue; }
     if (a === "--meta") { args.meta = argv[++i]; continue; }
     args._.push(a);
   }
@@ -111,8 +120,9 @@ function main() {
     } else {
       input = readStdinSync();
     }
-    const encB64 = encryptBufferAes256Cbc(Buffer.from(input), args.pass);
-    const packaged = repack(encB64, args.hint ? { passphrase_hint: args.hint } : {});
+    const { label, openssl } = resolveCipher(args.cipher);
+    const encB64 = encryptBufferWithCipher(Buffer.from(input), args.pass, openssl);
+    const packaged = repack(encB64, Object.assign({}, args.hint ? { passphrase_hint: args.hint } : {}, { method: label, openssl_cipher: openssl.replace(/^-/,'') }));
     if (args.out && args.out !== "-") {
       writeFile(args.out, packaged);
     } else {
@@ -131,13 +141,21 @@ function main() {
     }
     // Accept either packaged or raw base64
     let encryptedBase64 = input.trim();
+    let opensslCipher = null;
     try {
       const maybePkg = unpack(encryptedBase64);
       if (maybePkg && maybePkg.data) {
         encryptedBase64 = String(maybePkg.data);
+        if (maybePkg.meta && maybePkg.meta.openssl_cipher) {
+          opensslCipher = `-${maybePkg.meta.openssl_cipher}`;
+        }
       }
     } catch {}
-    const plain = decryptToBufferAes256Cbc(encryptedBase64, args.pass);
+    if (!opensslCipher) {
+      const r = resolveCipher(args.cipher);
+      opensslCipher = r.openssl;
+    }
+    const plain = decryptToBufferWithCipher(encryptedBase64, args.pass, opensslCipher);
     if (args.out && args.out !== "-") {
       writeFile(args.out, plain);
     } else {
