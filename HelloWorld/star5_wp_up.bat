@@ -7,5 +7,5 @@ if not exist wordpress\docker-compose.yml (
 )
 cd wordpress
 docker compose --env-file .env up -d
-echo WordPress is starting... open http://localhost:8080
+echo WordPress is starting... open http://127.0.0.1:8080
 endlocal
