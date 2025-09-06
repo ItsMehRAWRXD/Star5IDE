@@ -35,6 +35,22 @@ static HWND FindVisibleScintilla(HWND hwndParent) {
     return NULL;
 }
 
+static std::string WideToUtf8(const std::wstring& wide) {
+    if (wide.empty()) return std::string();
+    int needed = WideCharToMultiByte(CP_UTF8, 0, wide.c_str(), (int)wide.size(), NULL, 0, NULL, NULL);
+    std::string out(needed, '\0');
+    WideCharToMultiByte(CP_UTF8, 0, wide.c_str(), (int)wide.size(), &out[0], needed, NULL, NULL);
+    return out;
+}
+
+static std::wstring Utf8ToWide(const std::string& utf8) {
+    if (utf8.empty()) return std::wstring();
+    int needed = MultiByteToWideChar(CP_UTF8, 0, utf8.c_str(), (int)utf8.size(), NULL, 0);
+    std::wstring out(needed, L'\0');
+    MultiByteToWideChar(CP_UTF8, 0, utf8.c_str(), (int)utf8.size(), &out[0], needed);
+    return out;
+}
+
 // Dummy implementations for IDE API
 void LoadFileIntoEdit(HWND hEdit, const std::wstring& path) {
     // Load file content into the currently visible Scintilla editor if available,
@@ -50,32 +66,31 @@ void LoadFileIntoEdit(HWND hEdit, const std::wstring& path) {
     }
     std::wstring content, line;
     while (std::getline(in, line)) content += line + L"\r\n";
-    SendMessageW(hTarget, SCI_SETTEXT, 0, (LPARAM)content.c_str());
+    const std::string utf8 = WideToUtf8(content);
+    SendMessageW(hTarget, SCI_SETTEXT, 0, (LPARAM)utf8.c_str());
 }
 void AppendEditorText(HWND hwnd, const std::wstring& text) {
     HWND hSci = FindVisibleScintilla(hwnd);
     if (!hSci) hSci = hwnd;
-    int len = GetWindowTextLengthW(hSci);
-    std::wstring buf(len + 1, L'\0');
-    GetWindowTextW(hSci, &buf[0], len + 1);
-    if (!buf.empty() && buf.back() == L'\0') buf.pop_back();
-    buf += text;
-    SendMessageW(hSci, SCI_SETTEXT, 0, (LPARAM)buf.c_str());
+    const std::string utf8 = WideToUtf8(text);
+    SendMessageW(hSci, SCI_APPENDTEXT, (WPARAM)utf8.size(), (LPARAM)utf8.data());
 }
 std::wstring GetEditorText(HWND hwnd) {
     HWND hSci = FindVisibleScintilla(hwnd);
     if (!hSci) hSci = hwnd;
-    int len = GetWindowTextLengthW(hSci);
+    const int len = (int)SendMessageW(hSci, SCI_GETTEXTLENGTH, 0, 0);
     if (len <= 0) return L"";
-    std::wstring buf(len + 1, L'\0');
-    GetWindowTextW(hSci, &buf[0], len + 1);
-    if (!buf.empty() && buf.back() == L'\0') buf.pop_back();
-    return buf;
+    std::string bytes;
+    bytes.resize(len + 1);
+    SendMessageW(hSci, SCI_GETTEXT, (WPARAM)(len + 1), (LPARAM)bytes.data());
+    if (!bytes.empty() && bytes.back() == '\0') bytes.pop_back();
+    return Utf8ToWide(bytes);
 }
 void SetEditorText(HWND hwnd, const std::wstring& text) {
     HWND hSci = FindVisibleScintilla(hwnd);
     if (!hSci) hSci = hwnd;
-    SendMessageW(hSci, SCI_SETTEXT, 0, (LPARAM)text.c_str());
+    const std::string utf8 = WideToUtf8(text);
+    SendMessageW(hSci, SCI_SETTEXT, 0, (LPARAM)utf8.c_str());
 }
 void WriteToTerminal(const std::wstring& text) {
     // TODO: Implement terminal output logic
@@ -83,15 +98,19 @@ void WriteToTerminal(const std::wstring& text) {
 void SaveFile(HWND hwnd, const std::wstring& path) {
     HWND hSci = FindVisibleScintilla(hwnd);
     if (!hSci) hSci = hwnd;
-    int len = GetWindowTextLengthW(hSci);
-    std::wstring buf(len + 1, L'\0');
-    GetWindowTextW(hSci, &buf[0], len + 1);
+    const int len = (int)SendMessageW(hSci, SCI_GETTEXTLENGTH, 0, 0);
+    std::string bytes;
+    if (len > 0) {
+        bytes.resize(len + 1);
+        SendMessageW(hSci, SCI_GETTEXT, (WPARAM)(len + 1), (LPARAM)bytes.data());
+        if (!bytes.empty() && bytes.back() == '\0') bytes.pop_back();
+    }
     std::wofstream out(path);
     if (!out.is_open()) {
         MessageBoxW(hwnd, (L"Could not write file: " + path).c_str(), L"Agent Save File", MB_OK | MB_ICONERROR);
         return;
     }
-    out << buf.c_str();
+    out << Utf8ToWide(bytes);
     MessageBoxW(hwnd, (L"Saved to: " + path).c_str(), L"Agent Save File", MB_OK | MB_ICONINFORMATION);
 }
 void ChangeLayout(const std::wstring& layoutName) {
