@@ -9,8 +9,6 @@ WORKDIR /app
 COPY server/ server/
 COPY tools/ tools/
 
-ENV PORT=8088
-EXPOSE 8088
-
+# App Platform provides $PORT; the server will bind to it.
 CMD ["node", "server/encrypt_server.js"]
 
