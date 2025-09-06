@@ -32,18 +32,11 @@
     <label for="pass">Passphrase (ignored in autokey)</label>
     <input id="pass" type="password" placeholder="Enter passphrase" />
 
-    <label for="encExt">Encrypted extension</label>
-    <select id="encExt">
-      <option value=".pkg" selected>.pkg</option>
-      <option value=".enc">.enc</option>
-      <option value=".cml">.cml</option>
-    </select>
+    <label for="encExt">Encrypted extension (include dot or leave empty)</label>
+    <input id="encExt" type="text" placeholder=".pkg" value=".pkg" />
 
-    <label for="decExt">Decrypted extension</label>
-    <select id="decExt">
-      <option value=".bin" selected>.bin</option>
-      <option value="">(no extension)</option>
-    </select>
+    <label for="decExt">Decrypted extension (include dot or leave empty)</label>
+    <input id="decExt" type="text" placeholder=".bin" value=".bin" />
 
     <div class="row">
       <div>
@@ -73,7 +66,9 @@
       if (mode === 'password' && !pass) { alert("Enter passphrase"); return; }
       if (!file) { alert("Choose a file"); return; }
       const apiBase = new URLSearchParams(location.search).get('api') || '';
-      const url = `${apiBase}${path}?${new URLSearchParams({ pass, cipher, download: '1', mode }).toString()}`;
+      const base = (file.name || 'file').replace(/\.[^.]+$/, '');
+      const ext = path.includes('encrypt') ? ($("encExt").value || '') : ($("decExt").value || '');
+      const url = `${apiBase}${path}?${new URLSearchParams({ pass, cipher, download: '1', mode, name: base, ext }).toString()}`;
       const res = await fetch(url, { method: 'POST', body: file });
       if (!res.ok) {
         const t = await res.text();
@@ -82,9 +77,9 @@
       }
       const blob = await res.blob();
       const a = document.createElement('a');
-      const ext = path.includes('encrypt') ? ($("encExt").value || '.pkg') : ($("decExt").value || '.bin');
+      const dlExt = path.includes('encrypt') ? ($("encExt").value || '') : ($("decExt").value || '');
       a.href = URL.createObjectURL(blob);
-      a.download = (file.name || 'file') + ext;
+      a.download = (file.name || 'file').replace(/\.[^.]+$/, '') + dlExt;
       document.body.appendChild(a);
       a.click();
       a.remove();

@@ -87,6 +87,12 @@ const server = http.createServer(async (req, res) => {
         if (mode === 'password' && !pass) return bad(res, 400, "pass required as ?pass=");
         const cipher = parsed.query.cipher || "camellia-256-cbc";
         const download = parsed.query.download === "1";
+        // honor client-provided name/ext for filename
+        let reqExt = (parsed.query.ext || "").toString();
+        if (reqExt && !reqExt.startsWith('.')) reqExt = `.${reqExt}`;
+        const safeExt = (reqExt || '').replace(/[^.a-zA-Z0-9_-]/g, '');
+        const baseName = ((parsed.query.name || 'file').toString().replace(/[^a-zA-Z0-9._-]/g, '') || 'file').replace(/\.[^.]+$/, '');
+        const outFile = `${baseName}${safeExt}`;
         let cliPass = pass;
         let packaged = null;
         if (mode === 'autokey') {
@@ -109,10 +115,11 @@ const server = http.createServer(async (req, res) => {
           packaged = await runCli(["encrypt", "--pass", String(cliPass), "--cipher", String(cipher)], body);
         }
         setCors(res, origin);
-        res.writeHead(200, {
-          "content-type": "application/octet-stream",
-          ...(download ? { "content-disposition": "attachment; filename=encrypted.pkg" } : {}),
-        });
+        const headers = { "content-type": "application/octet-stream" };
+        if (download) {
+          headers["content-disposition"] = `attachment; filename=${outFile || 'encrypted'}`;
+        }
+        res.writeHead(200, headers);
         res.end(packaged);
         return;
       }
@@ -122,6 +129,12 @@ const server = http.createServer(async (req, res) => {
         let cliPass = pass;
         const cipher = parsed.query.cipher; // optional override
         const download = parsed.query.download === "1";
+        // honor client-provided name/ext for filename
+        let reqExt = (parsed.query.ext || "").toString();
+        if (reqExt && !reqExt.startsWith('.')) reqExt = `.${reqExt}`;
+        const safeExt = (reqExt || '').replace(/[^.a-zA-Z0-9_-]/g, '');
+        const baseName = ((parsed.query.name || 'file').toString().replace(/[^a-zA-Z0-9._-]/g, '') || 'file').replace(/\.[^.]+$/, '');
+        const outFile = `${baseName}${safeExt}`;
         // If no pass provided, try to extract embedded autokey from package
         if (!cliPass) {
           try {
@@ -138,10 +151,11 @@ const server = http.createServer(async (req, res) => {
         if (cipher) { cliArgs.push("--cipher", String(cipher)); }
         const out = await runCli(cliArgs, body);
         setCors(res, origin);
-        res.writeHead(200, {
-          "content-type": "application/octet-stream",
-          ...(download ? { "content-disposition": "attachment; filename=decrypted.bin" } : {}),
-        });
+        const headers = { "content-type": "application/octet-stream" };
+        if (download) {
+          headers["content-disposition"] = `attachment; filename=${outFile || 'decrypted'}`;
+        }
+        res.writeHead(200, headers);
         res.end(out);
         return;
       }
