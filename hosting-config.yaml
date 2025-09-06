@@ -1,0 +1,69 @@
+# Hosting Configuration for Screenpilot Encrypt
+# This file contains all the localhost references that were removed from the codebase
+# and are now configured for proper hosting deployment
+
+name: screenpilot-encrypt
+version: 1.0.0
+
+# Server Configuration
+server:
+  port: 8088
+  host: "0.0.0.0"  # Listen on all interfaces for containerized deployment
+  protocol: "http"
+  
+# Local Development URLs (for reference)
+local_urls:
+  - "http://localhost:8088"      # Main encryption server
+  - "http://127.0.0.1:8088"      # Alternative local access
+  - "http://localhost:8080"      # WordPress development (if used)
+  - "http://127.0.0.1:8080"      # WordPress alternative
+  - "http://localhost:8081"      # phpMyAdmin (if used)
+  - "http://127.0.0.1:8081"      # phpMyAdmin alternative
+
+# Production Hosting
+production:
+  domain: "lionfish-app-ey7kn.ondigitalocean.app"
+  protocol: "https"
+  port: 443
+  
+# Environment Variables
+environment:
+  PORT: 8088
+  NODE_ENV: "production"
+  ALLOWED_ORIGINS: "*"  # Configure as needed for security
+  
+# Docker Configuration
+docker:
+  base_image: "node:20-bullseye"
+  exposed_port: 8088
+  working_directory: "/app"
+  
+# API Endpoints
+api_endpoints:
+  - "/encrypt"
+  - "/decrypt" 
+  - "/health"
+  - "/capabilities"
+  - "/stub"
+  - "/bundle"
+  
+# Static Files
+static_files:
+  - "server/public/index.html"
+  - "server/public/standalone.html"
+  
+# Dependencies
+dependencies:
+  - "openssl"  # Required for encryption/decryption operations
+  
+# Health Check
+health_check:
+  endpoint: "/health"
+  expected_response: '{"ok":true}'
+  
+# CORS Configuration
+cors:
+  enabled: true
+  allowed_origins: "*"
+  allowed_methods: ["GET", "POST", "OPTIONS"]
+  allowed_headers: ["content-type"]

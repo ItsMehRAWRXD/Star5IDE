@@ -8,4 +8,15 @@ services:
       - path: /
     dockerfile_path: Dockerfile
     source_dir: .
+    # Local development URLs (for reference)
+    # http://localhost:8088 - Main encryption server
+    # http://127.0.0.1:8088 - Alternative local access
+    # Production: https://lionfish-app-ey7kn.ondigitalocean.app
+    envs:
+      - key: PORT
+        value: "8088"
+      - key: NODE_ENV
+        value: "production"
+      - key: ALLOWED_ORIGINS
+        value: "*"
 
