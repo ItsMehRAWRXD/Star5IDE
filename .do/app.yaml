@@ -8,4 +8,8 @@ services:
       - path: /
     dockerfile_path: Dockerfile
     source_dir: .
+    github:
+      repo: ItsMehRAWRXD/Star5IDE
+      branch: main
+      deploy_on_push: true
 
