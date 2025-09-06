@@ -8,16 +8,57 @@
 </head>
 <body>
   <main class="container" aria-labelledby="app-title">
-    <h1 id="app-title">To‑Do List</h1>
+    <div class="header">
+      <h1 id="app-title">To‑Do List</h1>
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">🌙</button>
+    </div>
 
     <form id="todo-form" autocomplete="off" aria-label="Add a task">
-      <input id="todo-input" name="text" type="text" placeholder="Add a task…" aria-label="Task" />
-      <button id="add-btn" type="submit" aria-label="Add task">Add</button>
+      <div class="form-row">
+        <input id="todo-input" name="text" type="text" placeholder="Add a task…" aria-label="Task" />
+        <select id="category-select" aria-label="Category">
+          <option value="">No category</option>
+          <option value="work">Work</option>
+          <option value="personal">Personal</option>
+          <option value="shopping">Shopping</option>
+          <option value="health">Health</option>
+          <option value="other">Other</option>
+        </select>
+        <select id="priority-select" aria-label="Priority">
+          <option value="low">Low</option>
+          <option value="medium" selected>Medium</option>
+          <option value="high">High</option>
+        </select>
+        <input id="due-date" type="date" aria-label="Due date" />
+        <button id="add-btn" type="submit" aria-label="Add task">Add</button>
+      </div>
     </form>
 
     <section class="toolbar">
-      <label><input type="checkbox" id="toggle-completed" /> Hide completed</label>
-      <button id="clear-completed" type="button">Clear completed</button>
+      <div class="toolbar-left">
+        <input id="search-input" type="text" placeholder="Search tasks..." aria-label="Search tasks" />
+        <select id="filter-category" aria-label="Filter by category">
+          <option value="">All categories</option>
+          <option value="work">Work</option>
+          <option value="personal">Personal</option>
+          <option value="shopping">Shopping</option>
+          <option value="health">Health</option>
+          <option value="other">Other</option>
+        </select>
+        <select id="filter-priority" aria-label="Filter by priority">
+          <option value="">All priorities</option>
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+      </div>
+      <div class="toolbar-right">
+        <label><input type="checkbox" id="toggle-completed" /> Hide completed</label>
+        <button id="clear-completed" type="button">Clear completed</button>
+        <button id="export-btn" type="button">Export</button>
+        <button id="import-btn" type="button">Import</button>
+        <input id="import-file" type="file" accept=".json" style="display: none;" />
+      </div>
     </section>
 
     <ul id="todo-list" role="list" aria-live="polite"></ul>
@@ -26,6 +67,22 @@
       <span id="count"></span>
     </footer>
   </main>
+
+  <!-- Help Modal -->
+  <div id="help-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <h2>Keyboard Shortcuts</h2>
+      <ul>
+        <li><kbd>Ctrl/Cmd + N</kbd> - Focus new todo input</li>
+        <li><kbd>Ctrl/Cmd + K</kbd> - Focus search</li>
+        <li><kbd>Ctrl/Cmd + E</kbd> - Export todos</li>
+        <li><kbd>Ctrl/Cmd + I</kbd> - Import todos</li>
+        <li><kbd>Ctrl/Cmd + ?</kbd> - Show this help</li>
+        <li><kbd>Escape</kbd> - Clear search (when focused)</li>
+      </ul>
+      <button id="close-help">Close</button>
+    </div>
+  </div>
 
   <script src="./app.js"></script>
   <noscript>JavaScript is required.</noscript>
