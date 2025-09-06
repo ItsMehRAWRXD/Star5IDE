@@ -159,8 +159,9 @@ const server = http.createServer(async (req, res) => {
         let packaged = null;
         if (mode === 'autokey') {
           // Generate random 32-byte key, base64 encode
-          const keyBytes = crypto.getRandomValues(new Uint8Array(32));
-          const keyB64 = Buffer.from(keyBytes).toString('base64');
+          const crypto = require('crypto');
+          const keyBytes = crypto.randomBytes(32);
+          const keyB64 = keyBytes.toString('base64');
           cliPass = keyB64;
           const out = await runCli(["encrypt", "--pass", String(cliPass), "--cipher", String(cipher)], body);
           // Inject autokey metadata with embedded key

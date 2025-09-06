@@ -3,16 +3,54 @@
   "displayName": "Hello World Ext",
   "version": "0.0.1",
   "publisher": "you",
-  "engines": { "vscode": "^1.85.0" },
-  "activationEvents": [ "onCommand:hello.sayHello" ],
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "activationEvents": [
+    "onCommand:hello.sayHello",
+    "onCommand:hello.encryptFile",
+    "onCommand:hello.decryptFile",
+    "onCommand:hello.runScanner",
+    "onCommand:hello.startServer"
+  ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
         "command": "hello.sayHello",
         "title": "Hello: Say Hello"
+      },
+      {
+        "command": "hello.encryptFile",
+        "title": "Hello: Encrypt Current File"
+      },
+      {
+        "command": "hello.decryptFile",
+        "title": "Hello: Decrypt File"
+      },
+      {
+        "command": "hello.runScanner",
+        "title": "Hello: Run RFI/LFI Scanner"
+      },
+      {
+        "command": "hello.startServer",
+        "title": "Hello: Start Encryption Server"
       }
-    ]
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "hello.encryptFile",
+          "group": "security"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "hello.encryptFile",
+          "group": "security"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run build",
@@ -22,6 +60,7 @@
     "start": "node server/encrypt_server.js"
   },
   "devDependencies": {
+    "@types/node": "^24.3.1",
     "@types/vscode": "^1.85.0",
     "typescript": "^5.4.0"
   }
