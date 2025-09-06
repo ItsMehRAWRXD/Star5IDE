@@ -52,7 +52,8 @@
       const cipher = $("cipher").value;
       if (!pass) { alert("Enter passphrase"); return; }
       if (!file) { alert("Choose a file"); return; }
-      const url = `${path}?pass=${encodeURIComponent(pass)}&cipher=${encodeURIComponent(cipher)}&download=1`;
+      const apiBase = new URLSearchParams(location.search).get('api') || '';
+      const url = `${apiBase}${path}?pass=${encodeURIComponent(pass)}&cipher=${encodeURIComponent(cipher)}&download=1`;
       const res = await fetch(url, { method: 'POST', body: file });
       if (!res.ok) {
         const t = await res.text();
