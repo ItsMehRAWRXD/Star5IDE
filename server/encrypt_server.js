@@ -5,6 +5,7 @@ const http = require("http");
 const url = require("url");
 const { spawn } = require("child_process");
 const path = require("path");
+const fs = require("fs");
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 8088;
 const CLI = path.join(__dirname, "..", "tools", "carmilla-openssl.js");
@@ -42,6 +43,19 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // Static index
+  if (method === "GET" && (pathname === "/" || pathname === "/index.html")) {
+    const file = path.join(__dirname, "public", "index.html");
+    try {
+      const html = fs.readFileSync(file);
+      res.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+      res.end(html);
+    } catch {
+      bad(res, 404, "index not found");
+    }
+    return;
+  }
+
   // Collect body
   const chunks = [];
   req.on("data", (c) => chunks.push(c));
@@ -52,7 +66,7 @@ const server = http.createServer(async (req, res) => {
       if (method === "POST" && pathname === "/encrypt") {
         const pass = parsed.query.pass;
         if (!pass) return bad(res, 400, "pass required as ?pass=");
-        const cipher = parsed.query.cipher || "carmilla-256-cbc";
+        const cipher = parsed.query.cipher || "camellia-256-cbc";
         const download = parsed.query.download === "1";
         const out = await runCli(["encrypt", "--pass", String(pass), "--cipher", String(cipher)], body);
         res.writeHead(200, {

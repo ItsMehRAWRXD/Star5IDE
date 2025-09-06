@@ -38,7 +38,8 @@ function runOpenSSL(args, inputBuffer) {
 
 function resolveCipher(userCipher) {
   const c = (userCipher || "").toString().toLowerCase();
-  if (!c) return { label: "carmilla-256-cbc", openssl: "-aes-256-cbc" };
+  // Default to Camellia-256-CBC
+  if (!c) return { label: "camellia-256-cbc", openssl: "-camellia-256-cbc" };
   if (c === "carmilla-256-cbc" || c === "camilla-256-cbc") return { label: "carmilla-256-cbc", openssl: "-aes-256-cbc" };
   if (c === "camellia-256-cbc") return { label: "camellia-256-cbc", openssl: "-camellia-256-cbc" };
   // Allow raw OpenSSL ciphers too (advanced users)
