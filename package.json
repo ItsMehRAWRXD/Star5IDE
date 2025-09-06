@@ -17,6 +17,11 @@
         "command": "carmilla.generateAndEncryptStub",
         "title": "Carmilla: Generate + Encrypt Stub"
       }
+      ,
+      {
+        "command": "carmilla.generateAndEncryptStubToAny",
+        "title": "Carmilla: Generate + Encrypt Stub To Any File"
+      }
     ]
   },
   "scripts": {

@@ -59,3 +59,21 @@ export async function writeAndEncryptStub(
   return packaged;
 }
 
+// New: package stub without writing plaintext to disk, then wrap to arbitrary target path
+export async function packageStubToTarget(
+  targetFilePath: string,
+  language: StubLanguage,
+  passphrase: string,
+  meta: Record<string, any> = {}
+): Promise<void> {
+  // Avoid node types
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const fs: any = require('fs');
+  const { encryptAsync, repack } = await import('./carmilla-openssl');
+  const content = generateStub(language);
+  const enc = await encryptAsync(content, passphrase);
+  const packaged = repack(enc, { ...meta, language, wrappedTarget: targetFilePath });
+  // Write the packaged data directly to the selected file, regardless of extension (including executables)
+  await fs.promises.writeFile(targetFilePath, packaged, 'utf-8');
+}
+

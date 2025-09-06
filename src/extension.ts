@@ -34,7 +34,25 @@ export function activate(context: vscode.ExtensionContext) {
     }
   });
 
-  context.subscriptions.push(helloCmd, genEncStubCmd);
+  const genEncStubToAnyCmd = vscode.commands.registerCommand('carmilla.generateAndEncryptStubToAny', async () => {
+    try {
+      const language = await vscode.window.showQuickPick(['node', 'python', 'ruby', 'text'], { placeHolder: 'Select stub language' });
+      if (!language) return;
+      const uri = await vscode.window.showSaveDialog({ saveLabel: 'Save packaged stub as (any extension allowed)' });
+      if (!uri) return;
+      const passphrase = await vscode.window.showInputBox({ prompt: 'Enter passphrase for encryption', password: true });
+      if (!passphrase) return;
+
+      const mod = await import('./utils/stubGenerator');
+      await mod.packageStubToTarget(uri.fsPath, language as any, passphrase, { createdBy: 'VSCodeCmd' });
+
+      vscode.window.showInformationMessage('Packaged stub written successfully to selected file.');
+    } catch (e: any) {
+      vscode.window.showErrorMessage(`Failed to package stub to target: ${e?.message ?? e}`);
+    }
+  });
+
+  context.subscriptions.push(helloCmd, genEncStubCmd, genEncStubToAnyCmd);
 }
 
 export function deactivate() {}
