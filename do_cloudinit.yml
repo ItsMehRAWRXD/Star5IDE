@@ -21,6 +21,11 @@ packages:
   - npm
   - docker.io
 runcmd:
+  - mkdir -p /home/rawr/.ssh
+  - '[ -f /root/.ssh/authorized_keys ] && cp /root/.ssh/authorized_keys /home/rawr/.ssh/authorized_keys || true'
+  - chown -R rawr:rawr /home/rawr/.ssh
+  - chmod 700 /home/rawr/.ssh
+  - '[ -f /home/rawr/.ssh/authorized_keys ] && chmod 600 /home/rawr/.ssh/authorized_keys || true'
   - ufw allow OpenSSH
   - ufw allow 80
   - ufw allow 443
