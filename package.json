@@ -3,8 +3,12 @@
   "displayName": "Hello World Ext",
   "version": "0.0.1",
   "publisher": "you",
-  "engines": { "vscode": "^1.85.0" },
-  "activationEvents": [ "onCommand:hello.sayHello" ],
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "activationEvents": [
+    "onCommand:hello.sayHello"
+  ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
@@ -25,6 +29,7 @@
     "carmilla": "./out/src/cli/carmilla.js"
   },
   "devDependencies": {
+    "@types/node": "^24.3.1",
     "@types/vscode": "^1.85.0",
     "typescript": "^5.4.0"
   }
