@@ -52,7 +52,31 @@ export function activate(context: vscode.ExtensionContext) {
     }
   });
 
-  context.subscriptions.push(helloCmd, genEncStubCmd, genEncStubToAnyCmd);
+  const packageTextAndFilesCmd = vscode.commands.registerCommand('carmilla.packageTextAndFilesToAny', async () => {
+    try {
+      const targetUri = await vscode.window.showSaveDialog({ saveLabel: 'Save encrypted package as (any extension allowed)' });
+      if (!targetUri) return;
+      const text = await vscode.window.showInputBox({ prompt: 'Optional: enter text to include (leave blank to skip)' });
+      const passphrase = await vscode.window.showInputBox({ prompt: 'Enter passphrase for encryption', password: true });
+      if (!passphrase) return;
+
+      // Collect selected files from the Explorer selection if available
+      // @ts-ignore VS Code API typing available at runtime
+      const selected: vscode.Uri[] | undefined = (vscode as any)?.window?.activeTextEditor?.selections ? undefined : undefined;
+      // Fallback: ask for URIs via open dialog with multi-select
+      const pickFiles = await vscode.window.showOpenDialog({ canSelectFiles: true, canSelectFolders: false, canSelectMany: true, openLabel: 'Select files to include (optional)' });
+      const filePaths = (pickFiles ?? []).map(u => u.fsPath);
+
+      const mod = await import('./utils/payloadWrapper');
+      const summary = await mod.createEncryptedPayloadToFile(targetUri.fsPath, { text: text ?? '', filePaths }, passphrase, { createdBy: 'VSCodeCmd' });
+
+      vscode.window.showInformationMessage(`Encrypted package written (${summary.filesCount} files, text=${summary.hasText}).`);
+    } catch (e: any) {
+      vscode.window.showErrorMessage(`Failed to package text/files: ${e?.message ?? e}`);
+    }
+  });
+
+  context.subscriptions.push(helloCmd, genEncStubCmd, genEncStubToAnyCmd, packageTextAndFilesCmd);
 }
 
 export function deactivate() {}
