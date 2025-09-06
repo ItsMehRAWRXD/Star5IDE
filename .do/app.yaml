@@ -1,0 +1,11 @@
+name: screenpilot-encrypt
+services:
+  - name: web
+    http_port: 8088
+    instance_size_slug: basic-xxs
+    instance_count: 1
+    routes:
+      - path: /
+    dockerfile_path: Dockerfile
+    source_dir: .
+
