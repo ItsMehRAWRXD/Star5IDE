@@ -90,6 +90,37 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // Bundle a stub with an embedded package (POST body = packaged base64)
+  if (method === "POST" && pathname === "/bundle") {
+    if (!isOriginAllowed(origin)) return bad(res, 403, "origin not allowed");
+    setCors(res, origin);
+    const lang = (parsed.query.stub || 'powershell').toString().toLowerCase();
+    const baseName = ((parsed.query.name || 'file').toString().replace(/[^a-zA-Z0-9._-]/g, '') || 'file').replace(/\.[^.]+$/, '');
+    let outExt = (parsed.query.ext || '').toString();
+    if (outExt && !outExt.startsWith('.')) outExt = `.${outExt}`;
+    const injectPass = (parsed.query.pass || '').toString();
+    // collect body as text (packaged base64)
+    const chunks = [];
+    req.on('data', c => chunks.push(c));
+    req.on('end', () => {
+      try {
+        const packagedB64 = Buffer.concat(chunks).toString('utf8').trim();
+        const code = (lang === 'node')
+          ? generateNodeStubEmbedded(packagedB64, baseName, outExt || '.bin', injectPass)
+          : generatePowerShellStubEmbedded(packagedB64, baseName, outExt || '.bin', injectPass);
+        const filename = `${baseName}_decrypt.${lang === 'node' ? 'js' : 'ps1'}`;
+        res.writeHead(200, {
+          "content-type": "text/plain; charset=utf-8",
+          "content-disposition": `attachment; filename=${filename}`,
+        });
+        res.end(code);
+      } catch (e) {
+        bad(res, 400, 'invalid package');
+      }
+    });
+    return;
+  }
+
   // Static index
   if (method === "GET" && (pathname === "/" || pathname === "/index.html")) {
     const file = path.join(__dirname, "public", "index.html");
@@ -226,7 +257,8 @@ function getDynamicCapabilities() {
     modes: ['password', 'autokey'],
     ciphers: unique,
     defaultCipher: unique.includes('camellia-256-cbc') ? 'camellia-256-cbc' : (unique[0] || 'aes-256-cbc'),
-    endpoints: ['/encrypt', '/decrypt', '/health', '/capabilities', '/stub'],
+    endpoints: ['/encrypt', '/decrypt', '/health', '/capabilities', '/stub', '/bundle'],
+    stubs: ['powershell', 'node']
   };
 }
 
@@ -271,5 +303,14 @@ execFileSync('openssl', ['enc', '-d', '-' + cipher, '-salt', '-pbkdf2', '-pass',
 fs.unlinkSync(tmp);
 console.log('Decrypted ->', out);
 `;
+}
+
+function generatePowerShellStubEmbedded(pkgB64, baseName, outExt, pass) {
+  // If autokey is present in package, the stub uses it; otherwise, if pass provided, uses that.
+  return `# Embedded decrypt stub (Camellia/AES via OpenSSL)\n# Output: ${baseName}${outExt}\n$Out = Join-Path (Get-Location) '${baseName.replace(/'/g, "''")}${outExt.replace(/'/g, "''")}'\n$b64 = @'\n${pkgB64}\n'@\n$json = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($b64))\n$pkg = $json | ConvertFrom-Json\n$key = $null\nif ($pkg.meta -and $pkg.meta.key_b64) { $key = $pkg.meta.key_b64 } elseif ('${pass.replace(/'/g, "''")}') { $key = '${pass.replace(/'/g, "''")}' } else { Write-Error 'No key available (autokey missing and no pass provided)'; exit 1 }\n$cipher = if ($pkg.meta -and $pkg.meta.openssl_cipher) { $pkg.meta.openssl_cipher } else { 'camellia-256-cbc' }\n$tmp = [IO.Path]::GetTempFileName()\n[IO.File]::WriteAllBytes($tmp, [Convert]::FromBase64String($pkg.data))\n& openssl enc -d -$cipher -salt -pbkdf2 -pass pass:$key -in $tmp -out $Out\nRemove-Item $tmp -Force\nWrite-Host \"Decrypted -> $Out\"\n`;
+}
+
+function generateNodeStubEmbedded(pkgB64, baseName, outExt, pass) {
+  return `// Embedded decrypt stub (Camellia/AES via OpenSSL)\nconst { execFileSync } = require('child_process');\nconst fs = require('fs');\nconst path = require('path');\nconst out = path.resolve(process.cwd(), ${JSON.stringify(baseName + outExt)});\nconst pkg = JSON.parse(Buffer.from(${JSON.stringify(pkgB64)}, 'base64').toString('utf8'));\nlet key = (pkg.meta && pkg.meta.key_b64) ? pkg.meta.key_b64 : ${JSON.stringify(pass || '')};\nif (!key) { console.error('No key available (autokey missing and no pass provided)'); process.exit(1); }\nconst cipher = (pkg.meta && pkg.meta.openssl_cipher) ? pkg.meta.openssl_cipher : 'camellia-256-cbc';\nconst tmp = fs.mkdtempSync(require('os').tmpdir() + path.sep + 'dec-') + '.bin';\nfs.writeFileSync(tmp, Buffer.from(pkg.data, 'base64'));\nexecFileSync('openssl', ['enc', '-d', '-' + cipher, '-salt', '-pbkdf2', '-pass', 'pass:' + key, '-in', tmp, '-out', out], { stdio: 'inherit' });\nfs.unlinkSync(tmp);\nconsole.log('Decrypted ->', out);\n`;
 }
 
