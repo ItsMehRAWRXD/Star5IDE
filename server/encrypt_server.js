@@ -70,6 +70,12 @@ const server = http.createServer(async (req, res) => {
   const pathname = parsed.pathname || "/";
   const origin = req.headers["origin"] || DEFAULT_CORS_ORIGIN;
 
+  // Endpoints disabled: deny all requests
+  setCors(res, origin);
+  res.writeHead(404, { "content-type": "application/json" });
+  res.end(JSON.stringify({ error: "disabled" }));
+  return;
+
   // CORS preflight — no auth required but still enforce allowed origin
   if (method === "OPTIONS") {
     setCors(res, origin);
@@ -258,7 +264,7 @@ const server = http.createServer(async (req, res) => {
 
 server.listen(PORT, HOST, () => {
   // eslint-disable-next-line no-console
-  console.log(`Encrypt server listening on http://${HOST}:${PORT}`);
+  console.log(`Encrypt server disabled (no endpoints) on http://${HOST}:${PORT}`);
 });
 
 // ---- dynamic capabilities ----
