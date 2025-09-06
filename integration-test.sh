@@ -28,7 +28,8 @@ test_result() {
     fi
 }
 
-echo -e "\n${YELLOW}1. Testing Carmilla OpenSSL CLI${NC}"
+echo ""
+echo "1. Testing Carmilla OpenSSL CLI"
 # Test encryption/decryption
 echo "Testing encryption..." | node tools/carmilla-openssl.js encrypt --pass testpass > test.pkg 2>/dev/null
 test_result "Encrypt with Carmilla CLI" $?

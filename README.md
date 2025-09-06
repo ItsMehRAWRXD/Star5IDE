@@ -8,6 +8,7 @@ A modernized, educational security tool for detecting Remote File Inclusion (RFI
 
 ## Features
 
+### Security Scanner Features
 - **Modern Python Implementation**: Written in Python 3.8+ with async/await for better performance
 - **Multiple Scan Types**: Supports both RFI and LFI vulnerability scanning
 - **Concurrent Scanning**: Configurable concurrent connections for faster scanning
@@ -16,13 +17,64 @@ A modernized, educational security tool for detecting Remote File Inclusion (RFI
 - **Error Handling**: Robust error handling and logging
 - **Rate Limiting**: Built-in rate limiting to avoid overwhelming target servers
 
+### VS Code Extension Features (NEW)
+- **File Encryption Integration**: Encrypt/decrypt files directly from VS Code
+- **Security Scanner Integration**: Run RFI/LFI scans from the editor
+- **Server Management**: Start encryption server with one command
+- **Context Menu Support**: Right-click encryption in file explorer
+- **Output Channels**: Dedicated channels for scanner results and server logs
+- **Password Management**: Secure password input dialogs
+
+### Encryption & Security Tools
+- **Carmilla OpenSSL CLI**: Command-line encryption with multiple cipher support
+- **Web Encryption Server**: HTTP API for file encryption/decryption
+- **Stub Generation**: Create standalone decryption scripts (PowerShell/Node.js)
+- **Auto-key Mode**: Automatic key generation for enhanced security
+- **Code Injection Tools**: Dynamic code patching and execution
+
+### Web Applications
+- **Modern Todo App**: Feature-rich task management with local storage
+- **Encryption Web Interface**: Drag-and-drop file encryption in browser
+- **Real-time Processing**: Live feedback for all operations
+
 ## Installation
 
+### Automated Setup (Recommended)
 1. **Clone or download the repository**
-2. **Install Python dependencies**:
+2. **Run the setup script**:
    ```bash
-   pip install -r requirements.txt
+   chmod +x setup-environment.sh
+   ./setup-environment.sh
    ```
+
+### Manual Setup
+1. **Install Node.js dependencies**:
+   ```bash
+   npm install
+   npm run build
+   ```
+
+2. **Install Python dependencies** (choose one method):
+   ```bash
+   # Option 1: Virtual environment (recommended)
+   python3 -m venv venv
+   source venv/bin/activate
+   pip install -r requirements.txt
+   
+   # Option 2: System-wide (if virtual env not available)
+   pip3 install --break-system-packages -r requirements.txt
+   ```
+
+3. **Make scripts executable**:
+   ```bash
+   chmod +x *.sh demo/*.sh tools/*.js
+   ```
+
+### Verification
+Run the quick test to verify all components:
+```bash
+./quick-test.sh
+```
 
 ## Usage
 
@@ -51,6 +103,39 @@ python modern_rfi_scanner.py \
     --output results.json \
     --verbose
 ```
+
+### VS Code Extension Usage (NEW)
+
+#### Installation
+1. Build the extension:
+   ```bash
+   npm install
+   npm run build
+   ```
+2. Install in VS Code using the Extensions panel
+
+#### Available Commands
+- **Hello: Encrypt Current File** - Encrypt the currently open file
+- **Hello: Decrypt File** - Decrypt a selected .pkg file
+- **Hello: Run RFI/LFI Scanner** - Launch security scans with interactive prompts
+- **Hello: Start Encryption Server** - Start the web encryption server
+
+#### Usage
+1. Open Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P`)
+2. Type "Hello:" to see all available commands
+3. Use context menus for quick file encryption (right-click in file explorer)
+4. Monitor operations in dedicated output channels
+
+### Encryption Server Usage
+
+```bash
+# Start the encryption server
+npm start
+# or
+node server/encrypt_server.js
+```
+
+Then open http://localhost:8088 in your browser for the web interface.
 
 ### Command Line Options
 
