@@ -88,7 +88,7 @@
       const cipher = $("cipher").value;
       if (mode === 'password' && !pass) { alert("Enter passphrase"); return; }
       if (!file) { alert("Choose a file"); return; }
-      const apiBase = new URLSearchParams(location.search).get('api') || '';
+      const apiBase = new URLSearchParams(location.search).get('api') || `${location.protocol}//${location.host}`;
       const match = (file.name || 'file').match(/^(.*?)(\.[^.]+)?$/);
       const base = (match && match[1]) ? match[1] : (file.name || 'file');
       const origExt = (match && match[2]) ? match[2] : '';
@@ -133,14 +133,14 @@
     $("decbtn").onclick = () => go('/decrypt', $("decfile").files[0]);
 
     // Menu actions
-    const apiBaseForMenu = new URLSearchParams(location.search).get('api') || '';
+    const apiBaseForMenu = new URLSearchParams(location.search).get('api') || `${location.protocol}//${location.host}`;
     $("capBtn").onclick = () => {
       const u = `${apiBaseForMenu}/capabilities`;
       window.open(u, '_blank');
     };
     $("genStubBtn").onclick = async () => {
       try {
-        if (!apiBaseForMenu) { alert('Missing api= query param'); return; }
+        // No longer need to check for api parameter - auto-detect from current location
         const f = $("pkgfile").files[0];
         if (!f) { alert('Choose a package file'); return; }
         const lang = $("stubLang").value;
