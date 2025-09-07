@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Camellia Encrypt Server Panel</title>
+  <title>Polymorphic Rig - Advanced Encryption Panel</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
     :root { --bg:#0b0f14; --card:#121822; --text:#e6eef8; --muted:#9bb0c3; --accent:#4cc2ff; --accent2:#7fff9f; --err:#ff6b6b; }
@@ -28,11 +28,20 @@
     .inline { display:flex;gap:8px;align-items:center }
     small { color:var(--muted) }
     .pill { display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;border:1px solid #2b394f;background:#0f141d;color:#9fc5ff }
+    .advanced-card { border-left:4px solid var(--accent2) }
+    .polymorphic-card { border-left:4px solid #ff9500 }
+    .hotpatch-card { border-left:4px solid #ff6b6b }
+    .triple-row { display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px }
+    .status-indicator { display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px }
+    .status-ok { background:#32d88a }
+    .status-warn { background:#ff9500 }
+    .status-err { background:#ff6b6b }
+    .feature-badge { display:inline-block;padding:2px 6px;border-radius:4px;font-size:10px;background:#2a98ff;color:white;margin-left:8px }
   </style>
 </head>
 <body>
   <header>
-    <h1>Camellia Encrypt Server</h1>
+    <h1>Polymorphic Rig - Advanced Encryption Panel</h1>
     <span class="pill" id="hostpill"></span>
     <span class="muted">
       Quick links:
@@ -122,12 +131,36 @@
       <pre id="stubOut"></pre>
     </section>
 
-    <!-- Polymorphic Encrypt card -->
-    <section class="card">
-      <h2>Polymorphic Dual-Layer Encrypt</h2>
-      <label>File</label>
+    <!-- Polymorphic Dual-Layer Encrypt card -->
+    <section class="card polymorphic-card">
+      <h2>🔥 Polymorphic Dual-Layer Encrypt <span class="feature-badge">NEW</span></h2>
+      <label>File (XLL, DOC, DLL, EXE, Beacon, etc.)</label>
       <input type="file" id="polyFile" />
+      
       <div class="row">
+        <div>
+          <label>File Type Detection</label>
+          <select id="polyFileType">
+            <option value="auto">Auto-detect</option>
+            <option value="xll">Excel Add-in (.xll)</option>
+            <option value="doc">Word Document (.doc/.docx)</option>
+            <option value="dll">Dynamic Library (.dll)</option>
+            <option value="exe">Executable (.exe)</option>
+            <option value="bin">Binary/Beacon (.bin)</option>
+            <option value="custom">Custom</option>
+          </select>
+        </div>
+        <div>
+          <label>Generation Mode</label>
+          <select id="polyGenMode">
+            <option value="dual">Dual (Loader + Binary)</option>
+            <option value="loader">C# Loader Only</option>
+            <option value="binary">Encrypted Binary Only</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="triple-row">
         <div>
           <label>OpenSSL Cipher</label>
           <select id="polyCipher">
@@ -139,24 +172,95 @@
         <div>
           <label>Polymorphic Layer</label>
           <select id="polyMode">
-            <option value="xor">XOR only</option>
             <option value="aes-ctr">AES-CTR keystream</option>
             <option value="camellia-ctr">Camellia-CTR keystream</option>
             <option value="chacha-ks">ChaCha20 keystream</option>
+            <option value="xor">XOR only</option>
           </select>
         </div>
+        <div>
+          <label>Output Extension</label>
+          <input id="polyExt" placeholder=".exe" value=".exe" />
+        </div>
       </div>
-      <label>Output extension (include dot or leave empty for none)</label>
-      <input id="polyExt" placeholder=".exe" value=".exe" />
-      <label>Passphrase (64-hex key)</label>
-      <input id="polyPass" type="password" placeholder="AABBCCDDEEFF00112233445566778899..." />
-      <button class="btn ok" id="btnPolyEncrypt">Generate Polymorphic EXE</button>
+
+      <div class="row">
+        <div>
+          <label>Passphrase (64-hex key)</label>
+          <input id="polyPass" type="password" placeholder="Auto-generate if empty" />
+        </div>
+        <div>
+          <label>Advanced Options</label>
+          <div class="inline">
+            <input type="checkbox" id="polyHotPatch" checked style="width:auto;margin-right:5px" />
+            <label for="polyHotPatch" style="margin:0">Enable Hot Patching</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <button class="btn ok" id="btnPolyGenerate">🚀 Generate Polymorphic Files</button>
+        <button class="btn secondary" id="btnPolyPreview">👁️ Preview Config</button>
+      </div>
       <pre id="polyOut"></pre>
     </section>
 
+    <!-- Advanced C# Compiler card -->
+    <section class="card advanced-card">
+      <h2>⚡ Advanced C# Compiler <span class="feature-badge">ENHANCED</span></h2>
+      <label>C# Source Code</label>
+      <textarea id="csCode" placeholder="Enter C# code here... or upload a .cs file">using System;
+
+class Program 
+{
+    static void Main() 
+    {
+        Console.WriteLine("Hello from Polymorphic Rig!");
+    }
+}</textarea>
+      
+      <div class="row">
+        <div>
+          <label>Compilation Target</label>
+          <select id="csTarget">
+            <option value="exe">Executable (.exe)</option>
+            <option value="dll">Library (.dll)</option>
+            <option value="winexe">Windows App (.exe)</option>
+          </select>
+        </div>
+        <div>
+          <label>Optimization</label>
+          <select id="csOptimize">
+            <option value="release">Release (Optimized)</option>
+            <option value="debug">Debug (Symbols)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Output Name</label>
+          <input id="csOutputName" placeholder="compiled_program" />
+        </div>
+        <div>
+          <label>Polymorphic Wrapping</label>
+          <div class="inline">
+            <input type="checkbox" id="csPolyWrap" style="width:auto;margin-right:5px" />
+            <label for="csPolyWrap" style="margin:0">Apply Encryption</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <button class="btn ok" id="btnCsCompile">🔧 Compile & Download</button>
+        <button class="btn secondary" id="btnCsValidate">✓ Validate Syntax</button>
+      </div>
+      <pre id="csOut"></pre>
+    </section>
+
     <!-- Hot patch card -->
-    <section class="card">
-      <h2>Hot Patch Manager</h2>
+    <section class="card hotpatch-card">
+      <h2>🔥 Hot Patch Manager <span class="feature-badge">ADVANCED</span></h2>
       <div class="row">
         <div>
           <label>Target</label>
@@ -186,6 +290,92 @@
         <button class="btn secondary" id="btnHpStatus">Refresh Status</button>
       </div>
       <pre id="hpOut"></pre>
+    </section>
+
+    <!-- Binary to C# Converter card -->
+    <section class="card advanced-card">
+      <h2>🔄 Binary to C# Converter <span class="feature-badge">NEW</span></h2>
+      <label>Binary File (XLL, DOC, DLL, EXE, Beacon, etc.)</label>
+      <input type="file" id="binFile" />
+      
+      <div class="row">
+        <div>
+          <label>Variable Name</label>
+          <input id="binVarName" placeholder="embeddedPayload" value="embeddedPayload" />
+        </div>
+        <div>
+          <label>Namespace</label>
+          <input id="binNamespace" placeholder="PolymorphicRig.Embedded" value="PolymorphicRig.Embedded" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Class Name</label>
+          <input id="binClassName" placeholder="PayloadData" value="PayloadData" />
+        </div>
+        <div>
+          <label>Include Integrity Check</label>
+          <div class="inline">
+            <input type="checkbox" id="binIntegrity" checked style="width:auto;margin-right:5px" />
+            <label for="binIntegrity" style="margin:0">SHA256 Verification</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <button class="btn ok" id="btnBinConvert">📝 Generate C# Source</button>
+        <button class="btn secondary" id="btnBinPreview">👁️ Preview Output</button>
+      </div>
+      <pre id="binOut"></pre>
+    </section>
+
+    <!-- Plugin System Status card -->
+    <section class="card">
+      <h2>🔌 Plugin System Status</h2>
+      <div class="row">
+        <div>
+          <label>Polymorphic Loader</label>
+          <div class="inline">
+            <span class="status-indicator status-ok"></span>
+            <span>Active</span>
+            <button class="btn secondary" style="width:auto;margin-left:10px" id="btnLoaderTest">Test</button>
+          </div>
+        </div>
+        <div>
+          <label>Hot Patcher</label>
+          <div class="inline">
+            <span class="status-indicator status-ok"></span>
+            <span>Active</span>
+            <button class="btn secondary" style="width:auto;margin-left:10px" id="btnPatcherTest">Test</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="row">
+        <div>
+          <label>C# Compiler Backend</label>
+          <div class="inline">
+            <span class="status-indicator status-warn"></span>
+            <span>Checking...</span>
+            <button class="btn secondary" style="width:auto;margin-left:10px" id="btnCompilerTest">Test</button>
+          </div>
+        </div>
+        <div>
+          <label>OpenSSL Integration</label>
+          <div class="inline">
+            <span class="status-indicator status-ok"></span>
+            <span>Available</span>
+            <button class="btn secondary" style="width:auto;margin-left:10px" id="btnOpenSSLTest">Test</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <button class="btn" id="btnSystemDiag">🔍 Full System Diagnostics</button>
+        <button class="btn secondary" id="btnPluginReload">🔄 Reload Plugins</button>
+      </div>
+      <pre id="pluginOut">System ready. All core components loaded.</pre>
     </section>
   </div>
 
