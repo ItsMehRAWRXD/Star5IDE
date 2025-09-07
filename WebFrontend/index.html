@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Polymorphic Encrypt / Decrypt</title>
+  <style>
+    body { 
+      font: 16px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial; 
+      margin: 0; 
+      padding: 24px; 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .card { 
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 16px; 
+      padding: 32px; 
+      margin-bottom: 24px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+    h1 { 
+      margin-top: 0; 
+      text-align: center;
+      color: #333;
+      font-size: 2.5em;
+      margin-bottom: 32px;
+    }
+    h2 {
+      color: #555;
+      border-bottom: 2px solid #667eea;
+      padding-bottom: 8px;
+    }
+    label { 
+      display: block; 
+      margin: 12px 0 6px; 
+      font-weight: 600;
+      color: #444;
+    }
+    input[type=file], select, button, input[type=text] { 
+      width: 100%; 
+      padding: 12px; 
+      margin-bottom: 16px; 
+      box-sizing: border-box;
+      border: 2px solid #e1e5e9;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.3s ease;
+    }
+    input[type=file]:focus, select:focus, input[type=text]:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    .row { 
+      display: grid; 
+      grid-template-columns: 1fr 1fr; 
+      gap: 24px; 
+    }
+    .status {
+      padding: 12px;
+      border-radius: 8px;
+      margin: 16px 0;
+      font-weight: 500;
+    }
+    .status.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    .status.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    .status.info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+    pre { 
+      white-space: pre-wrap; 
+      word-break: break-word; 
+      background: #f8f9fa; 
+      padding: 16px; 
+      border-radius: 8px;
+      border: 1px solid #e9ecef;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .progress {
+      width: 100%;
+      height: 8px;
+      background: #e9ecef;
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 16px 0;
+    }
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin: 24px 0;
+    }
+    .feature-card {
+      background: rgba(255, 255, 255, 0.8);
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    .feature-icon {
+      font-size: 2em;
+      margin-bottom: 12px;
+    }
+    @media (max-width: 768px) {
+      .row {
+        grid-template-columns: 1fr;
+      }
+      .card {
+        padding: 20px;
+      }
+      h1 {
+        font-size: 2em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>🔐 Polymorphic Encrypt / Decrypt</h1>
+      
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🛡️</div>
+          <h3>Dual-Layer Encryption</h3>
+          <p>OpenSSL + Polymorphic keystream for maximum security</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔄</div>
+          <h3>Hot Patching</h3>
+          <p>Dynamic code modification with car() markers</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🎯</div>
+          <h3>Position Independent</h3>
+          <p>Self-relocating executables ready to run anywhere</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔧</div>
+          <h3>Plugin System</h3>
+          <p>Modular architecture for extensibility</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Configuration</h2>
+      
+      <label for="cipher">OpenSSL Cipher</label>
+      <select id="cipher">
+        <option value="camellia-256-cbc">Camellia-256-CBC</option>
+        <option value="aes-256-cbc" selected>AES-256-CBC</option>
+        <option value="chacha20">ChaCha20</option>
+      </select>
+
+      <label for="poly">Polymorphic Layer</label>
+      <select id="poly">
+        <option value="xor">XOR only</option>
+        <option value="aes-ctr">AES-CTR keystream</option>
+        <option value="camellia-ctr">Camellia-CTR keystream</option>
+        <option value="chacha-ks">ChaCha20 keystream</option>
+      </select>
+
+      <label for="ext">Output Extension (include dot or leave empty for none)</label>
+      <input id="ext" type="text" placeholder=".exe" value=".exe"/>
+
+      <label for="pass">Passphrase (32-byte hex key)</label>
+      <input id="pass" type="text" placeholder="AABBCCDDEEFF00112233445566778899AABBCCDDEEFF00112233445566778899"/>
+    </div>
+
+    <div class="row">
+      <div class="card">
+        <h2>🔒 Encrypt</h2>
+        <input id="encfile" type="file"/>
+        <button id="encbtn">Encrypt & Download</button>
+        <div class="progress" id="encProgress" style="display: none;">
+          <div class="progress-bar" id="encProgressBar"></div>
+        </div>
+        <div id="encStatus"></div>
+      </div>
+      
+      <div class="card">
+        <h2>🔓 Decrypt</h2>
+        <input id="decfile" type="file"/>
+        <button id="decbtn">Decrypt & Download</button>
+        <div class="progress" id="decProgress" style="display: none;">
+          <div class="progress-bar" id="decProgressBar"></div>
+        </div>
+        <div id="decStatus"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>📊 Activity Log</h2>
+      <pre id="log"></pre>
+    </div>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    
+    function log(msg, type = 'info') {
+      const el = $("log");
+      const timestamp = new Date().toLocaleTimeString();
+      const logEntry = `[${timestamp}] ${msg}\n`;
+      el.textContent += logEntry;
+      el.scrollTop = el.scrollHeight;
+    }
+
+    function showStatus(elementId, message, type = 'info') {
+      const el = $(elementId);
+      el.innerHTML = `<div class="status ${type}">${message}</div>`;
+    }
+
+    function showProgress(progressId, barId, show = true) {
+      const progressEl = $(progressId);
+      const barEl = $(barId);
+      
+      if (show) {
+        progressEl.style.display = 'block';
+        barEl.style.width = '0%';
+      } else {
+        progressEl.style.display = 'none';
+      }
+    }
+
+    function updateProgress(barId, percent) {
+      const barEl = $(barId);
+      barEl.style.width = percent + '%';
+    }
+
+    async function go(path, file, progressId, barId, statusId) {
+      if (!file) { 
+        showStatus(statusId, "Please choose a file", 'error');
+        return; 
+      }
+      
+      const pass = $("pass").value.trim();
+      const cipher = $("cipher").value;
+      const poly = $("poly").value;
+      const ext = $("ext").value.trim();
+      
+      if (!pass) { 
+        showStatus(statusId, "Please enter a 64-hex key", 'error');
+        return; 
+      }
+
+      showProgress(progressId, barId, true);
+      showStatus(statusId, "Processing...", 'info');
+      log(`Starting ${path.includes('encrypt') ? 'encryption' : 'decryption'} of ${file.name}`);
+
+      try {
+        const url = `${path}?pass=${encodeURIComponent(pass)}&cipher=${encodeURIComponent(cipher)}&poly=${encodeURIComponent(poly)}&ext=${encodeURIComponent(ext)}&download=1`;
+        
+        updateProgress(barId, 25);
+        log(`Calling ${path}...`);
+
+        const res = await fetch(url, { 
+          method: 'POST', 
+          body: file,
+          headers: {
+            'Content-Type': 'application/octet-stream'
+          }
+        });
+
+        updateProgress(barId, 75);
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new Error(`HTTP ${res.status}: ${errorText}`);
+        }
+
+        const blob = await res.blob();
+        updateProgress(barId, 100);
+
+        const a = document.createElement('a');
+        const name = (file.name || 'file').replace(/\.[^.]+$/, '') + (path.includes('encrypt') ? ext : '.bin');
+        a.href = URL.createObjectURL(blob);
+        a.download = name;
+        document.body.appendChild(a); 
+        a.click(); 
+        a.remove();
+
+        showStatus(statusId, `Successfully saved → ${name}`, 'success');
+        log(`Saved → ${name}`);
+        
+        setTimeout(() => {
+          showProgress(progressId, barId, false);
+        }, 2000);
+
+      } catch (error) {
+        showStatus(statusId, `Error: ${error.message}`, 'error');
+        log(`Error: ${error.message}`);
+        showProgress(progressId, barId, false);
+      }
+    }
+
+    // Event listeners
+    $("encbtn").onclick = () => go('/generate', $("encfile").files[0], 'encProgress', 'encProgressBar', 'encStatus');
+    $("decbtn").onclick = () => go('/decrypt', $("decfile").files[0], 'decProgress', 'decProgressBar', 'decStatus');
+
+    // Initialize
+    log("Polymorphic Encrypt/Decrypt system initialized");
+    log("Ready for file processing");
+  </script>
+</body>
+</html>
