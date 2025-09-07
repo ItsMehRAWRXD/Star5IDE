@@ -1,19 +1,273 @@
 <!doctype html>
-<html>
-  <head><meta charset="utf-8"><title>Camellia Encrypt Server</title></head>
-  <body>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Camellia Encrypt Server Panel</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    :root { --bg:#0b0f14; --card:#121822; --text:#e6eef8; --muted:#9bb0c3; --accent:#4cc2ff; --accent2:#7fff9f; --err:#ff6b6b; }
+    * { box-sizing: border-box }
+    html,body { margin:0; height:100%; background:var(--bg); color:var(--text); font:14px/1.5 system-ui,Segoe UI,Roboto,Arial; }
+    a { color:var(--accent) }
+    header { padding:16px 20px; border-bottom:1px solid #1b2431; display:flex; align-items:center; gap:16px; }
+    h1 { margin:0; font-size:18px }
+    #grid { display:grid; gap:14px; padding:16px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+    .card { background:var(--card); border:1px solid #1b2431; border-radius:10px; padding:14px; }
+    .card h2 { margin:0 0 10px; font-size:15px; color:#dbe7f3 }
+    label { display:block; margin:6px 0 4px; color:var(--muted) }
+    input, select, textarea, button { width:100%; background:#0f141d; color:var(--text); border:1px solid #253146; border-radius:8px; padding:9px 10px; }
+    input:focus, select:focus, textarea:focus { outline:none; border-color:var(--accent) }
+    textarea { min-height:110px; resize:vertical; }
+    .row { display:grid; grid-template-columns:1fr 1fr; gap:8px }
+    .btn { background:linear-gradient(180deg,#2a98ff,#0076d6); border:0; cursor:pointer; }
+    .btn.secondary { background:#182334 }
+    .btn.ok { background:linear-gradient(180deg,#32d88a,#0bb36a) }
+    .btn.err { background:linear-gradient(180deg,#ff8a8a,#e14c4c) }
+    .muted { color:var(--muted) }
+    pre { background:#0f141d; border:1px solid #253146; border-radius:8px; padding:10px; overflow:auto; max-height:260px; }
+    .inline { display:flex; gap:8px; align-items:center }
+    small { color:var(--muted) }
+    .pill { display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; border:1px solid #2b394f; background:#0f141d; color:#9fc5ff }
+  </style>
+</head>
+<body>
+  <header>
     <h1>Camellia Encrypt Server</h1>
-    <ul>
-      <li><a href="/health" target="_blank">/health</a></li>
-      <li><a href="/capabilities" target="_blank">/capabilities</a></li>
-      <li><a href="/capabilities/dynamic" target="_blank">/capabilities/dynamic</a></li>
-    </ul>
-    <pre id="out"></pre>
-    <script>
-      const out = document.getElementById('out');
-      Promise.all([fetch('/health'), fetch('/capabilities')])
-        .then(rs => Promise.all(rs.map(r=>r.json()))).then(x => out.textContent = JSON.stringify(x,null,2))
-        .catch(e => out.textContent = String(e));
-    </script>
-  </body>
+    <span class="pill" id="hostpill"></span>
+    <span class="muted">Quick links: <a href="/health" target="_blank">/health</a> · <a href="/capabilities" target="_blank">/capabilities</a> · <a href="/capabilities/dynamic" target="_blank">/capabilities/dynamic</a></span>
+  </header>
+
+  <div id="grid">
+    <section class="card">
+      <h2>Status</h2>
+      <div class="row">
+        <button class="btn" id="btnHealth">Health</button>
+        <button class="btn secondary" id="btnCaps">Capabilities</button>
+      </div>
+      <pre id="statusOut">Ready.</pre>
+    </section>
+
+    <section class="card">
+      <h2>Encrypt</h2>
+      <label>File</label>
+      <input type="file" id="encFile">
+      <div class="row">
+        <div>
+          <label>Mode</label>
+          <select id="encMode">
+            <option value="password">Password</option>
+            <option value="autokey">Autokey (no password)</option>
+          </select>
+        </div>
+        <div>
+          <label>Cipher</label>
+          <select id="encCipher">
+            <option>camellia-256-cbc</option>
+            <option>aes-256-cbc</option>
+          </select>
+        </div>
+      </div>
+      <label>Passphrase (ignored in autokey)</label>
+      <input type="password" id="encPass" placeholder="Enter passphrase">
+      <label>Output extension (blank = keep)</label>
+      <input id="encExt" placeholder="e.g. .pkg or leave empty">
+      <div class="inline">
+        <button class="btn ok" id="btnEncrypt">Encrypt & Download</button>
+        <small class="muted">Keeps original extension if left blank</small>
+      </div>
+      <pre id="encOut"></pre>
+    </section>
+
+    <section class="card">
+      <h2>Decrypt</h2>
+      <label>File (.pkg or base64)</label>
+      <input type="file" id="decFile">
+      <label>Passphrase (or leave blank for autokey package)</label>
+      <input type="password" id="decPass" placeholder="Enter passphrase or leave blank">
+      <label>Output extension (include dot or leave empty)</label>
+      <input id="decExt" placeholder=".bin">
+      <button class="btn ok" id="btnDecrypt">Decrypt & Download</button>
+      <pre id="decOut"></pre>
+    </section>
+
+    <section class="card">
+      <h2>Bundle Decrypt Stub</h2>
+      <label>Encrypted package (.pkg or base64)</label>
+      <input type="file" id="pkgFile">
+      <div class="row">
+        <div>
+          <label>Stub type</label>
+          <select id="stubLang">
+            <option value="powershell">PowerShell (.ps1)</option>
+            <option value="node">Node (.js)</option>
+          </select>
+        </div>
+        <div>
+          <label>Output ext (decrypted)</label>
+          <input id="stubOutExt" placeholder=".bin" value=".bin">
+        </div>
+      </div>
+      <label>Optional pass (used if autokey missing)</label>
+      <input id="stubPass" placeholder="Leave blank to rely on autokey">
+      <button class="btn" id="btnStub">Generate Stub & Download</button>
+      <pre id="stubOut"></pre>
+    </section>
+
+    <section class="card">
+      <h2>Hot Patch Manager</h2>
+      <div class="row">
+        <div>
+          <label>Target</label>
+          <select id="hpTarget">
+            <option>encrypt</option>
+            <option>decrypt</option>
+          </select>
+        </div>
+        <div>
+          <label>Action</label>
+          <select id="hpAction">
+            <option value="install">Install Wrapper</option>
+            <option value="status">Status</option>
+            <option value="uninstall">Uninstall (by ID)</option>
+            <option value="spoof">Set Base (spoof)</option>
+            <option value="clearBase">Clear Base</option>
+          </select>
+        </div>
+      </div>
+      <label>Wrapper / Base code (JS). It must evaluate to: return (next)=>async (body,query)=>{ ... }</label>
+      <textarea id="hpCode" placeholder="return (next)=>async (body,query)=>{ return await next(body,query) }"></textarea>
+      <label>Patch ID (for uninstall)</label>
+      <input id="hpId" placeholder="e.g. 1">
+      <div class="row">
+        <button class="btn" id="btnHpRun">Run</button>
+        <button class="btn secondary" id="btnHpStatus">Refresh Status</button>
+      </div>
+      <pre id="hpOut"></pre>
+    </section>
+  </div>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    const apiBase = `${location.protocol}//${location.host}`;
+    $("hostpill").textContent = apiBase;
+
+    const asJson = async (resp) => {
+      const txt = await resp.text();
+      try { return JSON.stringify(JSON.parse(txt), null, 2); } catch { return txt; }
+    };
+
+    const basenameExt = (name='file') => {
+      const m = name.match(/^(.*?)(\.[^.]+)?$/);
+      return { base: (m && m[1]) || 'file', ext: (m && m[2]) || '' };
+    };
+
+    $("btnHealth").onclick = async () => {
+      const r = await fetch(`${apiBase}/health`);
+      $("statusOut").textContent = await asJson(r);
+    };
+    $("btnCaps").onclick = async () => {
+      const r = await fetch(`${apiBase}/capabilities`);
+      $("statusOut").textContent = await asJson(r);
+    };
+
+    $("btnEncrypt").onclick = async () => {
+      const f = $("encFile").files[0];
+      const mode = $("encMode").value;
+      const cipher = $("encCipher").value;
+      const pass = $("encPass").value.trim();
+      const outExt = $("encExt").value.trim();
+      if (!f) { $("encOut").textContent = "Choose a file."; return; }
+      if (mode === "password" && !pass) { $("encOut").textContent = "Enter a passphrase."; return; }
+      const { base, ext } = basenameExt(f.name);
+      const extFinal = outExt || ext;
+      const qs = new URLSearchParams({ mode, cipher, download: "1", name: base, ext: extFinal });
+      if (pass) qs.set("pass", pass);
+      const r = await fetch(`${apiBase}/encrypt?${qs.toString()}`, { method: "POST", body: f });
+      if (!r.ok) { $("encOut").textContent = await asJson(r); return; }
+      const blob = await r.blob();
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${base}${extFinal}`;
+      document.body.appendChild(a); a.click(); a.remove();
+      $("encOut").textContent = "Encrypted and downloaded.";
+    };
+
+    $("btnDecrypt").onclick = async () => {
+      const f = $("decFile").files[0];
+      const pass = $("decPass").value.trim();
+      const outExt = $("decExt").value.trim();
+      if (!f) { $("decOut").textContent = "Choose a file."; return; }
+      const { base } = basenameExt(f.name);
+      const qs = new URLSearchParams({ download: "1", name: base, ext: outExt || ".bin" });
+      if (pass) qs.set("pass", pass);
+      const r = await fetch(`${apiBase}/decrypt?${qs.toString()}`, { method: "POST", body: f });
+      if (!r.ok) { $("decOut").textContent = await asJson(r); return; }
+      const blob = await r.blob();
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${base}${outExt || ".bin"}`;
+      document.body.appendChild(a); a.click(); a.remove();
+      $("decOut").textContent = "Decrypted and downloaded.";
+    };
+
+    $("btnStub").onclick = async () => {
+      const f = $("pkgFile").files[0];
+      if (!f) { $("stubOut").textContent = "Choose a package file."; return; }
+      const lang = $("stubLang").value;
+      const outExt = $("stubOutExt").value.trim() || ".bin";
+      const pass = $("stubPass").value.trim();
+      const { base } = basenameExt(f.name || "file.pkg");
+      const qs = new URLSearchParams({ stub: lang, name: base, ext: outExt });
+      if (pass) qs.set("pass", pass);
+      const r = await fetch(`${apiBase}/bundle?${qs.toString()}`, { method: "POST", body: await f.text() });
+      if (!r.ok) { $("stubOut").textContent = await asJson(r); return; }
+      const blob = await r.blob();
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${base}_decrypt.${lang === "node" ? "js" : "ps1"}`;
+      document.body.appendChild(a); a.click(); a.remove();
+      $("stubOut").textContent = "Stub generated.";
+    };
+
+    async function hpStatus() {
+      const r = await fetch(`${apiBase}/hot/status`);
+      $("hpOut").textContent = await asJson(r);
+    }
+    $("btnHpStatus").onclick = hpStatus;
+
+    $("btnHpRun").onclick = async () => {
+      const target = $("hpTarget").value;
+      const action = $("hpAction").value;
+      const code = $("hpCode").value;
+      const id = $("hpId").value.trim();
+
+      try {
+        let resp;
+        if (action === "install") {
+          resp = await fetch(`${apiBase}/hot/install`, { method:"POST", headers:{ "content-type":"application/json" }, body: JSON.stringify({ name: target, code }) });
+        } else if (action === "uninstall") {
+          if (!id) { $("hpOut").textContent = "Provide patch id."; return; }
+          resp = await fetch(`${apiBase}/hot/uninstall`, { method:"POST", headers:{ "content-type":"application/json" }, body: JSON.stringify({ id }) });
+        } else if (action === "spoof") {
+          resp = await fetch(`${apiBase}/hot/spoof`, { method:"POST", headers:{ "content-type":"application/json" }, body: JSON.stringify({ name: target, code }) });
+        } else if (action === "clearBase") {
+          resp = await fetch(`${apiBase}/hot/spoof/clear`, { method:"POST", headers:{ "content-type":"application/json" }, body: JSON.stringify({ name: target }) });
+        } else {
+          return hpStatus();
+        }
+        $("hpOut").textContent = await asJson(resp);
+      } catch (e) {
+        $("hpOut").textContent = String(e?.message || e);
+      }
+    };
+
+    // Initial
+    (async () => {
+      try {
+        const [h,c] = await Promise.all([fetch(`${apiBase}/health`), fetch(`${apiBase}/capabilities`)]);
+        $("statusOut").textContent = (await h.ok ? "Health OK\n" : "Health ERR\n") + (await asJson(c));
+      } catch { $("statusOut").textContent = "Unable to reach server."; }
+    })();
+  </script>
+</body>
 </html>
