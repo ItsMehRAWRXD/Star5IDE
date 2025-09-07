@@ -35,6 +35,7 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.generateStub = generateStub;
+exports.generateStubTemplateToFile = generateStubTemplateToFile;
 exports.writeAndEncryptStub = writeAndEncryptStub;
 exports.packageStubToTarget = packageStubToTarget;
 const camellia = require("./carmilla-openssl");
@@ -73,14 +74,40 @@ function getTemplate(language) {
 function generateStub(language = 'node') {
     return getTemplate(language);
 }
+function ensureNonOverwritingPath(p) {
+    const fs = require('fs');
+    const path = require('path');
+    const dir = path.dirname(p);
+    const ext = path.extname(p);
+    const base = path.basename(p, ext);
+    let i = 1;
+    let candidate = p;
+    while (fs.existsSync(candidate)) {
+        candidate = path.join(dir, `${base} (${i})${ext}`);
+        i += 1;
+        if (i > 1000)
+            break;
+    }
+    return candidate;
+}
+async function generateStubTemplateToFile(filePath, language) {
+    // Avoid node types
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const fs = require('fs');
+    const target = ensureNonOverwritingPath(filePath);
+    const content = generateStub(language);
+    await fs.promises.writeFile(target, content, 'utf-8');
+    return target;
+}
 async function writeAndEncryptStub(filePath, language, passphrase, meta = {}) {
     // Avoid node types
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const fs = require('fs');
+    const target = ensureNonOverwritingPath(filePath);
     const content = generateStub(language);
-    await fs.promises.writeFile(filePath, content, 'utf-8');
+    await fs.promises.writeFile(target, content, 'utf-8');
     // Package the written stub (sourcePath saved in meta)
-    const packaged = await camellia.encryptFileToPackageAsync(filePath, passphrase, { ...meta, language });
+    const packaged = await camellia.encryptFileToPackageAsync(target, passphrase, { ...meta, language });
     return packaged;
 }
 // New: package stub without writing plaintext to disk, then wrap to arbitrary target path
