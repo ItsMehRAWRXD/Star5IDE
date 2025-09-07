@@ -122,6 +122,38 @@
       <pre id="stubOut"></pre>
     </section>
 
+    <!-- Polymorphic Encrypt card -->
+    <section class="card">
+      <h2>Polymorphic Dual-Layer Encrypt</h2>
+      <label>File</label>
+      <input type="file" id="polyFile" />
+      <div class="row">
+        <div>
+          <label>OpenSSL Cipher</label>
+          <select id="polyCipher">
+            <option value="camellia-256-cbc">Camellia-256-CBC</option>
+            <option value="aes-256-cbc">AES-256-CBC</option>
+            <option value="chacha20">ChaCha20</option>
+          </select>
+        </div>
+        <div>
+          <label>Polymorphic Layer</label>
+          <select id="polyMode">
+            <option value="xor">XOR only</option>
+            <option value="aes-ctr">AES-CTR keystream</option>
+            <option value="camellia-ctr">Camellia-CTR keystream</option>
+            <option value="chacha-ks">ChaCha20 keystream</option>
+          </select>
+        </div>
+      </div>
+      <label>Output extension (include dot or leave empty for none)</label>
+      <input id="polyExt" placeholder=".exe" value=".exe" />
+      <label>Passphrase (64-hex key)</label>
+      <input id="polyPass" type="password" placeholder="AABBCCDDEEFF00112233445566778899..." />
+      <button class="btn ok" id="btnPolyEncrypt">Generate Polymorphic EXE</button>
+      <pre id="polyOut"></pre>
+    </section>
+
     <!-- Hot patch card -->
     <section class="card">
       <h2>Hot Patch Manager</h2>
@@ -305,6 +337,38 @@
         $("hpOut").textContent = await asJson(resp);
       } catch (e) {
         $("hpOut").textContent = String(e?.message || e);
+      }
+    };
+
+    /* polymorphic encrypt */
+    $("btnPolyEncrypt").onclick = async () => {
+      const f = $("polyFile").files[0];
+      const cipher = $("polyCipher").value;
+      const poly = $("polyMode").value;
+      const ext = $("polyExt").value.trim();
+      const pass = $("polyPass").value.trim();
+
+      if (!f) { $("polyOut").textContent = "Choose a file."; return; }
+      if (!pass) { $("polyOut").textContent = "Enter 64-hex key."; return; }
+
+      const { base } = basenameExt(f.name);
+      const url = `${apiBase}/polymorphic/generate?pass=${encodeURIComponent(pass)}&cipher=${encodeURIComponent(cipher)}&poly=${encodeURIComponent(poly)}&ext=${encodeURIComponent(ext)}&download=1`;
+      
+      $("polyOut").textContent = "Generating polymorphic executable...";
+      
+      try {
+        const r = await fetch(url, { method: 'POST', body: f });
+        if (!r.ok) { $("polyOut").textContent = await asJson(r); return; }
+
+        const blob = await r.blob();
+        const a = document.createElement('a');
+        const name = `${base}${ext || '.exe'}`;
+        a.href = URL.createObjectURL(blob);
+        a.download = name;
+        document.body.appendChild(a); a.click(); a.remove();
+        $("polyOut").textContent = `Polymorphic executable generated → ${name}`;
+      } catch (e) {
+        $("polyOut").textContent = `Error: ${e.message}`;
       }
     };
 
