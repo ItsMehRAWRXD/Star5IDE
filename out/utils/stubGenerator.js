@@ -37,7 +37,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.generateStub = generateStub;
 exports.writeAndEncryptStub = writeAndEncryptStub;
 exports.packageStubToTarget = packageStubToTarget;
-const carmilla_openssl_1 = require("./carmilla-openssl");
+const camellia = require("./carmilla-openssl");
 function getTemplate(language) {
     switch (language) {
         case 'node':
@@ -80,7 +80,7 @@ async function writeAndEncryptStub(filePath, language, passphrase, meta = {}) {
     const content = generateStub(language);
     await fs.promises.writeFile(filePath, content, 'utf-8');
     // Package the written stub (sourcePath saved in meta)
-    const packaged = await (0, carmilla_openssl_1.encryptFileToPackageAsync)(filePath, passphrase, { ...meta, language });
+    const packaged = await camellia.encryptFileToPackageAsync(filePath, passphrase, { ...meta, language });
     return packaged;
 }
 // New: package stub without writing plaintext to disk, then wrap to arbitrary target path
@@ -91,6 +91,6 @@ async function packageStubToTarget(targetFilePath, language, passphrase, meta = 
     const { encryptAsync, repack } = await Promise.resolve().then(() => __importStar(require('./carmilla-openssl')));
     const content = generateStub(language);
     // Write ciphertext matching the user's target (text base64 or raw binary based on extension)
-    await (0, carmilla_openssl_1.writeEncryptedToFile)(targetFilePath, content, passphrase, { outputMode: 'match' });
+    await camellia.writeEncryptedToFile(targetFilePath, content, passphrase, { outputMode: 'match' });
 }
 //# sourceMappingURL=stubGenerator.js.map

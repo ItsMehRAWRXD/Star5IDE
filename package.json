@@ -15,34 +15,30 @@
       ,
       {
         "command": "carmilla.generateAndEncryptStub",
-        "title": "Carmilla: Generate + Encrypt Stub"
+        "title": "Camellia: Generate + Encrypt Stub"
       }
       ,
       {
         "command": "carmilla.generateAndEncryptStubToAny",
-        "title": "Carmilla: Generate + Encrypt Stub To Any File"
+        "title": "Camellia: Generate + Encrypt Stub To Any File"
       }
       ,
       {
         "command": "carmilla.packageTextAndFilesToAny",
-        "title": "Carmilla: Package Text & Files To Any File"
+        "title": "Camellia: Package Text & Files To Any File"
       }
       ,
       {
         "command": "carmilla.packageByExtensionToAny",
-        "title": "Carmilla: Package *.extension Type + Files To Any File"
+        "title": "Camellia: Package *.extension Type + Files To Any File"
       }
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm run build",
-    "build": "tsc -p ./",
-    "watch": "tsc -w -p ./",
+    "build": "echo 'No TypeScript build'",
+    "watch": "echo 'No TypeScript watch'",
     "test": "echo \"(optional)\"",
     "start": "node server/encrypt_server.js"
   },
-  "devDependencies": {
-    "@types/vscode": "^1.85.0",
-    "typescript": "^5.4.0"
-  }
+  "devDependencies": {}
 }

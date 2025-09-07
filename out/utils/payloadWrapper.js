@@ -3,7 +3,7 @@
 // encrypted base64 text payload, written to any target file.
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createEncryptedPayloadToFile = createEncryptedPayloadToFile;
-const carmilla_openssl_1 = require("./carmilla-openssl");
+const camellia = require("./carmilla-openssl");
 // Avoid Node types
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fs = require('fs');
@@ -39,7 +39,7 @@ async function createEncryptedPayloadToFile(targetFilePath, input, passphrase, m
     };
     const plain = JSON.stringify(payload);
     // Write ciphertext matching user's target (text base64 if texty ext; binary if binary ext)
-    await (0, carmilla_openssl_1.writeEncryptedToFile)(targetFilePath, plain, passphrase, { outputMode: 'match' });
+    await camellia.writeEncryptedToFile(targetFilePath, plain, passphrase, { outputMode: 'match' });
     return {
         filesCount: fileEntries.length,
         hasText: !!input.text,

@@ -51,7 +51,7 @@ function activate(context) {
             const passphrase = await vscode.window.showInputBox({ prompt: 'Enter passphrase for encryption', password: true });
             if (!passphrase)
                 return;
-            const mod = await Promise.resolve().then(() => __importStar(require('./utils/stubGenerator')));
+            const mod = require('./utils/stubGenerator');
             const packaged = await mod.writeAndEncryptStub(uri.fsPath, language, passphrase, { createdBy: 'VSCodeCmd' });
             // Offer to save the packaged data alongside (optional)
             const savePkg = await vscode.window.showQuickPick(['Yes', 'No'], { placeHolder: 'Save packaged (.pkg.b64) alongside stub?' });
@@ -78,7 +78,7 @@ function activate(context) {
             const passphrase = await vscode.window.showInputBox({ prompt: 'Enter passphrase for encryption', password: true });
             if (!passphrase)
                 return;
-            const mod = await Promise.resolve().then(() => __importStar(require('./utils/stubGenerator')));
+            const mod = require('./utils/stubGenerator');
             await mod.packageStubToTarget(uri.fsPath, language, passphrase, { createdBy: 'VSCodeCmd' });
             vscode.window.showInformationMessage('Packaged stub written successfully to selected file.');
         }
@@ -101,7 +101,7 @@ function activate(context) {
             // Fallback: ask for URIs via open dialog with multi-select
             const pickFiles = await vscode.window.showOpenDialog({ canSelectFiles: true, canSelectFolders: false, canSelectMany: true, openLabel: 'Select files to include (optional)' });
             const filePaths = (pickFiles ?? []).map(u => u.fsPath);
-            const mod = await Promise.resolve().then(() => __importStar(require('./utils/payloadWrapper')));
+            const mod = require('./utils/payloadWrapper');
             const summary = await mod.createEncryptedPayloadToFile(targetUri.fsPath, { text: text ?? '', filePaths }, passphrase, { createdBy: 'VSCodeCmd' });
             vscode.window.showInformationMessage(`Encrypted package written (${summary.filesCount} files, text=${summary.hasText}).`);
         }
@@ -122,8 +122,8 @@ function activate(context) {
             const passphrase = await vscode.window.showInputBox({ prompt: 'Enter passphrase for encryption', password: true });
             if (!passphrase)
                 return;
-            const { toExtensionsArray, collectFilesByExtensions } = await Promise.resolve().then(() => __importStar(require('./utils/fileCollector')));
-            const { createEncryptedPayloadToFile } = await Promise.resolve().then(() => __importStar(require('./utils/payloadWrapper')));
+            const { toExtensionsArray, collectFilesByExtensions } = require('./utils/fileCollector');
+            const { createEncryptedPayloadToFile } = require('./utils/payloadWrapper');
             const exts = toExtensionsArray(pattern);
             const ws = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? process.cwd();
             const files = await collectFilesByExtensions(ws, exts);

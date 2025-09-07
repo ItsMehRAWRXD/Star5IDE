@@ -3,7 +3,7 @@
 
 const http = require("http");
 const url = require("url");
-const { spawn, execFileSync } = require("child_process");
+const { spawn } = require("child_process");
 const path = require("path");
 const fs = require("fs");
 const DEFAULT_CORS_ORIGIN = "*";
@@ -67,11 +67,11 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // Capabilities (what the server supports)
+  // Capabilities (static)
   if (method === "GET" && pathname === "/capabilities") {
     setCors(res, origin);
     res.writeHead(200, { "content-type": "application/json" });
-    const caps = getDynamicCapabilities();
+    const caps = getStaticCapabilities();
     res.end(JSON.stringify(caps));
     return;
   }
@@ -235,28 +235,15 @@ server.listen(PORT, () => {
   console.log(`Encrypt server listening on port ${PORT}`);
 });
 
-// ---- dynamic capabilities ----
-function getDynamicCapabilities() {
-  let ciphers = [];
-  try {
-    const out = execFileSync('openssl', ['enc', '-ciphers']).toString();
-    const line = out.split(/\r?\n/).find(l => l.includes(':')) || '';
-    ciphers = line.split(':').pop().split().flatMap(s => s.split(/\s+/)).filter(Boolean);
-  } catch {}
-  // Normalize common ones
-  const has = (name) => ciphers.includes(name);
-  const list = [];
-  if (has('camellia-256-cbc')) list.push('camellia-256-cbc');
-  if (has('aes-256-cbc')) list.push('aes-256-cbc');
-  // Provide alias used by UI
-  list.push('carmilla-256-cbc');
-  const unique = Array.from(new Set(list));
+// ---- static capabilities ----
+function getStaticCapabilities() {
+  const ciphers = ['camellia-256-cbc', 'aes-256-cbc'];
   return {
     name: 'screenpilot-encrypt',
     cors: true,
     modes: ['password', 'autokey'],
-    ciphers: unique,
-    defaultCipher: unique.includes('camellia-256-cbc') ? 'camellia-256-cbc' : (unique[0] || 'aes-256-cbc'),
+    ciphers,
+    defaultCipher: 'camellia-256-cbc',
     endpoints: ['/encrypt', '/decrypt', '/health', '/capabilities', '/stub', '/bundle'],
     stubs: ['powershell', 'node']
   };
