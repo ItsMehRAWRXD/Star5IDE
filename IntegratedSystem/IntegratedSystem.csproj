@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../PanelIntegration/PanelIntegration.csproj" />
+    <ProjectReference Include="../OceanDigital/OceanDigital.csproj" />
+    <ProjectReference Include="../GitStorage/GitStorage.csproj" />
+    <ProjectReference Include="../CrossHotPatcher/CrossHotPatcher.csproj" />
+    <ProjectReference Include="../AssemblyGenerators/AssemblyGenerators.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,18 @@
+{
+  "panel_url": "http://your-panel-url.com",
+  "panel_token": "your_panel_token_here",
+  "ocean_url": "https://api.oceandigital.com",
+  "ocean_api_key": "your_ocean_api_key_here",
+  "ocean_app_id": "polymorphic_encryption",
+  "git_repo_path": "./polymorphic_repo",
+  "git_remote_url": "https://github.com/yourusername/polymorphic-encryption.git",
+  "git_branch": "main",
+  "cross_hot_patch_interval": 60,
+  "max_generators": 4,
+  "assembly_instruction_range": [50, 300],
+  "patch_size_limit": 64,
+  "enable_self_propagation": true,
+  "enable_ocean_upload": true,
+  "enable_git_storage": true,
+  "enable_panel_integration": true
+}
