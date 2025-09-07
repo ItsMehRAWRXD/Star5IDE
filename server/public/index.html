@@ -619,7 +619,7 @@ ${hotPatch ? '✓ Runtime hot patching with car() markers' : ''}
       }
 
       const { base } = basenameExt(f.name);
-      const url = `${apiBase}/polymorphic/generate?pass=${encodeURIComponent(pass)}&cipher=${encodeURIComponent(cipher)}&poly=${encodeURIComponent(poly)}&ext=${encodeURIComponent(ext)}&mode=${encodeURIComponent(genMode)}&hotpatch=${hotPatch}&download=1`;
+      const url = `${apiBase}/encrypt?pass=${encodeURIComponent(pass)}&cipher=${encodeURIComponent(cipher)}&mode=polymorphic&poly=${encodeURIComponent(poly)}&ext=${encodeURIComponent(ext)}&genmode=${encodeURIComponent(genMode)}&hotpatch=${hotPatch}&download=1`;
       
       $("polyOut").textContent = `Generating ${genMode} polymorphic files...\nThis may take a few moments...`;
       
@@ -668,7 +668,7 @@ Ready for deployment! 🚀`;
           optimizationLevel: optimize
         };
 
-        const r = await fetch(`${apiBase}/compile`, {
+        const r = await fetch(`${apiBase}/bundle?stub=csharp&compile=true`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(requestData)
