@@ -230,6 +230,96 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
+  /* bundle decrypt stub (assembly) */
+  if (method === "POST" && pathname === "/bundle") {
+    if (!isOriginAllowed(origin)) return bad(res, 403, "Origin not allowed");
+    try {
+      const qs      = parsed.query || {};
+      const stub    = (qs.stub || "powershell").toString();
+      const name    = (qs.name || "file").toString();
+      const ext     = (qs.ext || ".bin").toString();
+      const pass    = (qs.pass || "").toString();
+      const bodyBuf = await collectBody(req);
+      const pkgText = bodyBuf.toString("utf8").trim();
+
+      const scheme  = (req.headers["x-forwarded-proto"] || "https").toString();
+      const host    = (req.headers["x-forwarded-host"] || req.headers["host"] || "").toString();
+      const baseUrl = `${scheme}://${host}`;
+
+      let content;
+      if (stub === "node") {
+        content = `#!/usr/bin/env node\n"use strict";\nconst fs=require('fs');\n(async()=>{\n  try{\n    const PKG=String.raw\`${pkgText.replace(/`/g, "\\`")}\`;\n    const url=new URL('${baseUrl}/decrypt');\n    ${pass ? `url.searchParams.set('pass', '${pass.replace(/'/g, "'\''")}');` : ``}\n    const resp=await fetch(url, {method:'POST', body:Buffer.from(PKG,'utf8')});\n    if(!resp.ok){const t=await resp.text(); throw new Error(t);} \n    const buf=Buffer.from(await resp.arrayBuffer());\n    fs.writeFileSync('${name}${ext}', buf);\n    console.log('Wrote ${name}${ext}');\n  }catch(e){ console.error('Error:', e.message||e); process.exit(1);}\n})();\n`;
+      } else {
+        // PowerShell
+        const psUri = `${baseUrl}/decrypt${pass ? `?pass=${encodeURIComponent(pass)}` : ''}`;
+        const here  = pkgText.replace(/`/g, "``");
+        content = `# Decrypt stub (PowerShell)\n$ErrorActionPreference = 'Stop'\n$pkg = @'\n${here}\n'@\n$uri = '${psUri}'\n$out = '${name}${ext}'\ntry {\n  Invoke-WebRequest -Method Post -Body ([System.Text.Encoding]::UTF8.GetBytes($pkg)) -ContentType 'application/octet-stream' -Uri $uri -OutFile $out\n  Write-Host "Wrote $out"\n} catch { Write-Error $_.Exception.Message; exit 1 }\n`;
+      }
+
+      setCors(res, origin);
+      res.writeHead(200, {
+        "content-type": stub === "node" ? "application/javascript; charset=utf-8" : "text/plain; charset=utf-8",
+        "content-disposition": `attachment; filename=${name}_decrypt.${stub === 'node' ? 'js' : 'ps1'}`
+      });
+      return res.end(content);
+    } catch (e) {
+      return bad(res, 400, e.message);
+    }
+  }
+
+  /* hot patch API */
+  if (method === "GET" && pathname === "/hot/status") {
+    try {
+      setCors(res, origin);
+      res.writeHead(200, { "content-type": "application/json" });
+      return res.end(JSON.stringify(HP.status()));
+    } catch (e) { return bad(res, 400, e.message); }
+  }
+  if (method === "POST" && pathname === "/hot/install") {
+    try {
+      const body = JSON.parse((await collectBody(req)).toString("utf8")||"{}");
+      const { name, code } = body;
+      if (!name || !code) return bad(res, 400, "name and code required");
+      const result = HP.installPatch(String(name), String(code));
+      setCors(res, origin);
+      res.writeHead(200, { "content-type": "application/json" });
+      return res.end(JSON.stringify(result));
+    } catch (e) { return bad(res, 400, e.message); }
+  }
+  if (method === "POST" && pathname === "/hot/uninstall") {
+    try {
+      const body = JSON.parse((await collectBody(req)).toString("utf8")||"{}");
+      const { id } = body;
+      if (!id) return bad(res, 400, "id required");
+      const result = HP.uninstallPatch(String(id));
+      setCors(res, origin);
+      res.writeHead(200, { "content-type": "application/json" });
+      return res.end(JSON.stringify(result));
+    } catch (e) { return bad(res, 400, e.message); }
+  }
+  if (method === "POST" && pathname === "/hot/spoof") {
+    try {
+      const body = JSON.parse((await collectBody(req)).toString("utf8")||"{}");
+      const { name, code } = body;
+      if (!name || !code) return bad(res, 400, "name and code required");
+      const result = HP.setBase(String(name), String(code));
+      setCors(res, origin);
+      res.writeHead(200, { "content-type": "application/json" });
+      return res.end(JSON.stringify(result));
+    } catch (e) { return bad(res, 400, e.message); }
+  }
+  if (method === "POST" && pathname === "/hot/spoof/clear") {
+    try {
+      const body = JSON.parse((await collectBody(req)).toString("utf8")||"{}");
+      const { name } = body;
+      if (!name) return bad(res, 400, "name required");
+      const result = HP.clearBase(String(name));
+      setCors(res, origin);
+      res.writeHead(200, { "content-type": "application/json" });
+      return res.end(JSON.stringify(result));
+    } catch (e) { return bad(res, 400, e.message); }
+  }
+
   /* stub generator and bundle, hot-patch, encrypt/decrypt
      ─── unchanged from your original file ─── */
   // … keep all the original logic here …
