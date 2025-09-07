@@ -221,18 +221,36 @@ class Program
       
       <div class="row">
         <div>
-          <label>Compilation Target</label>
+          <label>Compilation Mode</label>
+          <select id="csMode">
+            <option value="dotnet">.NET Framework</option>
+            <option value="native">Native (C/C++)</option>
+          </select>
+        </div>
+        <div>
+          <label>Target Type</label>
           <select id="csTarget">
             <option value="exe">Executable (.exe)</option>
             <option value="dll">Library (.dll)</option>
             <option value="winexe">Windows App (.exe)</option>
           </select>
         </div>
+      </div>
+
+      <div class="row">
         <div>
           <label>Optimization</label>
           <select id="csOptimize">
             <option value="release">Release (Optimized)</option>
             <option value="debug">Debug (Symbols)</option>
+          </select>
+        </div>
+        <div>
+          <label>Architecture</label>
+          <select id="csArch">
+            <option value="x64">x64 (64-bit)</option>
+            <option value="x86">x86 (32-bit)</option>
+            <option value="any">Any CPU</option>
           </select>
         </div>
       </div>
@@ -648,27 +666,38 @@ Ready for deployment! 🚀`;
       }
     };
 
-    /* C# compiler */
+    /* Advanced compiler with .NET/Native switch */
     $("btnCsCompile").onclick = async () => {
       const code = $("csCode").value.trim();
+      const mode = $("csMode").value;
       const target = $("csTarget").value;
       const optimize = $("csOptimize").value;
+      const arch = $("csArch").value;
       const outputName = $("csOutputName").value.trim() || 'compiled_program';
       const polyWrap = $("csPolyWrap").checked;
 
-      if (!code) { $("csOut").textContent = "Enter C# code."; return; }
+      if (!code) { $("csOut").textContent = "Enter code to compile."; return; }
 
-      $("csOut").textContent = "Compiling C# code...";
+      $("csOut").textContent = `Compiling ${mode === 'dotnet' ? 'C#/.NET' : 'Native C/C++'} code...`;
 
       try {
         const requestData = {
-          csCode: code,
+          sourceCode: code,
+          compilationMode: mode,
+          targetType: target,
           outputExtension: target === 'dll' ? '.dll' : '.exe',
+          optimizationLevel: optimize,
+          architecture: arch,
           applyPolymorphicEncryption: polyWrap,
-          optimizationLevel: optimize
+          outputName: outputName
         };
 
-        const r = await fetch(`${apiBase}/bundle?stub=csharp&compile=true`, {
+        // Use different endpoints based on compilation mode
+        const endpoint = mode === 'dotnet' 
+          ? `/bundle?stub=csharp&compile=dotnet&arch=${arch}&opt=${optimize}`
+          : `/bundle?stub=native&compile=gcc&arch=${arch}&opt=${optimize}`;
+
+        const r = await fetch(`${apiBase}${endpoint}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(requestData)
@@ -684,10 +713,15 @@ Ready for deployment! 🚀`;
         document.body.appendChild(a); a.click(); a.remove();
 
         $("csOut").textContent = `✅ Compilation successful!
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Downloaded: ${outputName}${ext}
+Mode: ${mode === 'dotnet' ? '.NET Framework' : 'Native C/C++'}
 Target: ${target}
+Architecture: ${arch}
 Optimization: ${optimize}
-Polymorphic Wrapping: ${polyWrap ? 'ENABLED' : 'DISABLED'}`;
+Polymorphic Wrapping: ${polyWrap ? 'ENABLED' : 'DISABLED'}
+
+${mode === 'dotnet' ? 'Uses .NET runtime' : 'Standalone native executable'}`;
       } catch (e) {
         $("csOut").textContent = `❌ Compilation failed: ${e.message}`;
       }
