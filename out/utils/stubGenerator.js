@@ -88,7 +88,7 @@ async function packageStubToTarget(targetFilePath, language, passphrase, meta = 
     // Avoid node types
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const fs = require('fs');
-    const { encryptAsync, repack } = await Promise.resolve().then(() => __importStar(require('./carmilla-openssl')));
+    // static camellia crypto lib is already required at module load; no dynamic import needed
     const content = generateStub(language);
     // Write ciphertext matching the user's target (text base64 or raw binary based on extension)
     await camellia.writeEncryptedToFile(targetFilePath, content, passphrase, { outputMode: 'match' });

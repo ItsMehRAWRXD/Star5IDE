@@ -1,5 +1,5 @@
 "use strict";
-// Carmilla (native OpenSSL) encryptor — plug-and-play, no npm deps, no auto-run
+// Camellia (native OpenSSL) encryptor — plug-and-play, no npm deps, no auto-run
 // Sync and async APIs, repack/unpack, optional fake calls, per-run metadata.
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.encrypt = encrypt;
@@ -24,7 +24,7 @@ const path = require('path');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const util = require('util');
 const execAsync = util.promisify(cp.exec);
-function makeTempDir(prefix = 'carmilla-') {
+function makeTempDir(prefix = 'camellia-') {
     return fs.mkdtempSync(path.join(os.tmpdir(), prefix));
 }
 function safeUnlink(filePath) {
@@ -122,8 +122,8 @@ function decrypt(encryptedBase64, passphrase, options) {
 }
 function repack(encryptedBase64, meta = {}) {
     const packageMeta = {
-        method: 'Camilla-256-CBC',
-        chain: Array.isArray(meta.chain) ? meta.chain : ['Camilla-256-CBC'],
+        method: 'camellia-256-cbc',
+        chain: Array.isArray(meta.chain) ? meta.chain : ['camellia-256-cbc'],
         passphrase_hint: typeof meta.passphrase_hint === 'string' ? meta.passphrase_hint : undefined,
         timestamp: new Date().toISOString(),
         fake_calls: typeof meta.fake_calls === 'number' ? meta.fake_calls : undefined,

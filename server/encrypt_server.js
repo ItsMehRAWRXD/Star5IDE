@@ -10,7 +10,7 @@ const DEFAULT_CORS_ORIGIN = "*";
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || "").split(",").map(s => s.trim()).filter(Boolean);
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 8088;
-const CLI = path.join(__dirname, "..", "tools", "carmilla-openssl.js");
+const CLI = path.join(__dirname, "..", "tools", "camellia-cli.js");
 
 function setCors(res, origin = DEFAULT_CORS_ORIGIN) {
   res.setHeader("access-control-allow-origin", origin);
