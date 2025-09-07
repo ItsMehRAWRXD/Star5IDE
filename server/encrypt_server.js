@@ -117,166 +117,18 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  if (method === "GET" && pathname === "/panel") {
-  setCors(res, origin);
-  res.writeHead(200, { "content-type": "text/html; charset=utf-8" });
-  res.end(`<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Camellia Encrypt Server Panel</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <style>
-    :root { --bg:#0b0f14; --card:#121822; --text:#e6eef8; --muted:#9bb0c3; --accent:#4cc2ff; --accent2:#7fff9f; --err:#ff6b6b; }
-    * { box-sizing: border-box }
-    html,body { margin:0; height:100%; background:var(--bg); color:var(--text); font:14px/1.5 system-ui,Segoe UI,Roboto,Arial; }
-    a { color:var(--accent) }
-    header { padding:16px 20px; border-bottom:1px solid #1b2431; display:flex; align-items:center; gap:16px; }
-    h1 { margin:0; font-size:18px }
-    #grid { display:grid; gap:14px; padding:16px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
-    .card { background:var(--card); border:1px solid #1b2431; border-radius:10px; padding:14px; }
-    .card h2 { margin:0 0 10px; font-size:15px; color:#dbe7f3 }
-    label { display:block; margin:6px 0 4px; color:var(--muted) }
-    input, select, textarea, button { width:100%; background:#0f141d; color:var(--text); border:1px solid #253146; border-radius:8px; padding:9px 10px; }
-    input:focus, select:focus, textarea:focus { outline:none; border-color:var(--accent) }
-    textarea { min-height:110px; resize:vertical; }
-    .row { display:grid; grid-template-columns:1fr 1fr; gap:8px }
-    .btn { background:linear-gradient(180deg,#2a98ff,#0076d6); border:0; cursor:pointer; }
-    .btn.secondary { background:#182334 }
-    .btn.ok { background:linear-gradient(180deg,#32d88a,#0bb36a) }
-    .btn.err { background:linear-gradient(180deg,#ff8a8a,#e14c4c) }
-    .muted { color:var(--muted) }
-    pre { background:#0f141d; border:1px solid #253146; border-radius:8px; padding:10px; overflow:auto; max-height:260px; }
-    .inline { display:flex; gap:8px; align-items:center }
-    small { color:var(--muted) }
-    .pill { display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; border:1px solid #2b394f; background:#0f141d; color:#9fc5ff }
-  </style>
-</head>
-<body>
-  <header>
-    <h1>Camellia Encrypt Server</h1>
-    <span class="pill" id="hostpill"></span>
-    <span class="muted">Quick links: <a href="/health" target="_blank">/health</a> · <a href="/capabilities" target="_blank">/capabilities</a> · <a href="/capabilities/dynamic" target="_blank">/capabilities/dynamic</a></span>
-  </header>
-
-  <div id="grid">
-    <section class="card">
-      <h2>Status</h2>
-      <div class="row">
-        <button class="btn" id="btnHealth">Health</button>
-        <button class="btn secondary" id="btnCaps">Capabilities</button>
-      </div>
-      <pre id="statusOut">Ready.</pre>
-    </section>
-
-    <section class="card">
-      <h2>Encrypt</h2>
-      <label>File</label>
-      <input type="file" id="encFile">
-      <div class="row">
-        <div>
-          <label>Mode</label>
-          <select id="encMode">
-            <option value="password">Password</option>
-            <option value="autokey">Autokey (no password)</option>
-          </select>
-        </div>
-        <div>
-          <label>Cipher</label>
-          <select id="encCipher">
-            <option>camellia-256-cbc</option>
-            <option>aes-256-cbc</option>
-          </select>
-        </div>
-      </div>
-      <label>Passphrase (ignored in autokey)</label>
-      <input type="password" id="encPass" placeholder="Enter passphrase">
-      <label>Output extension (blank = keep)</label>
-      <input id="encExt" placeholder="e.g. .pkg or leave empty">
-      <div class="inline">
-        <button class="btn ok" id="btnEncrypt">Encrypt & Download</button>
-        <small class="muted">Keeps original extension if left blank</small>
-      </div>
-      <pre id="encOut"></pre>
-    </section>
-
-    <section class="card">
-      <h2>Decrypt</h2>
-      <label>File (.pkg or base64)</label>
-      <input type="file" id="decFile">
-      <label>Passphrase (or leave blank for autokey package)</label>
-      <input type="password" id="decPass" placeholder="Enter passphrase or leave blank">
-      <label>Output extension (include dot or leave empty)</label>
-      <input id="decExt" placeholder=".bin">
-      <button class="btn ok" id="btnDecrypt">Decrypt & Download</button>
-      <pre id="decOut"></pre>
-    </section>
-
-    <section class="card">
-      <h2>Bundle Decrypt Stub</h2>
-      <label>Encrypted package (.pkg or base64)</label>
-      <input type="file" id="pkgFile">
-      <div class="row">
-        <div>
-          <label>Stub type</label>
-          <select id="stubLang">
-            <option value="powershell">PowerShell (.ps1)</option>
-            <option value="node">Node (.js)</option>
-          </select>
-        </div>
-        <div>
-          <label>Output ext (decrypted)</label>
-          <input id="stubOutExt" placeholder=".bin" value=".bin">
-        </div>
-      </div>
-      <label>Optional pass (used if autokey missing)</label>
-      <input id="stubPass" placeholder="Leave blank to rely on autokey">
-      <button class="btn" id="btnStub">Generate Stub & Download</button>
-      <pre id="stubOut"></pre>
-    </section>
-
-    <section class="card">
-      <h2>Hot Patch Manager</h2>
-      <div class="row">
-        <div>
-          <label>Target</label>
-          <select id="hpTarget">
-            <option>encrypt</option>
-            <option>decrypt</option>
-          </select>
-        </div>
-        <div>
-          <label>Action</label>
-          <select id="hpAction">
-            <option value="install">Install Wrapper</option>
-            <option value="status">Status</option>
-            <option value="uninstall">Uninstall (by ID)</option>
-            <option value="spoof">Set Base (spoof)</option>
-            <option value="clearBase">Clear Base</option>
-          </select>
-        </div>
-      </div>
-      <label>Wrapper / Base code (JS). It must evaluate to: return (next)=>async (body,query)=>{ ... }</label>
-      <textarea id="hpCode" placeholder="return (next)=>async (body,query)=>{ return await next(body,query) }"></textarea>
-      <label>Patch ID (for uninstall)</label>
-      <input id="hpId" placeholder="e.g. 1">
-      <div class="row">
-        <button class="btn" id="btnHpRun">Run</button>
-        <button class="btn secondary" id="btnHpStatus">Refresh Status</button>
-      </div>
-      <pre id="hpOut"></pre>
-    </section>
-  </div>
-
-  <script>
-    const $ = id => document.getElementById(id);
-    const apiBase = `${location.protocol}//${location.host}`;
-    $("hostpill").textContent = apiBase;
-
-    const asJson = async (resp) => {
-      const txt = await resp.text();
-      try { return JSON.stringify(JSON.parse(txt), null, 2); } catch { return txt; }
-    };
+// ── serve the web panel ─────────────────────────
+if (method === 'GET' && pathname === '/panel') {
+  try {
+    const file = path.join(__dirname, 'public', 'panel.html');
+    const html = fs.readFileSync(file);
+    setCors(res, origin);
+    res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
+    return res.end(html);
+  } catch {
+    return bad(res, 500, 'panel not found');
+  }
+}
 
     const basenameExt = (name='file') => {
       const m = name.match(/^(.*?)(\.[^.]+)?$/);
@@ -687,3 +539,11 @@ function generatePowerShellStubEmbedded(pkgB64, baseName, outExt, pass) {
 function generateNodeStubEmbedded(pkgB64, baseName, outExt, pass) {
   return `// Embedded decrypt stub (Camellia/AES via OpenSSL)\nconst { execFileSync } = require('child_process');\nconst fs = require('fs');\nconst path = require('path');\nconst out = path.resolve(process.cwd(), ${JSON.stringify(baseName + outExt)});\nconst pkg = JSON.parse(Buffer.from(${JSON.stringify(pkgB64)}, 'base64').toString('utf8'));\nlet key = (pkg.meta && pkg.meta.key_b64) ? pkg.meta.key_b64 : ${JSON.stringify(pass || '')};\nif (!key) { console.error('No key available (autokey missing and no pass provided)'); process.exit(1); }\nconst cipher = (pkg.meta && pkg.meta.openssl_cipher) ? pkg.meta.openssl_cipher : 'camellia-256-cbc';\nconst tmp = fs.mkdtempSync(require('os').tmpdir() + path.sep + 'dec-') + '.bin';\nfs.writeFileSync(tmp, Buffer.from(pkg.data, 'base64'));\nexecFileSync('openssl', ['enc', '-d', '-' + cipher, '-salt', '-pbkdf2', '-pass', 'pass:' + key, '-in', tmp, '-out', out], { stdio: 'inherit' });\nfs.unlinkSync(tmp);\nconsole.log('Decrypted ->', out);\n`;
 }
+
+fix: serve /panel from public/panel.html,
+choose “Commit directly to the main branch”, and press Commit changes.
+
+──────────────────────────────────────── What happens after you press Commit? ──────────────────────────────────────── • DigitalOcean App Platform sees the new commit on main, kicks off a build, builds a fresh image, and re-starts your component.
+• In the dashboard you’ll see the build running; after ~1-2 minutes the component state will flip to Healthy.
+
+──────────────────────────────────────── Verify ────────────────────────────────────────
