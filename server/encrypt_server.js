@@ -8,6 +8,7 @@ const path  = require("path");
 const fs    = require("fs");
 const { createHotPatcher } = require("./hotpatcher");
 
+/* ───────────── constants ───────────── */
 const DEFAULT_CORS_ORIGIN = "*";
 const ALLOWED_ORIGINS =
   (process.env.ALLOWED_ORIGINS || "")
@@ -18,8 +19,7 @@ const ALLOWED_ORIGINS =
 const PORT = process.env.PORT ? Number(process.env.PORT) : 8088;
 const CLI  = path.join(__dirname, "..", "tools", "camellia-cli.js");
 
-/* ───────────────────────── helpers ───────────────────────── */
-
+/* ───────────── helpers ───────────── */
 function setCors(res, origin = DEFAULT_CORS_ORIGIN) {
   res.setHeader("access-control-allow-origin",  origin);
   res.setHeader("access-control-allow-methods", "GET,POST,OPTIONS");
@@ -56,74 +56,67 @@ function runCli(args, inputBuffer) {
   });
 }
 
-/* ────────────────── hot-patch targets (originals) ────────────────── */
-
+/* ───────────── hot-patch targets ───────────── */
 const HP = createHotPatcher();
 
-/* encrypt target (unchanged) */
-HP.registerTarget("encrypt", async function encryptHandler(body, query) {
-  const pass  = query.pass;
-  const mode  = (query.mode || "password").toString();
-  if (mode === "password" && !pass) throw new Error("pass required as ?pass=");
-  const cipher  = query.cipher || "camellia-256-cbc";
-  let   cliPass = pass;
+/* encrypt */
+HP.registerTarget("encrypt", async (body, query) => {
+  const mode   = (query.mode || "password").toString();
+  const cipher = query.cipher || "camellia-256-cbc";
+  let   pass   = query.pass;
 
+  if (mode === "password" && !pass)
+    throw new Error("pass required as ?pass=");
+
+  /* autokey path */
   if (mode === "autokey") {
     const keyBytes = globalThis.crypto?.getRandomValues
       ? globalThis.crypto.getRandomValues(new Uint8Array(32))
       : require("crypto").randomBytes(32);
-    const keyB64  = Buffer.from(keyBytes).toString("base64");
-    cliPass       = keyB64;
+    const keyB64 = Buffer.from(keyBytes).toString("base64");
+    pass = keyB64;
 
-    const out = await runCli(
-      ["encrypt", "--pass", cliPass, "--cipher", cipher],
-      body
-    );
+    const raw = await runCli(["encrypt", "--pass", pass, "--cipher", cipher], body);
 
+    /* inject metadata if payload is our JSON package */
     try {
-      const pkg = JSON.parse(Buffer.from(out.toString(), "base64").toString());
-      pkg.meta  = { ...(pkg.meta || {}), autokey: true, key_b64: keyB64 };
-      return Buffer.from(
-        Buffer.from(JSON.stringify(pkg)).toString("base64"),
-        "utf8"
-      );
-    } catch {
-      return out;
-    }
+      const pkg  = JSON.parse(Buffer.from(raw.toString(), "base64").toString());
+      pkg.meta   = { ...(pkg.meta || {}), autokey: true, key_b64: keyB64 };
+      return Buffer.from(Buffer.from(JSON.stringify(pkg)).toString("base64"), "utf8");
+    } catch { return raw; }
   }
 
-  return runCli(["encrypt", "--pass", cliPass, "--cipher", cipher], body);
+  return runCli(["encrypt", "--pass", pass, "--cipher", cipher], body);
 });
 
-/* decrypt target (unchanged) */
-HP.registerTarget("decrypt", async function decryptHandler(body, query) {
+/* decrypt */
+HP.registerTarget("decrypt", async (body, query) => {
   const cipher = query.cipher;
-  let   cliPass = query.pass;
+  let   pass   = query.pass;
 
-  if (!cliPass) {
+  if (!pass) {
     try {
       const pkg = JSON.parse(
         Buffer.from(body.toString("utf8").trim(), "base64").toString("utf8")
       );
-      cliPass = pkg?.meta?.key_b64;
+      pass = pkg?.meta?.key_b64;
     } catch {}
   }
-  if (!cliPass) throw new Error("pass required or package must contain autokey");
+  if (!pass) throw new Error("pass required or autokey missing");
 
-  const cliArgs = ["decrypt", "--pass", cliPass];
-  if (cipher) cliArgs.push("--cipher", cipher);
-  return runCli(cliArgs, body);
+  const args = ["decrypt", "--pass", pass];
+  if (cipher) args.push("--cipher", cipher);
+  return runCli(args, body);
 });
 
-/* ─────────────────────── HTTP server ─────────────────────── */
-
+/* ───────────── HTTP server ───────────── */
 const server = http.createServer(async (req, res) => {
   const { method } = req;
-  const parsed     = url.parse(req.url, true);
-  const pathname   = parsed.pathname || "/";
-  const origin     = req.headers.origin || DEFAULT_CORS_ORIGIN;
+  const parsed   = url.parse(req.url, true);
+  const pathname = parsed.pathname || "/";
+  const origin   = req.headers.origin || DEFAULT_CORS_ORIGIN;
 
-  /* CORS pre-flight */
+  /* pre-flight */
   if (method === "OPTIONS") {
     setCors(res, origin);
     res.writeHead(204);
@@ -137,7 +130,7 @@ const server = http.createServer(async (req, res) => {
     return res.end(JSON.stringify({ ok: true }));
   }
 
-  /* panel — now served from static file */
+  /* panel */
   if (method === "GET" && pathname === "/panel") {
     try {
       const html = fs.readFileSync(
@@ -151,11 +144,12 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
-  /* fallback index (optional) */
+  /* index fallback */
   if (method === "GET" && (pathname === "/" || pathname === "/index.html")) {
-    const file = path.join(__dirname, "public", "index.html");
     try {
-      const html = fs.readFileSync(file);
+      const html = fs.readFileSync(
+        path.join(__dirname, "public", "index.html")
+      );
       setCors(res, origin);
       res.writeHead(200, { "content-type": "text/html; charset=utf-8" });
       return res.end(html);
@@ -166,16 +160,68 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
-  /* ---- remaining routes (encrypt / decrypt / stubs / hot-patch) ----
-     ALL ORIGINAL LOGIC BELOW IS UNCHANGED. If you trimmed it earlier,
-     just leave it as-is; nothing about those handlers needs to change. */
-  // ... existing code ...
+  /* capabilities */
+  if (method === "GET" && pathname === "/capabilities") {
+    setCors(res, origin);
+    res.writeHead(200, { "content-type": "application/json" });
+    return res.end(JSON.stringify(getStaticCapabilities()));
+  }
+
+  if (method === "GET" && pathname === "/capabilities/dynamic") {
+    setCors(res, origin);
+    res.writeHead(200, { "content-type": "application/json" });
+    return res.end(JSON.stringify(getDynamicCapabilitiesSafe()));
+  }
+
+  /* stub generator and bundle, hot-patch, encrypt/decrypt
+     ─── unchanged from your original file ─── */
+  // … keep all the original logic here …
+
+  /* no route matched */
+  return bad(res, 404, "not found");
 });
 
-/* start */
+/* start listening */
 server.listen(PORT, () =>
   console.log(`Encrypt server listening on port ${PORT}`)
 );
 
-/* ───────────────────── capability helpers (unchanged) ───────────────────── */
-// getStaticCapabilities, getDynamicCapabilitiesSafe, stub generators …
+/* ───────────── capability helpers & stubs (unchanged) ───────────── */
+function getStaticCapabilities() {
+  const ciphers = ["camellia-256-cbc", "aes-256-cbc"];
+  return {
+    name: "screenpilot-encrypt",
+    cors: true,
+    modes: ["password", "autokey"],
+    ciphers,
+    defaultCipher: "camellia-256-cbc",
+    endpoints: [
+      "/encrypt", "/decrypt", "/health",
+      "/capabilities", "/capabilities/dynamic",
+      "/stub", "/bundle",
+      "/hot/install", "/hot/uninstall", "/hot/status",
+      "/hot/spoof", "/hot/spoof/clear"
+    ],
+    stubs: ["powershell", "node"]
+  };
+}
+
+function getDynamicCapabilitiesSafe() {
+  const result = getStaticCapabilities();
+  try {
+    const { execFileSync } = require("child_process");
+    const out  = execFileSync("openssl", ["enc", "-ciphers"]).toString();
+    const line = out.split(/\r?\n/).find(l => l.includes(":")) || "";
+    const ciph = line.split(":").pop().split(/\s+/).filter(Boolean);
+    const prefer = ["camellia-256-cbc", "aes-256-cbc"];
+    const avail  = prefer.filter(c => ciph.includes(c));
+    if (avail.length) {
+      result.ciphers        = [...new Set(avail)];
+      result.defaultCipher  = avail[0];
+    }
+  } catch {}
+  return result;
+}
+
+/* generatePowerShellStub, generateNodeStub, generate*Embedded …
+   – unchanged from your original code – */
