@@ -6,6 +6,7 @@ const url = require("url");
 const { spawn } = require("child_process");
 const path = require("path");
 const fs = require("fs");
+const { createHotPatcher } = require("./hotpatcher");
 const DEFAULT_CORS_ORIGIN = "*";
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || "").split(",").map(s => s.trim()).filter(Boolean);
 
@@ -45,6 +46,54 @@ function runCli(args, inputBuffer) {
     ps.stdin.end();
   });
 }
+
+// Hot patcher setup
+const HP = createHotPatcher();
+
+// Register patchable targets without overwriting originals
+HP.registerTarget('encrypt', async function encryptHandler(body, query) {
+  const pass = query.pass;
+  const mode = (query.mode || 'password').toString();
+  if (mode === 'password' && !pass) throw new Error("pass required as ?pass=");
+  const cipher = query.cipher || "camellia-256-cbc";
+  let cliPass = pass;
+  if (mode === 'autokey') {
+    const keyBytes = crypto.getRandomValues(new Uint8Array(32));
+    const keyB64 = Buffer.from(keyBytes).toString('base64');
+    cliPass = keyB64;
+    const out = await runCli(["encrypt", "--pass", String(cliPass), "--cipher", String(cipher)], body);
+    try {
+      const pkgJsonStr = Buffer.from(String(out), 'base64').toString('utf8');
+      const pkg = JSON.parse(pkgJsonStr);
+      pkg.meta = Object.assign({}, pkg.meta || {}, { autokey: true, key_b64: keyB64 });
+      const newB64 = Buffer.from(JSON.stringify(pkg), 'utf8').toString('base64');
+      return Buffer.from(newB64, 'utf8');
+    } catch {
+      return out;
+    }
+  } else {
+    return await runCli(["encrypt", "--pass", String(cliPass), "--cipher", String(cipher)], body);
+  }
+});
+
+HP.registerTarget('decrypt', async function decryptHandler(body, query) {
+  const cipher = query.cipher;
+  let cliPass = query.pass;
+  if (!cliPass) {
+    try {
+      const packagedStr = body.toString('utf8').trim();
+      const pkgJsonStr = Buffer.from(packagedStr, 'base64').toString('utf8');
+      const pkg = JSON.parse(pkgJsonStr);
+      if (pkg && pkg.meta && pkg.meta.key_b64) {
+        cliPass = String(pkg.meta.key_b64);
+      }
+    } catch {}
+  }
+  if (!cliPass) throw new Error("pass required or package must contain autokey");
+  const cliArgs = ["decrypt", "--pass", String(cliPass)];
+  if (cipher) { cliArgs.push("--cipher", String(cipher)); }
+  return await runCli(cliArgs, body);
+});
 
 const server = http.createServer(async (req, res) => {
   const { method } = req;
@@ -151,12 +200,47 @@ const server = http.createServer(async (req, res) => {
     const body = Buffer.concat(chunks);
 
     try {
+      // Hot patch API
+      if (method === "POST" && pathname === "/hot/install") {
+        if (!isOriginAllowed(origin)) return bad(res, 403, "origin not allowed");
+        setCors(res, origin);
+        let payload = {};
+        try { payload = JSON.parse(body.toString('utf8')); } catch {}
+        const name = String(payload.name || '');
+        const code = String(payload.code || '');
+        if (!name || !code) return bad(res, 400, 'name and code required');
+        try {
+          const info = HP.installPatch(name, code);
+          res.writeHead(200, { "content-type": "application/json" });
+          res.end(JSON.stringify({ ok: true, patch: info }));
+        } catch (e) {
+          return bad(res, 400, String(e && e.message ? e.message : e));
+        }
+        return;
+      }
+
+      if (method === "POST" && pathname === "/hot/uninstall") {
+        if (!isOriginAllowed(origin)) return bad(res, 403, "origin not allowed");
+        setCors(res, origin);
+        let payload = {};
+        try { payload = JSON.parse(body.toString('utf8')); } catch {}
+        const id = String(payload.id || '');
+        if (!id) return bad(res, 400, 'id required');
+        const info = HP.uninstallPatch(id);
+        res.writeHead(200, { "content-type": "application/json" });
+        res.end(JSON.stringify({ ok: true, result: info }));
+        return;
+      }
+
+      if (method === "GET" && pathname === "/hot/status") {
+        setCors(res, origin);
+        res.writeHead(200, { "content-type": "application/json" });
+        res.end(JSON.stringify({ ok: true, targets: HP.status() }));
+        return;
+      }
+
       if (method === "POST" && pathname === "/encrypt") {
         if (!isOriginAllowed(origin)) return bad(res, 403, "origin not allowed");
-        const pass = parsed.query.pass;
-        const mode = (parsed.query.mode || 'password').toString();
-        if (mode === 'password' && !pass) return bad(res, 400, "pass required as ?pass=");
-        const cipher = parsed.query.cipher || "camellia-256-cbc";
         const download = parsed.query.download === "1";
         // honor client-provided name/ext for filename
         let reqExt = (parsed.query.ext || "").toString();
@@ -164,27 +248,7 @@ const server = http.createServer(async (req, res) => {
         const safeExt = (reqExt || '').replace(/[^.a-zA-Z0-9_-]/g, '');
         const baseName = ((parsed.query.name || 'file').toString().replace(/[^a-zA-Z0-9._-]/g, '') || 'file').replace(/\.[^.]+$/, '');
         const outFile = `${baseName}${safeExt}`;
-        let cliPass = pass;
-        let packaged = null;
-        if (mode === 'autokey') {
-          // Generate random 32-byte key, base64 encode
-          const keyBytes = crypto.getRandomValues(new Uint8Array(32));
-          const keyB64 = Buffer.from(keyBytes).toString('base64');
-          cliPass = keyB64;
-          const out = await runCli(["encrypt", "--pass", String(cliPass), "--cipher", String(cipher)], body);
-          // Inject autokey metadata with embedded key
-          try {
-            const pkgJsonStr = Buffer.from(String(out), 'base64').toString('utf8');
-            const pkg = JSON.parse(pkgJsonStr);
-            pkg.meta = Object.assign({}, pkg.meta || {}, { autokey: true, key_b64: keyB64 });
-            const newB64 = Buffer.from(JSON.stringify(pkg), 'utf8').toString('base64');
-            packaged = Buffer.from(newB64, 'utf8');
-          } catch {
-            packaged = out;
-          }
-        } else {
-          packaged = await runCli(["encrypt", "--pass", String(cliPass), "--cipher", String(cipher)], body);
-        }
+        const packaged = await HP.get('encrypt')(body, parsed.query);
         setCors(res, origin);
         const headers = { "content-type": "application/octet-stream" };
         if (download) {
@@ -197,9 +261,6 @@ const server = http.createServer(async (req, res) => {
 
       if (method === "POST" && pathname === "/decrypt") {
         if (!isOriginAllowed(origin)) return bad(res, 403, "origin not allowed");
-        const pass = parsed.query.pass;
-        let cliPass = pass;
-        const cipher = parsed.query.cipher; // optional override
         const download = parsed.query.download === "1";
         // honor client-provided name/ext for filename
         let reqExt = (parsed.query.ext || "").toString();
@@ -207,21 +268,7 @@ const server = http.createServer(async (req, res) => {
         const safeExt = (reqExt || '').replace(/[^.a-zA-Z0-9_-]/g, '');
         const baseName = ((parsed.query.name || 'file').toString().replace(/[^a-zA-Z0-9._-]/g, '') || 'file').replace(/\.[^.]+$/, '');
         const outFile = `${baseName}${safeExt}`;
-        // If no pass provided, try to extract embedded autokey from package
-        if (!cliPass) {
-          try {
-            const packagedStr = body.toString('utf8').trim();
-            const pkgJsonStr = Buffer.from(packagedStr, 'base64').toString('utf8');
-            const pkg = JSON.parse(pkgJsonStr);
-            if (pkg && pkg.meta && pkg.meta.key_b64) {
-              cliPass = String(pkg.meta.key_b64);
-            }
-          } catch {}
-        }
-        if (!cliPass) return bad(res, 400, "pass required or package must contain autokey");
-        const cliArgs = ["decrypt", "--pass", String(cliPass)];
-        if (cipher) { cliArgs.push("--cipher", String(cipher)); }
-        const out = await runCli(cliArgs, body);
+        const out = await HP.get('decrypt')(body, parsed.query);
         setCors(res, origin);
         const headers = { "content-type": "application/octet-stream" };
         if (download) {
@@ -253,7 +300,7 @@ function getStaticCapabilities() {
     modes: ['password', 'autokey'],
     ciphers,
     defaultCipher: 'camellia-256-cbc',
-    endpoints: ['/encrypt', '/decrypt', '/health', '/capabilities', '/stub', '/bundle'],
+    endpoints: ['/encrypt', '/decrypt', '/health', '/capabilities', '/capabilities/dynamic', '/stub', '/bundle', '/hot/install', '/hot/uninstall', '/hot/status'],
     stubs: ['powershell', 'node']
   };
 }
