@@ -132,6 +132,45 @@ const analyzeSignatures = (signatures) => {
   return analysis;
 };
 
+// Helper functions
+const selfSpace = (width, height) => {
+  return { width, height, timestamp: Date.now() };
+};
+
+const dynamicStructure = () => {
+  return {
+    structure: 'dynamic',
+    timestamp: Date.now(),
+    spacing: selfSpace(3, 3)
+  };
+};
+
+const independentReality = () => {
+  return {
+    independent: true,
+    reality: true,
+    timestamp: Date.now(),
+    spacing: selfSpace(4, 4)
+  };
+};
+
+const pureFunction = () => {
+  return {
+    pure: true,
+    timestamp: Date.now(),
+    spacing: selfSpace(2, 2)
+  };
+};
+
+const verifyReality = () => {
+  return {
+    reality: true,
+    verified: true,
+    timestamp: Date.now(),
+    spacing: selfSpace(1, 1)
+  };
+};
+
 module.exports = { 
   auth, 
   requireSubscription, 

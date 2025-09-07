@@ -3,614 +3,535 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cryptify - Advanced Encryption Platform</title>
+    <title>Star5IDE - Mix & Code Playground</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        * {
             margin: 0;
             padding: 0;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            color: white;
+            color: #fff;
         }
+
         .header {
-            background: rgba(0,0,0,0.3);
-            padding: 1rem;
-            text-align: center;
+            background: rgba(0, 0, 0, 0.2);
             backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
+
+        .header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 3s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            margin-top: 0.5rem;
+        }
+
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 2rem;
         }
-        .encryption-tools {
+
+        .ide-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 2rem;
-            margin: 2rem 0;
+            margin-top: 2rem;
         }
-        .tool-card {
-            background: rgba(255,255,255,0.1);
+
+        .ide-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
             padding: 2rem;
-            border-radius: 15px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
         }
-        .tool-card h3 {
-            margin-top: 0;
-            color: #4CAF50;
+
+        .ide-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.4);
         }
-        .input-group {
-            margin: 1rem 0;
+
+        .ide-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
         }
-        .input-group label {
-            display: block;
-            margin-bottom: 0.5rem;
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            margin-right: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
             font-weight: bold;
         }
-        .input-group input, .input-group textarea {
-            width: 100%;
-            padding: 0.75rem;
-            border: none;
-            border-radius: 8px;
-            background: rgba(255,255,255,0.9);
-            color: #333;
-            font-family: monospace;
-            box-sizing: border-box;
+
+        .card-description {
+            opacity: 0.9;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
         }
-        .input-group textarea {
-            min-height: 100px;
-            resize: vertical;
+
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
         }
-        .btn {
-            background: #4CAF50;
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            margin: 0.5rem;
-            transition: all 0.3s;
-        }
-        .btn:hover {
-            background: #45a049;
-            transform: translateY(-2px);
-        }
-        .btn-secondary {
-            background: #2196F3;
-        }
-        .btn-secondary:hover {
-            background: #1976D2;
-        }
-        .btn-danger {
-            background: #f44336;
-        }
-        .btn-danger:hover {
-            background: #da190b;
-        }
-        .result {
-            background: rgba(0,0,0,0.5);
-            padding: 1rem;
-            border-radius: 8px;
-            margin-top: 1rem;
-            font-family: monospace;
-            word-break: break-all;
-            border-left: 4px solid #4CAF50;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        .error {
-            border-left-color: #f44336;
-        }
-        .pricing {
-            background: rgba(255,255,255,0.1);
-            padding: 2rem;
+
+        .tech-tag {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.3rem 0.8rem;
             border-radius: 15px;
-            margin: 2rem 0;
+            font-size: 0.8rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
             text-align: center;
         }
-        .pricing-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            margin: 2rem 0;
-        }
-        .price-card {
-            background: rgba(255,255,255,0.1);
-            padding: 2rem;
-            border-radius: 15px;
-            border: 2px solid transparent;
-            transition: all 0.3s;
-        }
-        .price-card:hover {
-            border-color: #4CAF50;
-            transform: translateY(-5px);
-        }
-        .price {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #4CAF50;
-        }
-        .features {
-            list-style: none;
-            padding: 0;
-        }
-        .features li {
-            padding: 0.5rem 0;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-        .features li:before {
-            content: "✅ ";
-            color: #4CAF50;
-        }
-        .status {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(0,0,0,0.8);
+
+        .btn-primary {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
             color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .mixing-panel {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-top: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .mixing-title {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .mix-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .mix-select {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
             padding: 1rem;
-            border-radius: 8px;
-            z-index: 1000;
-            display: none;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .mix-select option {
+            background: #333;
+            color: white;
+        }
+
+        .status-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4ecdc4;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .floating-actions {
+            position: fixed;
+            top: 50%;
+            right: 2rem;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .floating-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .floating-btn:hover {
+            transform: scale(1.1);
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>🔐 Cryptify - Advanced Encryption Platform</h1>
-        <p>Professional-grade encryption tools for developers and businesses</p>
+        <h1>🚀 Star5IDE</h1>
+        <p class="subtitle">Mix Technologies • Code Freely • Have Fun</p>
     </div>
 
-    <div class="status" id="status"></div>
-
     <div class="container">
-        <div>
-            <a href="/.netlify/functions/api" class="btn">🔐 View Encryption API</a>
-            <a href="/.netlify/functions/api/health" class="btn btn-secondary">📊 Check Status</a>
-            <a href="pricing.html" class="btn btn-secondary">💰 View Pricing</a>
+        <div class="ide-grid">
+            <!-- RawrZ Security Platform -->
+            <div class="ide-card" onclick="openEnvironment('advanced-ui')">
+                <div class="card-header">
+                    <div class="card-icon">🛡️</div>
+                    <div class="card-title">RawrZ Security</div>
+                </div>
+                <div class="card-description">
+                    Advanced security platform with encryption, compression, stealth, and polymorphic engines. Perfect for security research and development.
+                </div>
+                <div class="tech-stack">
+                    <span class="tech-tag">JavaScript</span>
+                    <span class="tech-tag">HTML5</span>
+                    <span class="tech-tag">CSS3</span>
+                    <span class="tech-tag">Security</span>
+                </div>
+                <div class="card-actions">
+                    <a href="/advanced-ui" class="btn btn-primary">Open Platform</a>
+                    <button class="btn btn-secondary" onclick="event.stopPropagation(); mixWith('security')">Mix</button>
+                </div>
+            </div>
+
+            <!-- TypeScript SaaS Platform -->
+            <div class="ide-card" onclick="openEnvironment('saas')">
+                <div class="card-header">
+                    <div class="card-icon">⚡</div>
+                    <div class="card-title">TypeScript SaaS</div>
+                </div>
+                <div class="card-description">
+                    Modern Next.js application with Arcjet security, authentication, and advanced SaaS features. Built with TypeScript and React.
+                </div>
+                <div class="tech-stack">
+                    <span class="tech-tag">TypeScript</span>
+                    <span class="tech-tag">React</span>
+                    <span class="tech-tag">Next.js</span>
+                    <span class="tech-tag">Arcjet</span>
+                </div>
+                <div class="card-actions">
+                    <a href="/saas" class="btn btn-primary">Open Platform</a>
+                    <button class="btn btn-secondary" onclick="event.stopPropagation(); mixWith('typescript')">Mix</button>
+                </div>
+            </div>
+
+            <!-- Node.js Backend -->
+            <div class="ide-card" onclick="openEnvironment('api')">
+                <div class="card-header">
+                    <div class="card-icon">🔧</div>
+                    <div class="card-title">Node.js Backend</div>
+                </div>
+                <div class="card-description">
+                    Express.js backend with MongoDB, Stripe integration, authentication, and comprehensive API endpoints.
+                </div>
+                <div class="tech-stack">
+                    <span class="tech-tag">Node.js</span>
+                    <span class="tech-tag">Express</span>
+                    <span class="tech-tag">MongoDB</span>
+                    <span class="tech-tag">Stripe</span>
+                </div>
+                <div class="card-actions">
+                    <a href="/api" class="btn btn-primary">View API</a>
+                    <button class="btn btn-secondary" onclick="event.stopPropagation(); mixWith('backend')">Mix</button>
+                </div>
+            </div>
+
+            <!-- Code Playground -->
+            <div class="ide-card" onclick="openEnvironment('playground')">
+                <div class="card-header">
+                    <div class="card-icon">🎮</div>
+                    <div class="card-title">Code Playground</div>
+                </div>
+                <div class="card-description">
+                    Interactive coding environment where you can experiment with different languages, frameworks, and mix technologies freely.
+                </div>
+                <div class="tech-stack">
+                    <span class="tech-tag">Multi-Lang</span>
+                    <span class="tech-tag">Live Preview</span>
+                    <span class="tech-tag">Sandbox</span>
+                    <span class="tech-tag">Fun</span>
+                </div>
+                <div class="card-actions">
+                    <button class="btn btn-primary" onclick="openPlayground()">Start Playing</button>
+                    <button class="btn btn-secondary" onclick="event.stopPropagation(); mixWith('playground')">Mix</button>
+                </div>
+            </div>
+
+            <!-- Development Tools -->
+            <div class="ide-card" onclick="openEnvironment('tools')">
+                <div class="card-header">
+                    <div class="card-icon">🛠️</div>
+                    <div class="card-title">Dev Tools</div>
+                </div>
+                <div class="card-description">
+                    Collection of development utilities, testing frameworks, build tools, and debugging instruments.
+                </div>
+                <div class="tech-stack">
+                    <span class="tech-tag">Testing</span>
+                    <span class="tech-tag">Debugging</span>
+                    <span class="tech-tag">Build Tools</span>
+                    <span class="tech-tag">Utilities</span>
+                </div>
+                <div class="card-actions">
+                    <button class="btn btn-primary" onclick="openDevTools()">Open Tools</button>
+                    <button class="btn btn-secondary" onclick="event.stopPropagation(); mixWith('tools')">Mix</button>
+                </div>
+            </div>
+
+            <!-- Project Mixer -->
+            <div class="ide-card" onclick="openEnvironment('mixer')">
+                <div class="card-header">
+                    <div class="card-icon">🎨</div>
+                    <div class="card-title">Project Mixer</div>
+                </div>
+                <div class="card-description">
+                    Combine different projects, frameworks, and technologies to create unique hybrid applications.
+                </div>
+                <div class="tech-stack">
+                    <span class="tech-tag">Hybrid</span>
+                    <span class="tech-tag">Fusion</span>
+                    <span class="tech-tag">Creative</span>
+                    <span class="tech-tag">Experimental</span>
+                </div>
+                <div class="card-actions">
+                    <button class="btn btn-primary" onclick="openMixer()">Start Mixing</button>
+                    <button class="btn btn-secondary" onclick="event.stopPropagation(); mixWith('mixer')">Mix</button>
+                </div>
+            </div>
         </div>
-        <div class="encryption-tools">
-            <div class="tool-card">
-                <h3>🔒 AES-256-GCM Encryption</h3>
-                <div class="input-group">
-                    <label for="aes-text">Text to Encrypt:</label>
-                    <textarea id="aes-text" placeholder="Enter your text here..."></textarea>
-                </div>
-                <div class="input-group">
-                    <label for="aes-key">Encryption Key (32+ chars):</label>
-                    <input type="text" id="aes-key" placeholder="Enter your secret key (min 32 characters)">
-                </div>
-                <button class="btn" onclick="encryptAES()">🔒 Encrypt</button>
-                <button class="btn btn-secondary" onclick="decryptAES()">🔓 Decrypt</button>
-                <button class="btn btn-danger" onclick="clearAES()">🗑️ Clear</button>
-                <div id="aes-result" class="result" style="display: none;"></div>
-            </div>
 
-            <div class="tool-card">
-                <h3>🔐 SHA-256 Hashing</h3>
-                <div class="input-group">
-                    <label for="hash-text">Text to Hash:</label>
-                    <textarea id="hash-text" placeholder="Enter text to generate hash..."></textarea>
-                </div>
-                <button class="btn" onclick="generateHash()">🔐 Generate Hash</button>
-                <button class="btn btn-danger" onclick="clearHash()">🗑️ Clear</button>
-                <div id="hash-result" class="result" style="display: none;"></div>
-            </div>
-
-            <div class="tool-card">
-                <h3>🔑 Secure Key Generator</h3>
-                <div class="input-group">
-                    <label for="key-length">Key Length:</label>
-                    <input type="number" id="key-length" value="32" min="16" max="128">
-                </div>
-                <button class="btn" onclick="generateKey()">🔑 Generate Key</button>
-                <button class="btn btn-secondary" onclick="copyKey()">📋 Copy</button>
-                <div id="key-result" class="result" style="display: none;"></div>
-            </div>
-
-            <div class="tool-card">
-                <h3>📝 Base64 Encoding</h3>
-                <div class="input-group">
-                    <label for="base64-text">Text to Encode/Decode:</label>
-                    <textarea id="base64-text" placeholder="Enter text or base64 string..."></textarea>
-                </div>
-                <button class="btn" onclick="encodeBase64()">📝 Encode</button>
-                <button class="btn btn-secondary" onclick="decodeBase64()">📖 Decode</button>
-                <button class="btn btn-danger" onclick="clearBase64()">🗑️ Clear</button>
-                <div id="base64-result" class="result" style="display: none;"></div>
-        </div>
-
-            <div class="tool-card">
-                <h3>🔐 Password Strength Checker</h3>
-                <div class="input-group">
-                    <label for="password">Password:</label>
-                    <input type="password" id="password" placeholder="Enter password to check...">
-                </div>
-                <button class="btn" onclick="checkPassword()">🔍 Check Strength</button>
-                <div id="password-result" class="result" style="display: none;"></div>
-        </div>
-
-            <div class="tool-card">
-                <h3>🔄 Text Converter</h3>
-                <div class="input-group">
-                    <label for="convert-text">Text to Convert:</label>
-                    <textarea id="convert-text" placeholder="Enter text to convert..."></textarea>
-                </div>
-                <button class="btn" onclick="convertToUppercase()">🔠 UPPERCASE</button>
-                <button class="btn btn-secondary" onclick="convertToLowercase()">🔡 lowercase</button>
-                <button class="btn" onclick="convertToTitleCase()">📝 Title Case</button>
-                <div id="convert-result" class="result" style="display: none;"></div>
+        <!-- Technology Mixing Panel -->
+        <div class="mixing-panel">
+            <h2 class="mixing-title">🎯 Technology Mixer</h2>
+            <div class="mix-controls">
+                <select class="mix-select" id="primaryTech">
+                    <option value="">Select Primary Technology</option>
+                    <option value="javascript">JavaScript</option>
+                    <option value="typescript">TypeScript</option>
+                    <option value="react">React</option>
+                    <option value="nodejs">Node.js</option>
+                    <option value="python">Python</option>
+                    <option value="cpp">C++</option>
+                </select>
+                <select class="mix-select" id="secondaryTech">
+                    <option value="">Select Secondary Technology</option>
+                    <option value="javascript">JavaScript</option>
+                    <option value="typescript">TypeScript</option>
+                    <option value="react">React</option>
+                    <option value="nodejs">Node.js</option>
+                    <option value="python">Python</option>
+                    <option value="cpp">C++</option>
+                </select>
+                <select class="mix-select" id="framework">
+                    <option value="">Select Framework</option>
+                    <option value="express">Express.js</option>
+                    <option value="nextjs">Next.js</option>
+                    <option value="fastapi">FastAPI</option>
+                    <option value="django">Django</option>
+                    <option value="flask">Flask</option>
+                </select>
+                <button class="btn btn-primary" onclick="createMix()">Create Mix</button>
             </div>
         </div>
+    </div>
 
-        <div class="pricing">
-            <h2>💎 Pricing Plans</h2>
-            <div class="pricing-grid">
-                <div class="price-card">
-                    <h3>Free</h3>
-                    <div class="price">$0</div>
-                    <ul class="features">
-                        <li>Basic encryption tools</li>
-                        <li>100 requests/month</li>
-                        <li>Standard algorithms</li>
-                        <li>Community support</li>
-                    </ul>
-                    <button class="btn">Get Started</button>
-                </div>
-                <div class="price-card">
-                    <h3>Pro</h3>
-                    <div class="price">$29</div>
-                    <ul class="features">
-                        <li>Advanced encryption</li>
-                        <li>10,000 requests/month</li>
-                        <li>Priority algorithms</li>
-                        <li>Email support</li>
-                        <li>API access</li>
-                    </ul>
-                    <button class="btn">Choose Pro</button>
-                </div>
-                <div class="price-card">
-                    <h3>Enterprise</h3>
-                    <div class="price">$99</div>
-                    <ul class="features">
-                        <li>Custom encryption</li>
-                        <li>Unlimited requests</li>
-                        <li>White-label solution</li>
-                        <li>24/7 support</li>
-                        <li>Custom integrations</li>
-                        <li>SLA guarantee</li>
-                    </ul>
-                    <button class="btn">Contact Sales</button>
-                </div>
-            </div>
+    <!-- Floating Action Buttons -->
+    <div class="floating-actions">
+        <button class="floating-btn" onclick="quickMix()" title="Quick Mix">⚡</button>
+        <button class="floating-btn" onclick="saveProject()" title="Save Project">💾</button>
+        <button class="floating-btn" onclick="shareProject()" title="Share">📤</button>
+        <button class="floating-btn" onclick="openSettings()" title="Settings">⚙️</button>
+    </div>
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+        <div class="status-item">
+            <div class="status-dot"></div>
+            <span>Star5IDE Online</span>
+        </div>
+        <div class="status-item">
+            <span>Ready to Mix & Code</span>
+        </div>
+        <div class="status-item">
+            <span>Last Updated: <span id="lastUpdate">Just now</span></span>
         </div>
     </div>
 
     <script>
-        // Modern Web Crypto API for AES encryption
-        async function encryptAES() {
-            const text = document.getElementById('aes-text').value;
-            const key = document.getElementById('aes-key').value;
-            
-            if (!text || !key) {
-                showStatus('Please enter both text and key', 'error');
-                return;
-            }
-            
-            if (key.length < 32) {
-                showStatus('Key must be at least 32 characters long', 'error');
-                return;
-            }
-            
-            try {
-                // Generate a random IV
-                const iv = crypto.getRandomValues(new Uint8Array(12));
-                
-                // Import the key
-                const keyBuffer = new TextEncoder().encode(key);
-                const cryptoKey = await crypto.subtle.importKey(
-                    'raw',
-                    keyBuffer,
-                    { name: 'AES-GCM' },
-                    false,
-                    ['encrypt']
-                );
-                
-                // Encrypt the text
-                const textBuffer = new TextEncoder().encode(text);
-                const encrypted = await crypto.subtle.encrypt(
-                    { name: 'AES-GCM', iv: iv },
-                    cryptoKey,
-                    textBuffer
-                );
-                
-                // Combine IV and encrypted data
-                const combined = new Uint8Array(iv.length + encrypted.byteLength);
-                combined.set(iv);
-                combined.set(new Uint8Array(encrypted), iv.length);
-                
-                // Convert to base64
-                const result = btoa(String.fromCharCode(...combined));
-                
-                showResult('aes-result', '🔒 Encrypted Text (AES-256-GCM):', result);
-                showStatus('Encryption successful!', 'success');
-            } catch (error) {
-                showResult('aes-result', '❌ Encryption Error:', error.message);
-                showStatus('Encryption failed', 'error');
-            }
+        // Environment Management
+        function openEnvironment(env) {
+            console.log(`Opening environment: ${env}`);
+            // Add environment-specific logic here
         }
 
-        async function decryptAES() {
-            const text = document.getElementById('aes-text').value;
-            const key = document.getElementById('aes-key').value;
-            
-            if (!text || !key) {
-                showStatus('Please enter both encrypted text and key', 'error');
-                return;
-            }
-            
-            try {
-                // Decode from base64
-                const combined = new Uint8Array(atob(text).split('').map(c => c.charCodeAt(0)));
-                
-                // Extract IV and encrypted data
-                const iv = combined.slice(0, 12);
-                const encrypted = combined.slice(12);
-                
-                // Import the key
-                const keyBuffer = new TextEncoder().encode(key);
-                const cryptoKey = await crypto.subtle.importKey(
-                    'raw',
-                    keyBuffer,
-                    { name: 'AES-GCM' },
-                    false,
-                    ['decrypt']
-                );
-                
-                // Decrypt
-                const decrypted = await crypto.subtle.decrypt(
-                    { name: 'AES-GCM', iv: iv },
-                    cryptoKey,
-                    encrypted
-                );
-                
-                const result = new TextDecoder().decode(decrypted);
-                showResult('aes-result', '🔓 Decrypted Text:', result);
-                showStatus('Decryption successful!', 'success');
-            } catch (error) {
-                showResult('aes-result', '❌ Decryption Error:', 'Invalid key or corrupted data');
-                showStatus('Decryption failed', 'error');
-            }
+        // Technology Mixing
+        function mixWith(tech) {
+            console.log(`Mixing with: ${tech}`);
+            // Add mixing logic here
         }
 
-        // SHA-256 Hashing using Web Crypto API
-        async function generateHash() {
-            const text = document.getElementById('hash-text').value;
+        function createMix() {
+            const primary = document.getElementById('primaryTech').value;
+            const secondary = document.getElementById('secondaryTech').value;
+            const framework = document.getElementById('framework').value;
             
-            if (!text) {
-                showStatus('Please enter text to hash', 'error');
-                return;
-            }
-            
-            try {
-                const textBuffer = new TextEncoder().encode(text);
-                const hashBuffer = await crypto.subtle.digest('SHA-256', textBuffer);
-                const hashArray = Array.from(new Uint8Array(hashBuffer));
-                const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-                
-                showResult('hash-result', '🔐 SHA-256 Hash:', hashHex);
-                showStatus('Hash generated successfully!', 'success');
-            } catch (error) {
-                showResult('hash-result', '❌ Hashing Error:', error.message);
-                showStatus('Hashing failed', 'error');
-            }
-        }
-
-        // Secure key generator
-        function generateKey() {
-            const length = parseInt(document.getElementById('key-length').value);
-            const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?';
-            let key = '';
-            
-            // Use crypto.getRandomValues for better randomness
-            const randomValues = new Uint8Array(length);
-            crypto.getRandomValues(randomValues);
-            
-            for (let i = 0; i < length; i++) {
-                key += charset[randomValues[i] % charset.length];
-            }
-            
-            showResult('key-result', '🔑 Generated Secure Key:', key);
-            showStatus('Key generated successfully!', 'success');
-        }
-
-        // Copy key to clipboard
-        async function copyKey() {
-            const resultElement = document.getElementById('key-result');
-            if (resultElement.style.display === 'none') {
-                showStatus('Generate a key first', 'error');
-                return;
-            }
-            
-            const key = resultElement.textContent.split(':')[1].trim();
-            try {
-                await navigator.clipboard.writeText(key);
-                showStatus('Key copied to clipboard!', 'success');
-            } catch (error) {
-                showStatus('Failed to copy key', 'error');
-            }
-        }
-
-        // Base64 encoding/decoding
-        function encodeBase64() {
-            const text = document.getElementById('base64-text').value;
-            
-            if (!text) {
-                showStatus('Please enter text to encode', 'error');
-                return;
-            }
-            
-            try {
-                const encoded = btoa(unescape(encodeURIComponent(text)));
-                showResult('base64-result', '📝 Base64 Encoded:', encoded);
-                showStatus('Encoding successful!', 'success');
-            } catch (error) {
-                showResult('base64-result', '❌ Encoding Error:', error.message);
-                showStatus('Encoding failed', 'error');
-            }
-        }
-
-        function decodeBase64() {
-            const text = document.getElementById('base64-text').value;
-            
-            if (!text) {
-                showStatus('Please enter base64 string to decode', 'error');
-                return;
-            }
-            
-            try {
-                const decoded = decodeURIComponent(escape(atob(text)));
-                showResult('base64-result', '📖 Base64 Decoded:', decoded);
-                showStatus('Decoding successful!', 'success');
-            } catch (error) {
-                showResult('base64-result', '❌ Decoding Error:', 'Invalid base64 string');
-                showStatus('Decoding failed', 'error');
-            }
-        }
-
-        // Password strength checker
-        function checkPassword() {
-            const password = document.getElementById('password').value;
-            
-            if (!password) {
-                showStatus('Please enter a password', 'error');
-                return;
-            }
-            
-            let score = 0;
-            let feedback = [];
-            
-            // Length check
-            if (password.length >= 8) score += 1;
-            else feedback.push('At least 8 characters');
-            
-            // Uppercase check
-            if (/[A-Z]/.test(password)) score += 1;
-            else feedback.push('Include uppercase letters');
-            
-            // Lowercase check
-            if (/[a-z]/.test(password)) score += 1;
-            else feedback.push('Include lowercase letters');
-            
-            // Numbers check
-            if (/[0-9]/.test(password)) score += 1;
-            else feedback.push('Include numbers');
-            
-            // Special characters check
-            if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) score += 1;
-            else feedback.push('Include special characters');
-            
-            let strength = '';
-            let color = '';
-            
-            if (score <= 2) {
-                strength = 'Weak';
-                color = '#f44336';
-            } else if (score <= 4) {
-                strength = 'Medium';
-                color = '#ff9800';
+            if (primary && secondary && framework) {
+                alert(`Creating mix: ${primary} + ${secondary} with ${framework} framework!`);
+                // Add actual mixing logic here
             } else {
-                strength = 'Strong';
-                color = '#4CAF50';
+                alert('Please select all technologies to create a mix!');
             }
+        }
+
+        // Quick Actions
+        function quickMix() {
+            const technologies = ['JavaScript', 'TypeScript', 'React', 'Node.js', 'Python', 'C++'];
+            const randomTech1 = technologies[Math.floor(Math.random() * technologies.length)];
+            const randomTech2 = technologies[Math.floor(Math.random() * technologies.length)];
             
-            const result = `
-                <div style="color: ${color}; font-weight: bold;">Password Strength: ${strength} (${score}/5)</div>
-                <div style="margin-top: 10px;">
-                    <strong>Suggestions:</strong><br>
-                    ${feedback.join('<br>')}
-                </div>
-            `;
+            if (randomTech1 !== randomTech2) {
+                alert(`Quick Mix: ${randomTech1} + ${randomTech2} = Awesome!`);
+            } else {
+                quickMix(); // Try again if same technology
+            }
+        }
+
+        function openPlayground() {
+            // Create a new playground window/tab
+            window.open('/playground', '_blank');
+        }
+
+        function openDevTools() {
+            // Open development tools
+            window.open('/tools', '_blank');
+        }
+
+        function openMixer() {
+            // Open the project mixer
+            window.open('/mixer', '_blank');
+        }
+
+        function saveProject() {
+            alert('Project saved! Your mix is now available in your projects.');
+        }
+
+        function shareProject() {
+            alert('Share link copied to clipboard! Share your awesome mix with the world!');
+        }
+
+        function openSettings() {
+            alert('Settings panel coming soon! Customize your Star5IDE experience.');
+        }
+
+        // Update timestamp
+        function updateTimestamp() {
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateTimestamp();
+            setInterval(updateTimestamp, 60000); // Update every minute
+        });
+
+        // Add some fun interactions
+        document.querySelectorAll('.ide-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-10px) scale(1.02)';
+            });
             
-            showResult('password-result', '🔐 Password Analysis:', result);
-            showStatus('Password analysis complete!', 'success');
-        }
-
-        // Text conversion functions
-        function convertToUppercase() {
-            const text = document.getElementById('convert-text').value;
-            if (!text) {
-                showStatus('Please enter text to convert', 'error');
-                return;
-            }
-            showResult('convert-result', '🔠 UPPERCASE:', text.toUpperCase());
-        }
-
-        function convertToLowercase() {
-            const text = document.getElementById('convert-text').value;
-            if (!text) {
-                showStatus('Please enter text to convert', 'error');
-                return;
-            }
-            showResult('convert-result', '🔡 lowercase:', text.toLowerCase());
-        }
-
-        function convertToTitleCase() {
-            const text = document.getElementById('convert-text').value;
-            if (!text) {
-                showStatus('Please enter text to convert', 'error');
-                return;
-            }
-            const titleCase = text.replace(/\w\S*/g, (txt) => 
-                txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
-            );
-            showResult('convert-result', '📝 Title Case:', titleCase);
-        }
-
-        // Clear functions
-        function clearAES() {
-            document.getElementById('aes-text').value = '';
-            document.getElementById('aes-key').value = '';
-            document.getElementById('aes-result').style.display = 'none';
-        }
-
-        function clearHash() {
-            document.getElementById('hash-text').value = '';
-            document.getElementById('hash-result').style.display = 'none';
-        }
-
-        function clearBase64() {
-            document.getElementById('base64-text').value = '';
-            document.getElementById('base64-result').style.display = 'none';
-        }
-
-        // Helper functions
-        function showResult(elementId, title, content) {
-            const element = document.getElementById(elementId);
-            element.innerHTML = `<strong>${title}</strong><br>${content}`;
-            element.style.display = 'block';
-            element.className = 'result';
-        }
-
-        function showStatus(message, type) {
-            const status = document.getElementById('status');
-            status.textContent = message;
-            status.style.display = 'block';
-            status.style.background = type === 'error' ? 'rgba(244, 67, 54, 0.9)' : 'rgba(76, 175, 80, 0.9)';
-            
-            setTimeout(() => {
-                status.style.display = 'none';
-            }, 3000);
-        }
-
-        // Auto-generate a secure key on page load
-        window.onload = function() {
-            generateKey();
-            showStatus('Cryptify loaded successfully!', 'success');
-        };
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
     </script>
 </body>
 </html>

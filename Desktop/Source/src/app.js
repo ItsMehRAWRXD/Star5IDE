@@ -17,6 +17,10 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+// Serve static files (but not index.html from rawraw-site)
+app.use(express.static('public'));
+app.use('/static', express.static('rawraw-site'));
+
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -52,6 +56,75 @@ connectDB();
 app.use('/api/auth', authRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 
+// Advanced UI routes (keeping existing Camellia server)
+app.get('/advanced-ui', (req, res) => {
+  res.sendFile('advanced-ui.html', { root: 'rawraw-site' });
+});
+
+app.get('/advanced', (req, res) => {
+  res.sendFile('advanced-ui.html', { root: 'rawraw-site' });
+});
+
+app.get('/rawrz', (req, res) => {
+  res.sendFile('advanced-ui.html', { root: 'rawraw-site' });
+});
+
+// TypeScript SaaS Platform routes
+app.get('/saas', (req, res) => {
+  res.sendFile('index.html', { root: 'rawraw-site/SaaS Crypting Platform/SaaSEncryptionSecurity/1/out' });
+});
+
+app.get('/saas/*', (req, res) => {
+  res.sendFile('index.html', { root: 'rawraw-site/SaaS Crypting Platform/SaaSEncryptionSecurity/1/out' });
+});
+
+// Code Playground - Interactive coding environment
+app.get('/playground', (req, res) => {
+  res.sendFile('playground.html', { root: 'rawraw-site' });
+});
+
+// Project Mixer - Combine different technologies
+app.get('/mixer', (req, res) => {
+  res.sendFile('mixer.html', { root: 'rawraw-site' });
+});
+
+// Development Tools
+app.get('/tools', (req, res) => {
+  res.sendFile('dev-tools.html', { root: 'rawraw-site' });
+});
+
+// Main IDE Dashboard - The Fun Coding Interface!
+app.get('/', (req, res) => {
+  res.sendFile('ide-dashboard.html', { root: 'rawraw-site' });
+});
+
+// Legacy API endpoint for programmatic access
+app.get('/api', (req, res) => {
+  res.json({
+    message: '🚀 Star5IDE - Mix & Code Playground API',
+    version: '1.0.0',
+    interfaces: {
+      main: '/ (IDE Dashboard)',
+      security: '/advanced-ui (RawrZ Security Platform)',
+      saas: '/saas (TypeScript SaaS Platform)',
+      api: '/api (Backend API)',
+      playground: '/playground (Code Playground)',
+      mixer: '/mixer (Project Mixer)'
+    },
+    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+    endpoints: {
+      root: '/',
+      health: '/health',
+      auth: '/api/auth',
+      subscriptions: '/api/subscriptions',
+      advanced_ui: '/advanced-ui',
+      rawrz_ui: '/rawrz',
+      saas_platform: '/saas',
+      ide_dashboard: '/'
+    }
+  });
+});
+
 // Health check
 app.get('/health', (req, res) => {
   res.status(200).json({ 
@@ -62,20 +135,7 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Root endpoint
-app.get('/', (req, res) => {
-  res.json({ 
-    message: '🚀 SaaS Backend API is running!',
-    version: '1.0.0',
-    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
-    endpoints: {
-      root: '/',
-      health: '/health',
-      auth: '/api/auth',
-      subscriptions: '/api/subscriptions'
-    }
-  });
-});
+// This route is now handled above as the main IDE dashboard
 
 // Error handling middleware
 app.use((err, req, res, next) => {

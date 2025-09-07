@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Star5IDE - Mix & Code Playground</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .header {
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 3s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            margin-top: 0.5rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .ide-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .ide-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ide-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .ide-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            margin-right: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .card-description {
+            opacity: 0.9;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .tech-tag {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .mixing-panel {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-top: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .mixing-title {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .mix-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .mix-select {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 1rem;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .mix-select option {
+            background: #333;
+            color: white;
+        }
+
+        .status-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4ecdc4;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .floating-actions {
+            position: fixed;
+            top: 50%;
+            right: 2rem;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .floating-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .floating-btn:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 Star5IDE</h1>
+        <p class="subtitle">Mix Technologies • Code Freely • Have Fun</p>
+    </div>
+
+    <div class="container">
+        <div class="ide-grid">
+            <!-- RawrZ Security Platform -->
+            <div class="ide-card" onclick="openEnvironment('advanced-ui')">
+                <div class="card-header">
+                    <div class="card-icon">🛡️</div>
+                    <div class="card-title">RawrZ Security</div>
+                </div>
+                <div class="card-description">
+                    Advanced security platform with encryption, compression, stealth, and polymorphic engines. Perfect for security research and development.
+                </div>
+                <div class="tech-stack">
+                    <span class="tech-tag">JavaScript</span>
+                    <span class="tech-tag">HTML5</span>
+                    <span class="tech-tag">CSS3</span>
+                    <span class="tech-tag">Security</span>
+                </div>
+                <div class="card-actions">
+                    <a href="/advanced-ui" class="btn btn-primary">Open Platform</a>
+                    <button class="btn btn-secondary" onclick="event.stopPropagation(); mixWith('security')">Mix</button>
+                </div>
+            </div>
+
+            <!-- TypeScript SaaS Platform -->
+            <div class="ide-card" onclick="openEnvironment('saas')">
+                <div class="card-header">
+                    <div class="card-icon">⚡</div>
+                    <div class="card-title">TypeScript SaaS</div>
+                </div>
+                <div class="card-description">
+                    Modern Next.js application with Arcjet security, authentication, and advanced SaaS features. Built with TypeScript and React.
+                </div>
+                <div class="tech-stack">
+                    <span class="tech-tag">TypeScript</span>
+                    <span class="tech-tag">React</span>
+                    <span class="tech-tag">Next.js</span>
+                    <span class="tech-tag">Arcjet</span>
+                </div>
+                <div class="card-actions">
+                    <a href="/saas" class="btn btn-primary">Open Platform</a>
+                    <button class="btn btn-secondary" onclick="event.stopPropagation(); mixWith('typescript')">Mix</button>
+                </div>
+            </div>
+
+            <!-- Node.js Backend -->
+            <div class="ide-card" onclick="openEnvironment('api')">
+                <div class="card-header">
+                    <div class="card-icon">🔧</div>
+                    <div class="card-title">Node.js Backend</div>
+                </div>
+                <div class="card-description">
+                    Express.js backend with MongoDB, Stripe integration, authentication, and comprehensive API endpoints.
+                </div>
+                <div class="tech-stack">
+                    <span class="tech-tag">Node.js</span>
+                    <span class="tech-tag">Express</span>
+                    <span class="tech-tag">MongoDB</span>
+                    <span class="tech-tag">Stripe</span>
+                </div>
+                <div class="card-actions">
+                    <a href="/api" class="btn btn-primary">View API</a>
+                    <button class="btn btn-secondary" onclick="event.stopPropagation(); mixWith('backend')">Mix</button>
+                </div>
+            </div>
+
+            <!-- Code Playground -->
+            <div class="ide-card" onclick="openEnvironment('playground')">
+                <div class="card-header">
+                    <div class="card-icon">🎮</div>
+                    <div class="card-title">Code Playground</div>
+                </div>
+                <div class="card-description">
+                    Interactive coding environment where you can experiment with different languages, frameworks, and mix technologies freely.
+                </div>
+                <div class="tech-stack">
+                    <span class="tech-tag">Multi-Lang</span>
+                    <span class="tech-tag">Live Preview</span>
+                    <span class="tech-tag">Sandbox</span>
+                    <span class="tech-tag">Fun</span>
+                </div>
+                <div class="card-actions">
+                    <button class="btn btn-primary" onclick="openPlayground()">Start Playing</button>
+                    <button class="btn btn-secondary" onclick="event.stopPropagation(); mixWith('playground')">Mix</button>
+                </div>
+            </div>
+
+            <!-- Development Tools -->
+            <div class="ide-card" onclick="openEnvironment('tools')">
+                <div class="card-header">
+                    <div class="card-icon">🛠️</div>
+                    <div class="card-title">Dev Tools</div>
+                </div>
+                <div class="card-description">
+                    Collection of development utilities, testing frameworks, build tools, and debugging instruments.
+                </div>
+                <div class="tech-stack">
+                    <span class="tech-tag">Testing</span>
+                    <span class="tech-tag">Debugging</span>
+                    <span class="tech-tag">Build Tools</span>
+                    <span class="tech-tag">Utilities</span>
+                </div>
+                <div class="card-actions">
+                    <button class="btn btn-primary" onclick="openDevTools()">Open Tools</button>
+                    <button class="btn btn-secondary" onclick="event.stopPropagation(); mixWith('tools')">Mix</button>
+                </div>
+            </div>
+
+            <!-- Project Mixer -->
+            <div class="ide-card" onclick="openEnvironment('mixer')">
+                <div class="card-header">
+                    <div class="card-icon">🎨</div>
+                    <div class="card-title">Project Mixer</div>
+                </div>
+                <div class="card-description">
+                    Combine different projects, frameworks, and technologies to create unique hybrid applications.
+                </div>
+                <div class="tech-stack">
+                    <span class="tech-tag">Hybrid</span>
+                    <span class="tech-tag">Fusion</span>
+                    <span class="tech-tag">Creative</span>
+                    <span class="tech-tag">Experimental</span>
+                </div>
+                <div class="card-actions">
+                    <button class="btn btn-primary" onclick="openMixer()">Start Mixing</button>
+                    <button class="btn btn-secondary" onclick="event.stopPropagation(); mixWith('mixer')">Mix</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technology Mixing Panel -->
+        <div class="mixing-panel">
+            <h2 class="mixing-title">🎯 Technology Mixer</h2>
+            <div class="mix-controls">
+                <select class="mix-select" id="primaryTech">
+                    <option value="">Select Primary Technology</option>
+                    <option value="javascript">JavaScript</option>
+                    <option value="typescript">TypeScript</option>
+                    <option value="react">React</option>
+                    <option value="nodejs">Node.js</option>
+                    <option value="python">Python</option>
+                    <option value="cpp">C++</option>
+                </select>
+                <select class="mix-select" id="secondaryTech">
+                    <option value="">Select Secondary Technology</option>
+                    <option value="javascript">JavaScript</option>
+                    <option value="typescript">TypeScript</option>
+                    <option value="react">React</option>
+                    <option value="nodejs">Node.js</option>
+                    <option value="python">Python</option>
+                    <option value="cpp">C++</option>
+                </select>
+                <select class="mix-select" id="framework">
+                    <option value="">Select Framework</option>
+                    <option value="express">Express.js</option>
+                    <option value="nextjs">Next.js</option>
+                    <option value="fastapi">FastAPI</option>
+                    <option value="django">Django</option>
+                    <option value="flask">Flask</option>
+                </select>
+                <button class="btn btn-primary" onclick="createMix()">Create Mix</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Action Buttons -->
+    <div class="floating-actions">
+        <button class="floating-btn" onclick="quickMix()" title="Quick Mix">⚡</button>
+        <button class="floating-btn" onclick="saveProject()" title="Save Project">💾</button>
+        <button class="floating-btn" onclick="shareProject()" title="Share">📤</button>
+        <button class="floating-btn" onclick="openSettings()" title="Settings">⚙️</button>
+    </div>
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+        <div class="status-item">
+            <div class="status-dot"></div>
+            <span>Star5IDE Online</span>
+        </div>
+        <div class="status-item">
+            <span>Ready to Mix & Code</span>
+        </div>
+        <div class="status-item">
+            <span>Last Updated: <span id="lastUpdate">Just now</span></span>
+        </div>
+    </div>
+
+    <script>
+        // Environment Management
+        function openEnvironment(env) {
+            console.log(`Opening environment: ${env}`);
+            // Add environment-specific logic here
+        }
+
+        // Technology Mixing
+        function mixWith(tech) {
+            console.log(`Mixing with: ${tech}`);
+            // Add mixing logic here
+        }
+
+        function createMix() {
+            const primary = document.getElementById('primaryTech').value;
+            const secondary = document.getElementById('secondaryTech').value;
+            const framework = document.getElementById('framework').value;
+            
+            if (primary && secondary && framework) {
+                alert(`Creating mix: ${primary} + ${secondary} with ${framework} framework!`);
+                // Add actual mixing logic here
+            } else {
+                alert('Please select all technologies to create a mix!');
+            }
+        }
+
+        // Quick Actions
+        function quickMix() {
+            const technologies = ['JavaScript', 'TypeScript', 'React', 'Node.js', 'Python', 'C++'];
+            const randomTech1 = technologies[Math.floor(Math.random() * technologies.length)];
+            const randomTech2 = technologies[Math.floor(Math.random() * technologies.length)];
+            
+            if (randomTech1 !== randomTech2) {
+                alert(`Quick Mix: ${randomTech1} + ${randomTech2} = Awesome!`);
+            } else {
+                quickMix(); // Try again if same technology
+            }
+        }
+
+        function openPlayground() {
+            // Create a new playground window/tab
+            window.open('/playground', '_blank');
+        }
+
+        function openDevTools() {
+            // Open development tools
+            window.open('/tools', '_blank');
+        }
+
+        function openMixer() {
+            // Open the project mixer
+            window.open('/mixer', '_blank');
+        }
+
+        function saveProject() {
+            alert('Project saved! Your mix is now available in your projects.');
+        }
+
+        function shareProject() {
+            alert('Share link copied to clipboard! Share your awesome mix with the world!');
+        }
+
+        function openSettings() {
+            alert('Settings panel coming soon! Customize your Star5IDE experience.');
+        }
+
+        // Update timestamp
+        function updateTimestamp() {
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateTimestamp();
+            setInterval(updateTimestamp, 60000); // Update every minute
+        });
+
+        // Add some fun interactions
+        document.querySelectorAll('.ide-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-10px) scale(1.02)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+    </script>
+</body>
+</html>

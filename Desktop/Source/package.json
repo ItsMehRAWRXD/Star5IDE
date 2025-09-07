@@ -1,11 +1,15 @@
 {
-  "name": "saas-backend",
+  "name": "rawrz-security-platform",
   "version": "1.0.0",
-  "description": "Complete SaaS Backend",
+  "description": "RawrZ Advanced Security Platform - Complete SaaS with TypeScript Frontend",
   "main": "src/app.js",
   "scripts": {
     "start": "node src/app.js",
-    "dev": "nodemon src/app.js",
+    "dev": "concurrently \"nodemon src/app.js\" \"cd \"rawraw-site/SaaS Crypting Platform/SaaSEncryptionSecurity/1\" && npm run dev\"",
+    "dev:backend": "nodemon src/app.js",
+    "dev:frontend": "cd \"rawraw-site/SaaS Crypting Platform/SaaSEncryptionSecurity/1\" && npm run dev",
+    "build": "cd \"rawraw-site/SaaS Crypting Platform/SaaSEncryptionSecurity/1\" && npm run build",
+    "build:all": "npm run build && echo 'Backend build completed'",
     "test": "jest",
     "test:rate-limit": "jest health-rate-limit.test.js",
     "test:load": "node run-rate-limit-test.js",
@@ -13,10 +17,11 @@
     "test:no-memcpy": "node no-memcpy-test.js",
     "test:golden": "node golden-test.js",
     "test:dotnet": "node dotnet-reflection-test.js",
-    "build": "echo 'Build completed'",
+    "test:frontend": "cd \"rawraw-site/SaaS Crypting Platform/SaaSEncryptionSecurity/1\" && npm run test:run",
     "netlify:dev": "netlify dev",
     "netlify:build": "netlify build",
-    "netlify:deploy": "netlify deploy --prod"
+    "netlify:deploy": "netlify deploy --prod",
+    "install:frontend": "cd \"rawraw-site/SaaS Crypting Platform/SaaSEncryptionSecurity/1\" && npm install"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -35,6 +40,7 @@
     "stripe": "^12.18.0"
   },
   "devDependencies": {
+    "concurrently": "^8.2.2",
     "jest": "^29.6.4",
     "netlify-cli": "^23.5.0",
     "nodemon": "^3.0.1"

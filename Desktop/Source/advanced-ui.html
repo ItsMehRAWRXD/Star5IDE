@@ -1,0 +1,1969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RawRaw Advanced Security Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            margin: 5px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .tab:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+        
+        .tab.active {
+            background: rgba(255,255,255,0.3);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .tab-content {
+            display: none;
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 8px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-size: 14px;
+        }
+        
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: rgba(255,255,255,0.7);
+        }
+        
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255,107,107,0.4);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(45deg, #74b9ff, #0984e3);
+        }
+        
+        .btn-secondary:hover {
+            box-shadow: 0 6px 20px rgba(116,185,255,0.4);
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            border-left: 4px solid #00b894;
+        }
+        
+        .result h3 {
+            margin-bottom: 10px;
+            color: #00b894;
+        }
+        
+        .result pre {
+            background: rgba(0,0,0,0.5);
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            background: rgba(255,255,255,0.1);
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .checkbox-item:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .checkbox-item input[type="checkbox"] {
+            margin-right: 8px;
+            width: auto;
+        }
+        
+        .status {
+            padding: 10px 20px;
+            border-radius: 20px;
+            display: inline-block;
+            margin: 10px 0;
+            font-weight: 600;
+        }
+        
+        .status.success {
+            background: rgba(0,184,148,0.3);
+            border: 1px solid #00b894;
+        }
+        
+        .status.error {
+            background: rgba(255,107,107,0.3);
+            border: 1px solid #ff6b6b;
+        }
+        
+        .status.info {
+            background: rgba(116,185,255,0.3);
+            border: 1px solid #74b9ff;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .card {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .card h3 {
+            margin-bottom: 15px;
+            color: #74b9ff;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .tabs {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .tab {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>RawRaw Advanced Security Platform</h1>
+            <p>Comprehensive encryption, compression, and stealth tools</p>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('encryption')">Encryption</button>
+            <button class="tab" onclick="showTab('compression')">Compression</button>
+            <button class="tab" onclick="showTab('stealth')">Stealth</button>
+            <button class="tab" onclick="showTab('stub')">Stub Generation</button>
+            <button class="tab" onclick="showTab('rawrz')">RawrZ Engine</button>
+            <button class="tab" onclick="showTab('dual-generators')">Dual Generators</button>
+            <button class="tab" onclick="showTab('hot-patchers')">Hot Patchers</button>
+            <button class="tab" onclick="showTab('assembly')">Full Assembly</button>
+            <button class="tab" onclick="showTab('polymorphic')">Polymorphic Engine</button>
+            <button class="tab" onclick="showTab('anti-analysis')">Anti-Analysis</button>
+            <button class="tab" onclick="showTab('memory-management')">Memory Management</button>
+            <button class="tab" onclick="showTab('network-tools')">Network Tools</button>
+            <button class="tab" onclick="showTab('crypto-advanced')">Advanced Crypto</button>
+            <button class="tab" onclick="showTab('reverse-engineering')">Reverse Engineering</button>
+            <button class="tab" onclick="showTab('forensics')">Digital Forensics</button>
+            <button class="tab" onclick="showTab('malware-analysis')">Malware Analysis</button>
+            <button class="tab" onclick="showTab('api')">API Status</button>
+        </div>
+        
+        <!-- Encryption Tab -->
+        <div id="encryption" class="tab-content active">
+            <h2>Advanced Encryption</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>Text Encryption</h3>
+                    <div class="form-group">
+                        <label>Algorithm:</label>
+                        <select id="encAlgo">
+                            <option value="camellia">Camellia-256-CBC</option>
+                            <option value="aes">AES-256-CBC</option>
+                            <option value="chacha">ChaCha20</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Text to Encrypt:</label>
+                        <textarea id="encText" placeholder="Enter text to encrypt..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Password:</label>
+                        <input type="password" id="encPassword" placeholder="Enter password...">
+                    </div>
+                    <button class="btn" onclick="encryptText()">Encrypt</button>
+                    <button class="btn btn-secondary" onclick="decryptText()">Decrypt</button>
+                </div>
+                
+                <div class="card">
+                    <h3>File Encryption</h3>
+                    <div class="form-group">
+                        <label>Select File:</label>
+                        <input type="file" id="encFile">
+                    </div>
+                    <div class="form-group">
+                        <label>Password:</label>
+                        <input type="password" id="encFilePassword" placeholder="Enter password...">
+                    </div>
+                    <button class="btn" onclick="encryptFile()">Encrypt File</button>
+                    <button class="btn btn-secondary" onclick="decryptFile()">Decrypt File</button>
+                </div>
+            </div>
+            <div id="encResult" class="result" style="display: none;"></div>
+        </div>
+        
+        <!-- Compression Tab -->
+        <div id="compression" class="tab-content">
+            <h2>Data Compression</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>Text Compression</h3>
+                    <div class="form-group">
+                        <label>Algorithm:</label>
+                        <select id="compAlgo">
+                            <option value="gzip">Gzip</option>
+                            <option value="deflate">Deflate</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Text to Compress:</label>
+                        <textarea id="compText" placeholder="Enter text to compress..."></textarea>
+                    </div>
+                    <button class="btn" onclick="compressText()">Compress</button>
+                    <button class="btn btn-secondary" onclick="decompressText()">Decompress</button>
+                </div>
+                
+                <div class="card">
+                    <h3>File Compression</h3>
+                    <div class="form-group">
+                        <label>Select File:</label>
+                        <input type="file" id="compFile">
+                    </div>
+                    <button class="btn" onclick="compressFile()">Compress File</button>
+                    <button class="btn btn-secondary" onclick="decompressFile()">Decompress File</button>
+                </div>
+            </div>
+            <div id="compResult" class="result" style="display: none;"></div>
+        </div>
+        
+        <!-- Stealth Tab -->
+        <div id="stealth" class="tab-content">
+            <h2>Stealth Code Generation</h2>
+            <div class="form-group">
+                <label>Select Stealth Techniques:</label>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="antiDebug" checked>
+                        <label for="antiDebug">Anti-Debug</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="antiVM" checked>
+                        <label for="antiVM">Anti-VM</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="codeObfuscation">
+                        <label for="codeObfuscation">Code Obfuscation</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="junkCode">
+                        <label for="junkCode">Junk Code</label>
+                    </div>
+                </div>
+            </div>
+            <button class="btn" onclick="generateStealthCode()">Generate Stealth Code</button>
+            <div id="stealthResult" class="result" style="display: none;"></div>
+        </div>
+        
+        <!-- Stub Generation Tab -->
+        <div id="stub" class="tab-content">
+            <h2>Loader Stub Generation</h2>
+            <div class="form-group">
+                <label>Language:</label>
+                <select id="stubLang">
+                    <option value="c">C</option>
+                    <option value="cpp">C++</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Features:</label>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="basicStub" checked>
+                        <label for="basicStub">Basic</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="stealthStub">
+                        <label for="stealthStub">Stealth</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="polymorphicStub">
+                        <label for="polymorphicStub">Polymorphic</label>
+                    </div>
+                </div>
+            </div>
+            <button class="btn" onclick="generateStub()">Generate Stub</button>
+            <div id="stubResult" class="result" style="display: none;"></div>
+        </div>
+        
+        <!-- RawrZ Engine Tab -->
+        <div id="rawrz" class="tab-content">
+            <h2>RawrZ Cryptography Engine</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>File Encryption</h3>
+                    <div class="form-group">
+                        <label>Select File:</label>
+                        <input type="file" id="rawrzFile">
+                    </div>
+                    <div class="form-group">
+                        <label>Encryption Method:</label>
+                        <select id="rawrzMethod">
+                            <option value="AES_256_CBC">AES-256-CBC</option>
+                            <option value="AES_256_GCM">AES-256-GCM</option>
+                            <option value="CHACHA20">ChaCha20</option>
+                            <option value="Polymorphic">Polymorphic</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Stub Options:</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="rawrzAntiAnalysis">
+                                <label for="rawrzAntiAnalysis">Anti-Analysis</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="rawrzPolymorphic">
+                                <label for="rawrzPolymorphic">Polymorphic Mutations</label>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="encryptWithRawrZ()">Encrypt with RawrZ</button>
+                </div>
+                
+                <div class="card">
+                    <h3>Advanced Options</h3>
+                    <div class="form-group">
+                        <label>Custom Stub Template:</label>
+                        <select id="rawrzTemplate">
+                            <option value="csharp">C# (.NET)</option>
+                            <option value="cpp">C++ (Native)</option>
+                            <option value="hybrid">Hybrid (Multi-Stage)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Additional Features:</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="rawrzMemoryOnly">
+                                <label for="rawrzMemoryOnly">Memory-Only Execution</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="rawrzSelfDelete">
+                                <label for="rawrzSelfDelete">Self-Deletion</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="rawrzResult" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Dual Generators Tab -->
+        <div id="dual-generators" class="tab-content">
+            <h2>Dual Generator System</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>Primary Generator</h3>
+                    <div class="form-group">
+                        <label>Generator Type:</label>
+                        <select id="primaryGenType">
+                            <option value="csharp">C# (.NET)</option>
+                            <option value="cpp">C++ (Native)</option>
+                            <option value="powershell">PowerShell</option>
+                            <option value="javascript">JavaScript</option>
+                            <option value="python">Python</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Features:</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="primaryAntiDebug" checked>
+                                <label for="primaryAntiDebug">Anti-Debug</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="primaryAntiVM" checked>
+                                <label for="primaryAntiVM">Anti-VM</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="primaryObfuscation">
+                                <label for="primaryObfuscation">Code Obfuscation</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="primaryPolymorphic">
+                                <label for="primaryPolymorphic">Polymorphic</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Custom Template:</label>
+                        <textarea id="primaryTemplate" placeholder="Enter custom template code..."></textarea>
+                    </div>
+                    <button class="btn" onclick="generatePrimary()">Generate Primary</button>
+                </div>
+                
+                <div class="card">
+                    <h3>Secondary Generator</h3>
+                    <div class="form-group">
+                        <label>Generator Type:</label>
+                        <select id="secondaryGenType">
+                            <option value="csharp">C# (.NET)</option>
+                            <option value="cpp">C++ (Native)</option>
+                            <option value="powershell">PowerShell</option>
+                            <option value="javascript">JavaScript</option>
+                            <option value="python">Python</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Features:</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="secondaryAntiDebug" checked>
+                                <label for="secondaryAntiDebug">Anti-Debug</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="secondaryAntiVM" checked>
+                                <label for="secondaryAntiVM">Anti-VM</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="secondaryObfuscation">
+                                <label for="secondaryObfuscation">Code Obfuscation</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="secondaryPolymorphic">
+                                <label for="secondaryPolymorphic">Polymorphic</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Custom Template:</label>
+                        <textarea id="secondaryTemplate" placeholder="Enter custom template code..."></textarea>
+                    </div>
+                    <button class="btn" onclick="generateSecondary()">Generate Secondary</button>
+                </div>
+                
+                <div class="card">
+                    <h3>Generator Synchronization</h3>
+                    <div class="form-group">
+                        <label>Synchronization Mode:</label>
+                        <select id="syncMode">
+                            <option value="parallel">Parallel Execution</option>
+                            <option value="sequential">Sequential Execution</option>
+                            <option value="conditional">Conditional Execution</option>
+                            <option value="hybrid">Hybrid Mode</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Communication Protocol:</label>
+                        <select id="commProtocol">
+                            <option value="shared-memory">Shared Memory</option>
+                            <option value="pipes">Named Pipes</option>
+                            <option value="sockets">TCP Sockets</option>
+                            <option value="files">File System</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Advanced Options:</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="syncEncryption">
+                                <label for="syncEncryption">Encrypted Communication</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="syncStealth">
+                                <label for="syncStealth">Stealth Mode</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="syncFailover">
+                                <label for="syncFailover">Automatic Failover</label>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="synchronizeGenerators()">Synchronize Generators</button>
+                </div>
+            </div>
+            <div id="dualGenResult" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Hot Patchers Tab -->
+        <div id="hot-patchers" class="tab-content">
+            <h2>Dual Car Hot Patcher System</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>Primary Hot Patcher</h3>
+                    <div class="form-group">
+                        <label>Target Process:</label>
+                        <input type="text" id="primaryTarget" placeholder="Process name or PID">
+                    </div>
+                    <div class="form-group">
+                        <label>Patch Type:</label>
+                        <select id="primaryPatchType">
+                            <option value="memory">Memory Patch</option>
+                            <option value="api-hook">API Hook</option>
+                            <option value="inline-hook">Inline Hook</option>
+                            <option value="iat-hook">IAT Hook</option>
+                            <option value="eathook">EAT Hook</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Patch Code:</label>
+                        <textarea id="primaryPatchCode" placeholder="Enter patch code (assembly/hex)..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Advanced Options:</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="primaryStealth">
+                                <label for="primaryStealth">Stealth Mode</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="primaryRestore">
+                                <label for="primaryRestore">Auto Restore</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="primaryPersistent">
+                                <label for="primaryPersistent">Persistent Patch</label>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="applyPrimaryPatch()">Apply Primary Patch</button>
+                </div>
+                
+                <div class="card">
+                    <h3>Secondary Hot Patcher</h3>
+                    <div class="form-group">
+                        <label>Target Process:</label>
+                        <input type="text" id="secondaryTarget" placeholder="Process name or PID">
+                    </div>
+                    <div class="form-group">
+                        <label>Patch Type:</label>
+                        <select id="secondaryPatchType">
+                            <option value="memory">Memory Patch</option>
+                            <option value="api-hook">API Hook</option>
+                            <option value="inline-hook">Inline Hook</option>
+                            <option value="iat-hook">IAT Hook</option>
+                            <option value="eathook">EAT Hook</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Patch Code:</label>
+                        <textarea id="secondaryPatchCode" placeholder="Enter patch code (assembly/hex)..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Advanced Options:</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="secondaryStealth">
+                                <label for="secondaryStealth">Stealth Mode</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="secondaryRestore">
+                                <label for="secondaryRestore">Auto Restore</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="secondaryPersistent">
+                                <label for="secondaryPersistent">Persistent Patch</label>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="applySecondaryPatch()">Apply Secondary Patch</button>
+                </div>
+                
+                <div class="card">
+                    <h3>Hot Patcher Management</h3>
+                    <div class="form-group">
+                        <label>Coordination Mode:</label>
+                        <select id="patcherMode">
+                            <option value="independent">Independent</option>
+                            <option value="coordinated">Coordinated</option>
+                            <option value="cascading">Cascading</option>
+                            <option value="redundant">Redundant</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Patch Scheduling:</label>
+                        <select id="patchSchedule">
+                            <option value="immediate">Immediate</option>
+                            <option value="delayed">Delayed</option>
+                            <option value="conditional">Conditional</option>
+                            <option value="periodic">Periodic</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Management Options:</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="patchMonitoring">
+                                <label for="patchMonitoring">Real-time Monitoring</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="patchLogging">
+                                <label for="patchLogging">Detailed Logging</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="patchRollback">
+                                <label for="patchRollback">Automatic Rollback</label>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="managePatchers()">Manage Patchers</button>
+                    <button class="btn btn-secondary" onclick="listActivePatches()">List Active Patches</button>
+                </div>
+            </div>
+            <div id="hotPatchResult" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Full Assembly Tab -->
+        <div id="assembly" class="tab-content">
+            <h2>Full Assembly System</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>Assembly Generator</h3>
+                    <div class="form-group">
+                        <label>Architecture:</label>
+                        <select id="assemblyArch">
+                            <option value="x86">x86 (32-bit)</option>
+                            <option value="x64">x64 (64-bit)</option>
+                            <option value="arm">ARM</option>
+                            <option value="arm64">ARM64</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Assembly Type:</label>
+                        <select id="assemblyType">
+                            <option value="inline">Inline Assembly</option>
+                            <option value="standalone">Standalone Assembly</option>
+                            <option value="shellcode">Shellcode</option>
+                            <option value="payload">Payload</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Assembly Code:</label>
+                        <textarea id="assemblyCode" placeholder="Enter assembly code..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Optimization Level:</label>
+                        <select id="assemblyOpt">
+                            <option value="none">None</option>
+                            <option value="basic">Basic</option>
+                            <option value="aggressive">Aggressive</option>
+                            <option value="maximum">Maximum</option>
+                        </select>
+                    </div>
+                    <button class="btn" onclick="compileAssembly()">Compile Assembly</button>
+                </div>
+                
+                <div class="card">
+                    <h3>Code Injection</h3>
+                    <div class="form-group">
+                        <label>Injection Method:</label>
+                        <select id="injectionMethod">
+                            <option value="dll-injection">DLL Injection</option>
+                            <option value="process-hollowing">Process Hollowing</option>
+                            <option value="manual-dll">Manual DLL Mapping</option>
+                            <option value="thread-hijacking">Thread Hijacking</option>
+                            <option value="setwindowshookex">SetWindowsHookEx</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Target Process:</label>
+                        <input type="text" id="injectionTarget" placeholder="Process name or PID">
+                    </div>
+                    <div class="form-group">
+                        <label>Payload:</label>
+                        <textarea id="injectionPayload" placeholder="Enter payload code..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Injection Options:</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="injectionStealth">
+                                <label for="injectionStealth">Stealth Injection</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="injectionPersistent">
+                                <label for="injectionPersistent">Persistent</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="injectionElevated">
+                                <label for="injectionElevated">Require Elevation</label>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="performInjection()">Perform Injection</button>
+                </div>
+                
+                <div class="card">
+                    <h3>Binary Analysis</h3>
+                    <div class="form-group">
+                        <label>Analysis Type:</label>
+                        <select id="analysisType">
+                            <option value="static">Static Analysis</option>
+                            <option value="dynamic">Dynamic Analysis</option>
+                            <option value="hybrid">Hybrid Analysis</option>
+                            <option value="behavioral">Behavioral Analysis</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Target Binary:</label>
+                        <input type="file" id="analysisBinary" accept=".exe,.dll,.bin">
+                    </div>
+                    <div class="form-group">
+                        <label>Analysis Options:</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="analysisStrings">
+                                <label for="analysisStrings">String Analysis</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="analysisImports">
+                                <label for="analysisImports">Import Analysis</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="analysisExports">
+                                <label for="analysisExports">Export Analysis</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="analysisSections">
+                                <label for="analysisSections">Section Analysis</label>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="analyzeBinary()">Analyze Binary</button>
+                </div>
+            </div>
+            <div id="assemblyResult" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Polymorphic Engine Tab -->
+        <div id="polymorphic" class="tab-content">
+            <h2>Polymorphic Engine</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>Mutation Engine</h3>
+                    <div class="form-group">
+                        <label>Mutation Type:</label>
+                        <select id="mutationType">
+                            <option value="instruction">Instruction Mutation</option>
+                            <option value="register">Register Swapping</option>
+                            <option value="junk">Junk Code Insertion</option>
+                            <option value="encryption">Code Encryption</option>
+                            <option value="obfuscation">Code Obfuscation</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Mutation Level:</label>
+                        <select id="mutationLevel">
+                            <option value="low">Low (10-30%)</option>
+                            <option value="medium">Medium (30-60%)</option>
+                            <option value="high">High (60-90%)</option>
+                            <option value="extreme">Extreme (90-100%)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Target Code:</label>
+                        <textarea id="mutationCode" placeholder="Enter code to mutate..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Mutation Options:</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="mutationPreserve">
+                                <label for="mutationPreserve">Preserve Functionality</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="mutationRandom">
+                                <label for="mutationRandom">Random Mutations</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="mutationStealth">
+                                <label for="mutationStealth">Stealth Mode</label>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="mutateCode()">Mutate Code</button>
+                </div>
+                
+                <div class="card">
+                    <h3>Metamorphic Engine</h3>
+                    <div class="form-group">
+                        <label>Transformation Type:</label>
+                        <select id="transformType">
+                            <option value="syntax">Syntax Transformation</option>
+                            <option value="semantic">Semantic Transformation</option>
+                            <option value="structural">Structural Transformation</option>
+                            <option value="complete">Complete Rewrite</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Transformation Rules:</label>
+                        <textarea id="transformRules" placeholder="Enter transformation rules..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Target Language:</label>
+                        <select id="targetLanguage">
+                            <option value="csharp">C#</option>
+                            <option value="cpp">C++</option>
+                            <option value="python">Python</option>
+                            <option value="javascript">JavaScript</option>
+                            <option value="assembly">Assembly</option>
+                        </select>
+                    </div>
+                    <button class="btn" onclick="transformCode()">Transform Code</button>
+                </div>
+                
+                <div class="card">
+                    <h3>Evolution Engine</h3>
+                    <div class="form-group">
+                        <label>Evolution Strategy:</label>
+                        <select id="evolutionStrategy">
+                            <option value="genetic">Genetic Algorithm</option>
+                            <option value="neural">Neural Network</option>
+                            <option value="reinforcement">Reinforcement Learning</option>
+                            <option value="hybrid">Hybrid Approach</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Fitness Function:</label>
+                        <textarea id="fitnessFunction" placeholder="Define fitness criteria..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Evolution Parameters:</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="evolutionCrossover">
+                                <label for="evolutionCrossover">Enable Crossover</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="evolutionMutation">
+                                <label for="evolutionMutation">Enable Mutation</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="evolutionSelection">
+                                <label for="evolutionSelection">Natural Selection</label>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="evolveCode()">Evolve Code</button>
+                </div>
+            </div>
+            <div id="polymorphicResult" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Anti-Analysis Tab -->
+        <div id="anti-analysis" class="tab-content">
+            <h2>Anti-Analysis System</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>Anti-Debugging</h3>
+                    <div class="form-group">
+                        <label>Detection Methods:</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="antiDebugIsDebuggerPresent" checked>
+                                <label for="antiDebugIsDebuggerPresent">IsDebuggerPresent</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="antiDebugCheckRemoteDebugger" checked>
+                                <label for="antiDebugCheckRemoteDebugger">CheckRemoteDebuggerPresent</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="antiDebugNtQueryInformationProcess">
+                                <label for="antiDebugNtQueryInformationProcess">NtQueryInformationProcess</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="antiDebugHardwareBreakpoints">
+                                <label for="antiDebugHardwareBreakpoints">Hardware Breakpoints</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="antiDebugTiming">
+                                <label for="antiDebugTiming">Timing Attacks</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Response Actions:</label>
+                        <select id="antiDebugResponse">
+                            <option value="terminate">Terminate Process</option>
+                            <option value="exit">Exit Gracefully</option>
+                            <option value="corrupt">Corrupt Data</option>
+                            <option value="redirect">Redirect Execution</option>
+                        </select>
+                    </div>
+                    <button class="btn" onclick="generateAntiDebug()">Generate Anti-Debug</button>
+                </div>
+                
+                <div class="card">
+                    <h3>Anti-VM Detection</h3>
+                    <div class="form-group">
+                        <label>Detection Methods:</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="antiVMRegistry" checked>
+                                <label for="antiVMRegistry">Registry Keys</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="antiVMProcesses" checked>
+                                <label for="antiVMProcesses">VM Processes</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="antiVMHardware">
+                                <label for="antiVMHardware">Hardware Fingerprinting</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="antiVMTiming">
+                                <label for="antiVMTiming">Timing Analysis</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="antiVMMemory">
+                                <label for="antiVMMemory">Memory Analysis</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>VM Types:</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="antiVMVirtualBox" checked>
+                                <label for="antiVMVirtualBox">VirtualBox</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="antiVMVMware" checked>
+                                <label for="antiVMVMware">VMware</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="antiVMHyperV">
+                                <label for="antiVMHyperV">Hyper-V</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="antiVMQEMU">
+                                <label for="antiVMQEMU">QEMU</label>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="generateAntiVM()">Generate Anti-VM</button>
+                </div>
+                
+                <div class="card">
+                    <h3>Anti-Sandbox</h3>
+                    <div class="form-group">
+                        <label>Sandbox Detection:</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="antiSandboxUserInteraction">
+                                <label for="antiSandboxUserInteraction">User Interaction</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="antiSandboxTimeDelay">
+                                <label for="antiSandboxTimeDelay">Time Delays</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="antiSandboxSystemInfo">
+                                <label for="antiSandboxSystemInfo">System Information</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="antiSandboxNetwork">
+                                <label for="antiSandboxNetwork">Network Analysis</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Evasion Techniques:</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="antiSandboxSleep">
+                                <label for="antiSandboxSleep">Sleep Evasion</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="antiSandboxMouse">
+                                <label for="antiSandboxMouse">Mouse Movement</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="antiSandboxKeyboard">
+                                <label for="antiSandboxKeyboard">Keyboard Input</label>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="generateAntiSandbox()">Generate Anti-Sandbox</button>
+                </div>
+            </div>
+            <div id="antiAnalysisResult" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Memory Management Tab -->
+        <div id="memory-management" class="tab-content">
+            <h2>Advanced Memory Management</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>Memory Allocation</h3>
+                    <div class="form-group">
+                        <label>Allocation Type:</label>
+                        <select id="allocType">
+                            <option value="heap">Heap Allocation</option>
+                            <option value="stack">Stack Allocation</option>
+                            <option value="virtual">Virtual Memory</option>
+                            <option value="shared">Shared Memory</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Memory Size:</label>
+                        <input type="number" id="allocSize" placeholder="Size in bytes">
+                    </div>
+                    <div class="form-group">
+                        <label>Protection Flags:</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="allocRead">
+                                <label for="allocRead">PAGE_READONLY</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="allocWrite">
+                                <label for="allocWrite">PAGE_READWRITE</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="allocExecute">
+                                <label for="allocExecute">PAGE_EXECUTE</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="allocExecuteRead">
+                                <label for="allocExecuteRead">PAGE_EXECUTE_READ</label>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="allocateMemory()">Allocate Memory</button>
+                </div>
+                
+                <div class="card">
+                    <h3>Memory Protection</h3>
+                    <div class="form-group">
+                        <label>Protection Method:</label>
+                        <select id="protectMethod">
+                            <option value="encryption">Memory Encryption</option>
+                            <option value="obfuscation">Memory Obfuscation</option>
+                            <option value="scrambling">Memory Scrambling</option>
+                            <option value="hiding">Memory Hiding</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Protection Level:</label>
+                        <select id="protectLevel">
+                            <option value="basic">Basic</option>
+                            <option value="advanced">Advanced</option>
+                            <option value="military">Military Grade</option>
+                            <option value="quantum">Quantum Resistant</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Protection Options:</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="protectAntiDump">
+                                <label for="protectAntiDump">Anti-Dump</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="protectAntiDebug">
+                                <label for="protectAntiDebug">Anti-Debug</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="protectSelfModify">
+                                <label for="protectSelfModify">Self-Modifying</label>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="protectMemory()">Protect Memory</button>
+                </div>
+                
+                <div class="card">
+                    <h3>Memory Forensics</h3>
+                    <div class="form-group">
+                        <label>Forensic Type:</label>
+                        <select id="forensicType">
+                            <option value="dump">Memory Dump</option>
+                            <option value="analysis">Memory Analysis</option>
+                            <option value="recovery">Memory Recovery</option>
+                            <option value="reconstruction">Memory Reconstruction</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Target Process:</label>
+                        <input type="text" id="forensicTarget" placeholder="Process name or PID">
+                    </div>
+                    <div class="form-group">
+                        <label>Forensic Options:</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="forensicFull">
+                                <label for="forensicFull">Full Memory</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="forensicSelective">
+                                <label for="forensicSelective">Selective</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="forensicCompressed">
+                                <label for="forensicCompressed">Compressed</label>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="performForensics()">Perform Forensics</button>
+                </div>
+            </div>
+            <div id="memoryResult" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- API Status Tab -->
+        <div id="api" class="tab-content">
+            <h2>API Status & Information</h2>
+            <div class="card">
+                <h3>System Status</h3>
+                <div id="apiStatus"></div>
+            </div>
+            <div class="card">
+                <h3>Available Endpoints</h3>
+                <ul id="apiEndpoints"></ul>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const API_BASE = '/.netlify/functions/api';
+        const API_TOKEN = 'your-api-token-here'; // Replace with actual token
+        
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+        
+        async function makeApiCall(endpoint, data) {
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${API_TOKEN}`
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('API call failed:', error);
+                throw error;
+            }
+        }
+        
+        async function encryptText() {
+            const text = document.getElementById('encText').value;
+            const password = document.getElementById('encPassword').value;
+            const algorithm = document.getElementById('encAlgo').value;
+            
+            if (!text || !password) {
+                alert('Please enter both text and password');
+                return;
+            }
+            
+            try {
+                const result = await makeApiCall('/encrypt', {
+                    text: text,
+                    password: password,
+                    algorithm: algorithm
+                });
+                
+                showResult('encResult', 'Encryption Result', result);
+            } catch (error) {
+                showError('encResult', 'Encryption failed: ' + error.message);
+            }
+        }
+        
+        async function decryptText() {
+            const text = document.getElementById('encText').value;
+            const password = document.getElementById('encPassword').value;
+            const algorithm = document.getElementById('encAlgo').value;
+            
+            if (!text || !password) {
+                alert('Please enter both encrypted text and password');
+                return;
+            }
+            
+            try {
+                const result = await makeApiCall('/decrypt', {
+                    encryptedText: text,
+                    password: password,
+                    algorithm: algorithm
+                });
+                
+                showResult('encResult', 'Decryption Result', result);
+            } catch (error) {
+                showError('encResult', 'Decryption failed: ' + error.message);
+            }
+        }
+        
+        async function compressText() {
+            const text = document.getElementById('compText').value;
+            const algorithm = document.getElementById('compAlgo').value;
+            
+            if (!text) {
+                alert('Please enter text to compress');
+                return;
+            }
+            
+            try {
+                const result = await makeApiCall('/compress', {
+                    data: btoa(text),
+                    algorithm: algorithm
+                });
+                
+                showResult('compResult', 'Compression Result', result);
+            } catch (error) {
+                showError('compResult', 'Compression failed: ' + error.message);
+            }
+        }
+        
+        async function decompressText() {
+            const text = document.getElementById('compText').value;
+            const algorithm = document.getElementById('compAlgo').value;
+            
+            if (!text) {
+                alert('Please enter compressed data');
+                return;
+            }
+            
+            try {
+                const result = await makeApiCall('/decompress', {
+                    data: text,
+                    algorithm: algorithm
+                });
+                
+                showResult('compResult', 'Decompression Result', result);
+            } catch (error) {
+                showError('compResult', 'Decompression failed: ' + error.message);
+            }
+        }
+        
+        async function generateStealthCode() {
+            const techniques = [];
+            if (document.getElementById('antiDebug').checked) techniques.push('anti-debug');
+            if (document.getElementById('antiVM').checked) techniques.push('anti-vm');
+            if (document.getElementById('codeObfuscation').checked) techniques.push('code-obfuscation');
+            if (document.getElementById('junkCode').checked) techniques.push('junk-code');
+            
+            try {
+                const result = await makeApiCall('/stealth', {
+                    techniques: techniques
+                });
+                
+                showResult('stealthResult', 'Stealth Code Generated', result);
+            } catch (error) {
+                showError('stealthResult', 'Stealth code generation failed: ' + error.message);
+            }
+        }
+        
+        async function generateStub() {
+            const language = document.getElementById('stubLang').value;
+            const features = [];
+            if (document.getElementById('basicStub').checked) features.push('basic');
+            if (document.getElementById('stealthStub').checked) features.push('stealth');
+            if (document.getElementById('polymorphicStub').checked) features.push('polymorphic');
+            
+            try {
+                const result = await makeApiCall('/stub-generate', {
+                    language: language,
+                    features: features
+                });
+                
+                showResult('stubResult', 'Stub Generated', result);
+            } catch (error) {
+                showError('stubResult', 'Stub generation failed: ' + error.message);
+            }
+        }
+        
+        async function checkApiStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const result = await response.json();
+                
+                document.getElementById('apiStatus').innerHTML = `
+                    <div class="status success">API is online</div>
+                    <p>Version: ${result.version}</p>
+                    <p>Uptime: ${result.uptime}</p>
+                `;
+                
+                document.getElementById('apiEndpoints').innerHTML = result.endpoints.map(ep => 
+                    `<li>${ep}</li>`
+                ).join('');
+            } catch (error) {
+                document.getElementById('apiStatus').innerHTML = `
+                    <div class="status error">API is offline</div>
+                    <p>Error: ${error.message}</p>
+                `;
+            }
+        }
+        
+        function showResult(elementId, title, data) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.innerHTML = `
+                <h3>${title}</h3>
+                <pre>${JSON.stringify(data, null, 2)}</pre>
+            `;
+        }
+        
+        function showError(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.innerHTML = `
+                <h3>Error</h3>
+                <div class="status error">${message}</div>
+            `;
+        }
+        
+        // Initialize API status check
+        document.addEventListener('DOMContentLoaded', function() {
+            checkApiStatus();
+        });
+
+        // Dual Generator Functions
+        async function generatePrimary() {
+            const type = document.getElementById('primaryGenType').value;
+            const features = [];
+            if (document.getElementById('primaryAntiDebug').checked) features.push('anti-debug');
+            if (document.getElementById('primaryAntiVM').checked) features.push('anti-vm');
+            if (document.getElementById('primaryObfuscation').checked) features.push('obfuscation');
+            if (document.getElementById('primaryPolymorphic').checked) features.push('polymorphic');
+            const template = document.getElementById('primaryTemplate').value;
+
+            try {
+                const result = await makeApiCall('/dual-generator/primary', {
+                    type: type,
+                    features: features,
+                    template: template
+                });
+                showResult('dualGenResult', 'Primary Generator Created', result);
+            } catch (error) {
+                showError('dualGenResult', 'Primary generator failed: ' + error.message);
+            }
+        }
+
+        async function generateSecondary() {
+            const type = document.getElementById('secondaryGenType').value;
+            const features = [];
+            if (document.getElementById('secondaryAntiDebug').checked) features.push('anti-debug');
+            if (document.getElementById('secondaryAntiVM').checked) features.push('anti-vm');
+            if (document.getElementById('secondaryObfuscation').checked) features.push('obfuscation');
+            if (document.getElementById('secondaryPolymorphic').checked) features.push('polymorphic');
+            const template = document.getElementById('secondaryTemplate').value;
+
+            try {
+                const result = await makeApiCall('/dual-generator/secondary', {
+                    type: type,
+                    features: features,
+                    template: template
+                });
+                showResult('dualGenResult', 'Secondary Generator Created', result);
+            } catch (error) {
+                showError('dualGenResult', 'Secondary generator failed: ' + error.message);
+            }
+        }
+
+        async function synchronizeGenerators() {
+            const syncMode = document.getElementById('syncMode').value;
+            const commProtocol = document.getElementById('commProtocol').value;
+            const options = [];
+            if (document.getElementById('syncEncryption').checked) options.push('encryption');
+            if (document.getElementById('syncStealth').checked) options.push('stealth');
+            if (document.getElementById('syncFailover').checked) options.push('failover');
+
+            try {
+                const result = await makeApiCall('/dual-generator/sync', {
+                    mode: syncMode,
+                    protocol: commProtocol,
+                    options: options
+                });
+                showResult('dualGenResult', 'Generators Synchronized', result);
+            } catch (error) {
+                showError('dualGenResult', 'Synchronization failed: ' + error.message);
+            }
+        }
+
+        // Hot Patcher Functions
+        async function applyPrimaryPatch() {
+            const target = document.getElementById('primaryTarget').value;
+            const patchType = document.getElementById('primaryPatchType').value;
+            const patchCode = document.getElementById('primaryPatchCode').value;
+            const options = [];
+            if (document.getElementById('primaryStealth').checked) options.push('stealth');
+            if (document.getElementById('primaryRestore').checked) options.push('restore');
+            if (document.getElementById('primaryPersistent').checked) options.push('persistent');
+
+            if (!target || !patchCode) {
+                alert('Please enter target process and patch code');
+                return;
+            }
+
+            try {
+                const result = await makeApiCall('/hot-patcher/primary', {
+                    target: target,
+                    type: patchType,
+                    code: patchCode,
+                    options: options
+                });
+                showResult('hotPatchResult', 'Primary Patch Applied', result);
+            } catch (error) {
+                showError('hotPatchResult', 'Primary patch failed: ' + error.message);
+            }
+        }
+
+        async function applySecondaryPatch() {
+            const target = document.getElementById('secondaryTarget').value;
+            const patchType = document.getElementById('secondaryPatchType').value;
+            const patchCode = document.getElementById('secondaryPatchCode').value;
+            const options = [];
+            if (document.getElementById('secondaryStealth').checked) options.push('stealth');
+            if (document.getElementById('secondaryRestore').checked) options.push('restore');
+            if (document.getElementById('secondaryPersistent').checked) options.push('persistent');
+
+            if (!target || !patchCode) {
+                alert('Please enter target process and patch code');
+                return;
+            }
+
+            try {
+                const result = await makeApiCall('/hot-patcher/secondary', {
+                    target: target,
+                    type: patchType,
+                    code: patchCode,
+                    options: options
+                });
+                showResult('hotPatchResult', 'Secondary Patch Applied', result);
+            } catch (error) {
+                showError('hotPatchResult', 'Secondary patch failed: ' + error.message);
+            }
+        }
+
+        async function managePatchers() {
+            const mode = document.getElementById('patcherMode').value;
+            const schedule = document.getElementById('patchSchedule').value;
+            const options = [];
+            if (document.getElementById('patchMonitoring').checked) options.push('monitoring');
+            if (document.getElementById('patchLogging').checked) options.push('logging');
+            if (document.getElementById('patchRollback').checked) options.push('rollback');
+
+            try {
+                const result = await makeApiCall('/hot-patcher/manage', {
+                    mode: mode,
+                    schedule: schedule,
+                    options: options
+                });
+                showResult('hotPatchResult', 'Patchers Managed', result);
+            } catch (error) {
+                showError('hotPatchResult', 'Patcher management failed: ' + error.message);
+            }
+        }
+
+        async function listActivePatches() {
+            try {
+                const result = await makeApiCall('/hot-patcher/list', {});
+                showResult('hotPatchResult', 'Active Patches', result);
+            } catch (error) {
+                showError('hotPatchResult', 'Failed to list patches: ' + error.message);
+            }
+        }
+
+        // Assembly Functions
+        async function compileAssembly() {
+            const arch = document.getElementById('assemblyArch').value;
+            const type = document.getElementById('assemblyType').value;
+            const code = document.getElementById('assemblyCode').value;
+            const optimization = document.getElementById('assemblyOpt').value;
+
+            if (!code) {
+                alert('Please enter assembly code');
+                return;
+            }
+
+            try {
+                const result = await makeApiCall('/assembly/compile', {
+                    architecture: arch,
+                    type: type,
+                    code: code,
+                    optimization: optimization
+                });
+                showResult('assemblyResult', 'Assembly Compiled', result);
+            } catch (error) {
+                showError('assemblyResult', 'Assembly compilation failed: ' + error.message);
+            }
+        }
+
+        async function performInjection() {
+            const method = document.getElementById('injectionMethod').value;
+            const target = document.getElementById('injectionTarget').value;
+            const payload = document.getElementById('injectionPayload').value;
+            const options = [];
+            if (document.getElementById('injectionStealth').checked) options.push('stealth');
+            if (document.getElementById('injectionPersistent').checked) options.push('persistent');
+            if (document.getElementById('injectionElevated').checked) options.push('elevated');
+
+            if (!target || !payload) {
+                alert('Please enter target process and payload');
+                return;
+            }
+
+            try {
+                const result = await makeApiCall('/assembly/inject', {
+                    method: method,
+                    target: target,
+                    payload: payload,
+                    options: options
+                });
+                showResult('assemblyResult', 'Injection Performed', result);
+            } catch (error) {
+                showError('assemblyResult', 'Injection failed: ' + error.message);
+            }
+        }
+
+        async function analyzeBinary() {
+            const type = document.getElementById('analysisType').value;
+            const file = document.getElementById('analysisBinary').files[0];
+            const options = [];
+            if (document.getElementById('analysisStrings').checked) options.push('strings');
+            if (document.getElementById('analysisImports').checked) options.push('imports');
+            if (document.getElementById('analysisExports').checked) options.push('exports');
+            if (document.getElementById('analysisSections').checked) options.push('sections');
+
+            if (!file) {
+                alert('Please select a binary file');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('type', type);
+            formData.append('options', JSON.stringify(options));
+
+            try {
+                const response = await fetch(`${API_BASE}/assembly/analyze`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${API_TOKEN}`
+                    },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                showResult('assemblyResult', 'Binary Analysis Complete', result);
+            } catch (error) {
+                showError('assemblyResult', 'Binary analysis failed: ' + error.message);
+            }
+        }
+
+        // Polymorphic Engine Functions
+        async function mutateCode() {
+            const type = document.getElementById('mutationType').value;
+            const level = document.getElementById('mutationLevel').value;
+            const code = document.getElementById('mutationCode').value;
+            const options = [];
+            if (document.getElementById('mutationPreserve').checked) options.push('preserve');
+            if (document.getElementById('mutationRandom').checked) options.push('random');
+            if (document.getElementById('mutationStealth').checked) options.push('stealth');
+
+            if (!code) {
+                alert('Please enter code to mutate');
+                return;
+            }
+
+            try {
+                const result = await makeApiCall('/polymorphic/mutate', {
+                    type: type,
+                    level: level,
+                    code: code,
+                    options: options
+                });
+                showResult('polymorphicResult', 'Code Mutated', result);
+            } catch (error) {
+                showError('polymorphicResult', 'Mutation failed: ' + error.message);
+            }
+        }
+
+        async function transformCode() {
+            const type = document.getElementById('transformType').value;
+            const rules = document.getElementById('transformRules').value;
+            const language = document.getElementById('targetLanguage').value;
+
+            if (!rules) {
+                alert('Please enter transformation rules');
+                return;
+            }
+
+            try {
+                const result = await makeApiCall('/polymorphic/transform', {
+                    type: type,
+                    rules: rules,
+                    language: language
+                });
+                showResult('polymorphicResult', 'Code Transformed', result);
+            } catch (error) {
+                showError('polymorphicResult', 'Transformation failed: ' + error.message);
+            }
+        }
+
+        async function evolveCode() {
+            const strategy = document.getElementById('evolutionStrategy').value;
+            const fitness = document.getElementById('fitnessFunction').value;
+            const options = [];
+            if (document.getElementById('evolutionCrossover').checked) options.push('crossover');
+            if (document.getElementById('evolutionMutation').checked) options.push('mutation');
+            if (document.getElementById('evolutionSelection').checked) options.push('selection');
+
+            if (!fitness) {
+                alert('Please define fitness function');
+                return;
+            }
+
+            try {
+                const result = await makeApiCall('/polymorphic/evolve', {
+                    strategy: strategy,
+                    fitness: fitness,
+                    options: options
+                });
+                showResult('polymorphicResult', 'Code Evolved', result);
+            } catch (error) {
+                showError('polymorphicResult', 'Evolution failed: ' + error.message);
+            }
+        }
+
+        // Anti-Analysis Functions
+        async function generateAntiDebug() {
+            const methods = [];
+            if (document.getElementById('antiDebugIsDebuggerPresent').checked) methods.push('IsDebuggerPresent');
+            if (document.getElementById('antiDebugCheckRemoteDebugger').checked) methods.push('CheckRemoteDebuggerPresent');
+            if (document.getElementById('antiDebugNtQueryInformationProcess').checked) methods.push('NtQueryInformationProcess');
+            if (document.getElementById('antiDebugHardwareBreakpoints').checked) methods.push('HardwareBreakpoints');
+            if (document.getElementById('antiDebugTiming').checked) methods.push('Timing');
+            const response = document.getElementById('antiDebugResponse').value;
+
+            try {
+                const result = await makeApiCall('/anti-analysis/debug', {
+                    methods: methods,
+                    response: response
+                });
+                showResult('antiAnalysisResult', 'Anti-Debug Generated', result);
+            } catch (error) {
+                showError('antiAnalysisResult', 'Anti-debug generation failed: ' + error.message);
+            }
+        }
+
+        async function generateAntiVM() {
+            const methods = [];
+            if (document.getElementById('antiVMRegistry').checked) methods.push('registry');
+            if (document.getElementById('antiVMProcesses').checked) methods.push('processes');
+            if (document.getElementById('antiVMHardware').checked) methods.push('hardware');
+            if (document.getElementById('antiVMTiming').checked) methods.push('timing');
+            if (document.getElementById('antiVMMemory').checked) methods.push('memory');
+            
+            const vmTypes = [];
+            if (document.getElementById('antiVMVirtualBox').checked) vmTypes.push('VirtualBox');
+            if (document.getElementById('antiVMVMware').checked) vmTypes.push('VMware');
+            if (document.getElementById('antiVMHyperV').checked) vmTypes.push('HyperV');
+            if (document.getElementById('antiVMQEMU').checked) vmTypes.push('QEMU');
+
+            try {
+                const result = await makeApiCall('/anti-analysis/vm', {
+                    methods: methods,
+                    vmTypes: vmTypes
+                });
+                showResult('antiAnalysisResult', 'Anti-VM Generated', result);
+            } catch (error) {
+                showError('antiAnalysisResult', 'Anti-VM generation failed: ' + error.message);
+            }
+        }
+
+        async function generateAntiSandbox() {
+            const detection = [];
+            if (document.getElementById('antiSandboxUserInteraction').checked) detection.push('userInteraction');
+            if (document.getElementById('antiSandboxTimeDelay').checked) detection.push('timeDelay');
+            if (document.getElementById('antiSandboxSystemInfo').checked) detection.push('systemInfo');
+            if (document.getElementById('antiSandboxNetwork').checked) detection.push('network');
+            
+            const evasion = [];
+            if (document.getElementById('antiSandboxSleep').checked) evasion.push('sleep');
+            if (document.getElementById('antiSandboxMouse').checked) evasion.push('mouse');
+            if (document.getElementById('antiSandboxKeyboard').checked) evasion.push('keyboard');
+
+            try {
+                const result = await makeApiCall('/anti-analysis/sandbox', {
+                    detection: detection,
+                    evasion: evasion
+                });
+                showResult('antiAnalysisResult', 'Anti-Sandbox Generated', result);
+            } catch (error) {
+                showError('antiAnalysisResult', 'Anti-sandbox generation failed: ' + error.message);
+            }
+        }
+
+        // Memory Management Functions
+        async function allocateMemory() {
+            const type = document.getElementById('allocType').value;
+            const size = document.getElementById('allocSize').value;
+            const flags = [];
+            if (document.getElementById('allocRead').checked) flags.push('PAGE_READONLY');
+            if (document.getElementById('allocWrite').checked) flags.push('PAGE_READWRITE');
+            if (document.getElementById('allocExecute').checked) flags.push('PAGE_EXECUTE');
+            if (document.getElementById('allocExecuteRead').checked) flags.push('PAGE_EXECUTE_READ');
+
+            if (!size) {
+                alert('Please enter memory size');
+                return;
+            }
+
+            try {
+                const result = await makeApiCall('/memory/allocate', {
+                    type: type,
+                    size: parseInt(size),
+                    flags: flags
+                });
+                showResult('memoryResult', 'Memory Allocated', result);
+            } catch (error) {
+                showError('memoryResult', 'Memory allocation failed: ' + error.message);
+            }
+        }
+
+        async function protectMemory() {
+            const method = document.getElementById('protectMethod').value;
+            const level = document.getElementById('protectLevel').value;
+            const options = [];
+            if (document.getElementById('protectAntiDump').checked) options.push('antiDump');
+            if (document.getElementById('protectAntiDebug').checked) options.push('antiDebug');
+            if (document.getElementById('protectSelfModify').checked) options.push('selfModify');
+
+            try {
+                const result = await makeApiCall('/memory/protect', {
+                    method: method,
+                    level: level,
+                    options: options
+                });
+                showResult('memoryResult', 'Memory Protected', result);
+            } catch (error) {
+                showError('memoryResult', 'Memory protection failed: ' + error.message);
+            }
+        }
+
+        async function performForensics() {
+            const type = document.getElementById('forensicType').value;
+            const target = document.getElementById('forensicTarget').value;
+            const options = [];
+            if (document.getElementById('forensicFull').checked) options.push('full');
+            if (document.getElementById('forensicSelective').checked) options.push('selective');
+            if (document.getElementById('forensicCompressed').checked) options.push('compressed');
+
+            if (!target) {
+                alert('Please enter target process');
+                return;
+            }
+
+            try {
+                const result = await makeApiCall('/memory/forensics', {
+                    type: type,
+                    target: target,
+                    options: options
+                });
+                showResult('memoryResult', 'Forensics Complete', result);
+            } catch (error) {
+                showError('memoryResult', 'Forensics failed: ' + error.message);
+            }
+        }
+
+        async function encryptWithRawrZ() {
+            const file = document.getElementById('rawrzFile').files[0];
+            if (!file) {
+                alert('Please select a file to encrypt');
+                return;
+            }
+
+            const method = document.getElementById('rawrzMethod').value;
+            const template = document.getElementById('rawrzTemplate').value;
+            const antiAnalysis = document.getElementById('rawrzAntiAnalysis').checked;
+            const polymorphic = document.getElementById('rawrzPolymorphic').checked;
+            const memoryOnly = document.getElementById('rawrzMemoryOnly').checked;
+            const selfDelete = document.getElementById('rawrzSelfDelete').checked;
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('method', method);
+            formData.append('template', template);
+            formData.append('antiAnalysis', antiAnalysis);
+            formData.append('polymorphic', polymorphic);
+            formData.append('memoryOnly', memoryOnly);
+            formData.append('selfDelete', selfDelete);
+
+            try {
+                const response = await fetch(`${API_BASE/rawrz/encrypt`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${API_TOKEN}`
+                    },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    showResult('rawrzResult', 'RawrZ Encryption Complete', {
+                        status: 'Success',
+                        originalSize: result.originalSize,
+                        encryptedSize: result.encryptedSize,
+                        downloadUrl: result.downloadUrl,
+                        stubUrl: result.stubUrl
+                    });
+                } else {
+                    throw new Error(result.error || 'Unknown error occurred');
+                }
+            } catch (error) {
+                showError('rawrzResult', 'RawrZ encryption failed: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
