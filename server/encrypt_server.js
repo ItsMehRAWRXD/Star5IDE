@@ -109,6 +109,16 @@ HP.registerTarget("decrypt", async (body, query) => {
   return runCli(args, body);
 });
 
+/* collect raw request body */
+function collectBody(req) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    req.on("data", c => chunks.push(c));
+    req.on("end", () => resolve(Buffer.concat(chunks)));
+    req.on("error", reject);
+  });
+}
+
 /* ───────────── HTTP server ───────────── */
 const server = http.createServer(async (req, res) => {
   const { method } = req;
@@ -133,14 +143,27 @@ const server = http.createServer(async (req, res) => {
   /* panel */
   if (method === "GET" && pathname === "/panel") {
     try {
-      const html = fs.readFileSync(
-        path.join(__dirname, "public", "panel.html")
-      );
+      const candidates = [
+        path.join(__dirname, "public", "panel.html"),
+        path.join(process.cwd(), "public", "panel.html"),
+        path.join(process.cwd(), "panel.html")
+      ];
+      let html = null;
+      for (const p of candidates) {
+        try { html = fs.readFileSync(p); break; } catch {}
+      }
+      if (!html) {
+        const fallbackPanelHtml = `<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Camellia Encrypt Server - Control Panel</title><style>body{font-family:Arial,sans-serif;margin:20px;background:#f5f5f5}.container{background:#fff;padding:30px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.1);max-width:800px;margin:0 auto}h1{color:#333;text-align:center}.form-group{margin:20px 0}label{display:block;margin-bottom:5px;font-weight:700}input,select{width:100%;padding:10px;border:1px solid #ddd;border-radius:5px}button{background:#007bff;color:#fff;padding:10px 20px;border:none;border-radius:5px;cursor:pointer}button:hover{background:#0056b3}.result{margin:20px 0;padding:15px;border-radius:5px}.success{background:#d4edda;border:1px solid #c3e6cb;color:#155724}.error{background:#f8d7da;border:1px solid #f5c6cb;color:#721c24}</style></head><body><div class="container"><h1>🔐 Camellia Encrypt Server - Control Panel</h1><p><strong>Note:</strong> This is a fallback interface.</p><h3>Encrypt File</h3><form id="encryptForm"><div class="form-group"><label>File:</label><input type="file" id="encryptFile" required></div><div class="form-group"><label>Password:</label><input type="password" id="encryptPassword" required></div><div class="form-group"><label>Cipher:</label><select id="encryptCipher"><option value="camellia-256-cbc">Camellia 256-bit CBC</option><option value="aes-256-cbc">AES 256-bit CBC</option></select></div><button type="submit">Encrypt File</button></form><div id="encryptResult" class="result" style="display:none;"></div><h3>Decrypt File</h3><form id="decryptForm"><div class="form-group"><label>Encrypted File:</label><input type="file" id="decryptFile" required></div><div class="form-group"><label>Password:</label><input type="password" id="decryptPassword" required></div><div class="form-group"><label>Cipher:</label><select id="decryptCipher"><option value="camellia-256-cbc">Camellia 256-bit CBC</option><option value="aes-256-cbc">AES 256-bit CBC</option></select></div><button type="submit">Decrypt File</button></form><div id="decryptResult" class="result" style="display:none;"></div></div><script>function showResult(id,t,m){const e=document.getElementById(id);e.className='result '+t;e.textContent=m;e.style.display='block'}document.getElementById('encryptForm').addEventListener('submit',async(e)=>{e.preventDefault();const f=document.getElementById('encryptFile');const p=document.getElementById('encryptPassword').value;const c=document.getElementById('encryptCipher').value;if(!f.files[0]){showResult('encryptResult','error','Please select a file');return}const form=new FormData();form.append('file',f.files[0]);try{const r=await fetch('/encrypt?pass='+encodeURIComponent(p)+'&cipher='+encodeURIComponent(c),{method:'POST',body:form});if(r.ok){const b=await r.blob();const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='encrypted_'+f.files[0].name;a.click();URL.revokeObjectURL(u);showResult('encryptResult','success','File encrypted')}else{const err=await r.json();showResult('encryptResult','error','Encryption failed: '+err.error)}}catch(err){showResult('encryptResult','error','Error: '+err.message)}});document.getElementById('decryptForm').addEventListener('submit',async(e)=>{e.preventDefault();const f=document.getElementById('decryptFile');const p=document.getElementById('decryptPassword').value;const c=document.getElementById('decryptCipher').value;if(!f.files[0]){showResult('decryptResult','error','Please select a file');return}const form=new FormData();form.append('file',f.files[0]);try{const r=await fetch('/decrypt?pass='+encodeURIComponent(p)+'&cipher='+encodeURIComponent(c),{method:'POST',body:form});if(r.ok){const b=await r.blob();const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='decrypted_'+f.files[0].name;a.click();URL.revokeObjectURL(u);showResult('decryptResult','success','File decrypted')}else{const err=await r.json();showResult('decryptResult','error','Decryption failed: '+err.error)}}catch(err){showResult('decryptResult','error','Error: '+err.message)}});</script></body></html>`;
+        setCors(res, origin);
+        res.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+        return res.end(fallbackPanelHtml);
+      }
       setCors(res, origin);
       res.writeHead(200, { "content-type": "text/html; charset=utf-8" });
       return res.end(html);
-    } catch {
-      return bad(res, 500, "panel not found");
+    } catch (err) {
+      return bad(res, 500, "panel error: "+err.message);
     }
   }
 
@@ -171,6 +194,40 @@ const server = http.createServer(async (req, res) => {
     setCors(res, origin);
     res.writeHead(200, { "content-type": "application/json" });
     return res.end(JSON.stringify(getDynamicCapabilitiesSafe()));
+  }
+
+  /* encrypt */
+  if (method === "POST" && pathname === "/encrypt") {
+    if (!isOriginAllowed(origin)) return bad(res, 403, "Origin not allowed");
+    try {
+      const body = await collectBody(req);
+      const out  = await HP.get("encrypt")(body, parsed.query);
+      setCors(res, origin);
+      res.writeHead(200, {
+        "content-type": "application/octet-stream",
+        "content-disposition": "attachment; filename=encrypted.bin"
+      });
+      return res.end(out);
+    } catch (e) {
+      return bad(res, 400, e.message);
+    }
+  }
+
+  /* decrypt */
+  if (method === "POST" && pathname === "/decrypt") {
+    if (!isOriginAllowed(origin)) return bad(res, 403, "Origin not allowed");
+    try {
+      const body = await collectBody(req);
+      const out  = await HP.get("decrypt")(body, parsed.query);
+      setCors(res, origin);
+      res.writeHead(200, {
+        "content-type": "application/octet-stream",
+        "content-disposition": "attachment; filename=decrypted.bin"
+      });
+      return res.end(out);
+    } catch (e) {
+      return bad(res, 400, e.message);
+    }
   }
 
   /* stub generator and bundle, hot-patch, encrypt/decrypt
