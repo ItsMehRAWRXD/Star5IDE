@@ -117,6 +117,14 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+
+  if (method === "GET" && pathname === "/panel") {
+  setCors(res, origin);
+  res.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+  res.end(`<!doctype html>...your full panel HTML here...`);
+  return;
+}
+  
   // Static capabilities
   if (method === "GET" && pathname === "/capabilities") {
     setCors(res, origin);
