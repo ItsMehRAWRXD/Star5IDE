@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./PolymorphicBackend
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:5000
+    volumes:
+      - ./uploads:/app/uploads
+      - ./output:/app/output
+    networks:
+      - polynet
+
+  frontend:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./server/public:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend
+    networks:
+      - polynet
+
+  compiler:
+    build:
+      context: .
+      dockerfile: Dockerfile.compiler
+    volumes:
+      - ./source:/source
+      - ./compiled:/compiled
+    networks:
+      - polynet
+
+networks:
+  polynet:
+    driver: bridge
+
+volumes:
+  uploads:
+  output:
+  source:
+  compiled:
