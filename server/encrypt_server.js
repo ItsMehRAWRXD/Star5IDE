@@ -76,6 +76,15 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // Capabilities (dynamic; non-overwriting)
+  if (method === "GET" && pathname === "/capabilities/dynamic") {
+    setCors(res, origin);
+    res.writeHead(200, { "content-type": "application/json" });
+    const dyn = getDynamicCapabilitiesSafe();
+    res.end(JSON.stringify(dyn));
+    return;
+  }
+
   // Stub generator
   if (method === "GET" && pathname === "/stub") {
     setCors(res, origin);
@@ -247,6 +256,24 @@ function getStaticCapabilities() {
     endpoints: ['/encrypt', '/decrypt', '/health', '/capabilities', '/stub', '/bundle'],
     stubs: ['powershell', 'node']
   };
+}
+
+// ---- dynamic capabilities (safe; does not replace static) ----
+function getDynamicCapabilitiesSafe() {
+  const result = getStaticCapabilities();
+  try {
+    const { execFileSync } = require('child_process');
+    const out = execFileSync('openssl', ['enc', '-ciphers']).toString();
+    const line = out.split(/\r?\n/).find(l => l.includes(':')) || '';
+    const ciphers = line.split(':').pop().split().flatMap(s => s.split(/\s+/)).filter(Boolean);
+    const prefer = ['camellia-256-cbc', 'aes-256-cbc'];
+    const available = prefer.filter(c => ciphers.includes(c));
+    if (available.length) {
+      result.ciphers = Array.from(new Set([...available]));
+      result.defaultCipher = available[0];
+    }
+  } catch {}
+  return result;
 }
 
 // ---- stubs ----
