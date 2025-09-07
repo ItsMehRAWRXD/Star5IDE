@@ -1,0 +1,9 @@
+{
+  "name": "com.my_company.my_application",
+  "description": "Custom desktop AI helper (Python)",
+  "path": "C:\\path\\to\\your\\nm_host.exe",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://knldjmfmopnpolahpmmgbagdohdnhkik/"
+  ]
+}

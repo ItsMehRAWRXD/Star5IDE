@@ -1,0 +1,45 @@
+name: Deploy to DigitalOcean
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Build container images
+        run: |
+          docker build -t registry.digitalocean.com/star5ide/rawrz -f Dockerfile.rawrz .
+          docker build -t registry.digitalocean.com/star5ide/web -f Dockerfile.web .
+
+      - name: Log in to DigitalOcean Container Registry
+        run: doctl registry login --expiry-seconds 600
+
+      - name: Push images to DigitalOcean Container Registry
+        run: |
+          docker push registry.digitalocean.com/star5ide/rawrz
+          docker push registry.digitalocean.com/star5ide/web
+
+      - name: Update deployment file
+        run: |
+          TAG=$(echo $GITHUB_SHA | head -c7)
+          sed -i 's|<IMAGE>|registry.digitalocean.com/star5ide/rawrz:'${TAG}'|' $GITHUB_WORKSPACE/config/deployment.yml
+          sed -i 's|<IMAGE>|registry.digitalocean.com/star5ide/web:'${TAG}'|' $GITHUB_WORKSPACE/config/deployment.yml
+
+      - name: Save DigitalOcean kubeconfig
+        run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 star5ide-cluster
+
+      - name: Deploy to DigitalOcean Kubernetes
+        run: kubectl apply -f $GITHUB_WORKSPACE/config/deployment.yml
+
+      - name: Verify deployment
+        run: kubectl rollout status deployment/star5ide-web

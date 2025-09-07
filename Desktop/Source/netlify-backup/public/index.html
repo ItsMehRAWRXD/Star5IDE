@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SaaS Encryption Platform - Secure Cryptographic Operations</title>
+    <meta name="description" content="Enterprise-grade SaaS platform for encryption, decryption, hashing, and key generation. Deployed on Netlify with serverless functions.">
+    <meta name="keywords" content="encryption, cryptography, SaaS, API, security, AES, RSA, hashing, key generation">
+    <meta name="author" content="Garrett Osborne">
+    
+    <!-- Security Headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    <meta http-equiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="SaaS Encryption Platform">
+    <meta property="og:description" content="Secure cryptographic operations with enterprise-grade security">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://your-app.netlify.app">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>">
+    
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary-color: #7c3aed;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --error-color: #dc2626;
+            --background: #ffffff;
+            --surface: #f8fafc;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: var(--background);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main {
+            padding: 2rem 0;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .feature-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .api-section {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+        }
+
+        .api-section h2 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgb(37 99 235 / 0.1);
+        }
+
+        .btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: var(--text-secondary);
+        }
+
+        .btn-secondary:hover {
+            background: #475569;
+        }
+
+        .result {
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            white-space: pre-wrap;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .result.success {
+            border-color: var(--success-color);
+            background: #f0fdf4;
+        }
+
+        .result.error {
+            border-color: var(--error-color);
+            background: #fef2f2;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 2rem;
+        }
+
+        .tab {
+            padding: 1rem 2rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .tab.active {
+            border-bottom-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .tab:hover {
+            background: var(--surface);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .status.online {
+            background: #dcfce7;
+            color: var(--success-color);
+        }
+
+        .status.offline {
+            background: #fef2f2;
+            color: var(--error-color);
+        }
+
+        .footer {
+            background: var(--text-primary);
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 4rem;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .tab {
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1>🔐 SaaS Encryption Platform</h1>
+            <p>Enterprise-grade cryptographic operations with serverless API</p>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <!-- Features Overview -->
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Encryption</h3>
+                    <p>AES-256-GCM, AES-256-CBC, and more. Secure your data with industry-standard algorithms.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔓</div>
+                    <h3>Decryption</h3>
+                    <p>Safely decrypt your encrypted data using the original keys and initialization vectors.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📝</div>
+                    <h3>Hashing</h3>
+                    <p>Generate cryptographic hashes using SHA-256, SHA-512, SHA-384, and SHA-1.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔑</div>
+                    <h3>Key Generation</h3>
+                    <p>Generate secure AES and RSA keys with configurable lengths and formats.</p>
+                </div>
+            </div>
+
+            <!-- API Status -->
+            <div class="api-section">
+                <h2>API Status</h2>
+                <div id="apiStatus">
+                    <span class="status offline">🔴 Checking...</span>
+                </div>
+            </div>
+
+            <!-- API Interface -->
+            <div class="api-section">
+                <h2>Cryptographic Operations</h2>
+                
+                <div class="tabs">
+                    <div class="tab active" onclick="showTab('encrypt')">🔒 Encrypt</div>
+                    <div class="tab" onclick="showTab('decrypt')">🔓 Decrypt</div>
+                    <div class="tab" onclick="showTab('hash')">📝 Hash</div>
+                    <div class="tab" onclick="showTab('generate-key')">🔑 Generate Key</div>
+                </div>
+
+                <!-- Encryption Tab -->
+                <div id="encrypt" class="tab-content active">
+                    <form id="encryptForm">
+                        <div class="form-group">
+                            <label for="encryptText">Text to Encrypt:</label>
+                            <textarea id="encryptText" rows="4" placeholder="Enter the text you want to encrypt..." required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="encryptAlgorithm">Algorithm:</label>
+                            <select id="encryptAlgorithm">
+                                <option value="aes-256-gcm">AES-256-GCM (Recommended)</option>
+                                <option value="aes-256-cbc">AES-256-CBC</option>
+                                <option value="aes-192-gcm">AES-192-GCM</option>
+                                <option value="aes-192-cbc">AES-192-CBC</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn">
+                            <span id="encryptBtnText">🔒 Encrypt Text</span>
+                            <span id="encryptLoading" class="loading" style="display: none;"></span>
+                        </button>
+                    </form>
+                    <div id="encryptResult" class="result" style="display: none;"></div>
+                </div>
+
+                <!-- Decryption Tab -->
+                <div id="decrypt" class="tab-content">
+                    <form id="decryptForm">
+                        <div class="form-group">
+                            <label for="decryptEncrypted">Encrypted Text:</label>
+                            <textarea id="decryptEncrypted" rows="4" placeholder="Enter the encrypted text..." required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="decryptKey">Key:</label>
+                            <input type="text" id="decryptKey" placeholder="Enter the encryption key..." required>
+                        </div>
+                        <div class="form-group">
+                            <label for="decryptIV">Initialization Vector (IV):</label>
+                            <input type="text" id="decryptIV" placeholder="Enter the IV..." required>
+                        </div>
+                        <div class="form-group">
+                            <label for="decryptAlgorithm">Algorithm:</label>
+                            <select id="decryptAlgorithm">
+                                <option value="aes-256-gcm">AES-256-GCM</option>
+                                <option value="aes-256-cbc">AES-256-CBC</option>
+                                <option value="aes-192-gcm">AES-192-GCM</option>
+                                <option value="aes-192-cbc">AES-192-CBC</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn">
+                            <span id="decryptBtnText">🔓 Decrypt Text</span>
+                            <span id="decryptLoading" class="loading" style="display: none;"></span>
+                        </button>
+                    </form>
+                    <div id="decryptResult" class="result" style="display: none;"></div>
+                </div>
+
+                <!-- Hashing Tab -->
+                <div id="hash" class="tab-content">
+                    <form id="hashForm">
+                        <div class="form-group">
+                            <label for="hashText">Text to Hash:</label>
+                            <textarea id="hashText" rows="4" placeholder="Enter the text you want to hash..." required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="hashAlgorithm">Hash Algorithm:</label>
+                            <select id="hashAlgorithm">
+                                <option value="sha256">SHA-256 (Recommended)</option>
+                                <option value="sha512">SHA-512</option>
+                                <option value="sha384">SHA-384</option>
+                                <option value="sha1">SHA-1</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn">
+                            <span id="hashBtnText">📝 Generate Hash</span>
+                            <span id="hashLoading" class="loading" style="display: none;"></span>
+                        </button>
+                    </form>
+                    <div id="hashResult" class="result" style="display: none;"></div>
+                </div>
+
+                <!-- Key Generation Tab -->
+                <div id="generate-key" class="tab-content">
+                    <form id="generateKeyForm">
+                        <div class="form-group">
+                            <label for="keyType">Key Type:</label>
+                            <select id="keyType">
+                                <option value="aes">AES (Symmetric)</option>
+                                <option value="rsa">RSA (Asymmetric)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="keyLength">Key Length:</label>
+                            <select id="keyLength">
+                                <option value="256">256 bits (AES)</option>
+                                <option value="2048">2048 bits (RSA)</option>
+                                <option value="3072">3072 bits (RSA)</option>
+                                <option value="4096">4096 bits (RSA)</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn">
+                            <span id="generateKeyBtnText">🔑 Generate Key</span>
+                            <span id="generateKeyLoading" class="loading" style="display: none;"></span>
+                        </button>
+                    </form>
+                    <div id="generateKeyResult" class="result" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 SaaS Encryption Platform. Built with ❤️ and deployed on Netlify.</p>
+        </div>
+    </footer>
+
+    <script>
+        // API Configuration
+        const API_BASE = '/.netlify/functions/api';
+        
+        // Tab Management
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+
+        // API Status Check
+        async function checkAPIStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('apiStatus').innerHTML = `
+                        <span class="status online">🟢 Online - ${data.message}</span>
+                    `;
+                } else {
+                    throw new Error('API not responding');
+                }
+            } catch (error) {
+                document.getElementById('apiStatus').innerHTML = `
+                    <span class="status offline">🔴 Offline - ${error.message}</span>
+                `;
+            }
+        }
+
+        // Utility Functions
+        function showLoading(buttonId, loadingId, buttonText) {
+            document.getElementById(buttonId).style.display = 'none';
+            document.getElementById(loadingId).style.display = 'inline-block';
+        }
+
+        function hideLoading(buttonId, loadingId, buttonText) {
+            document.getElementById(buttonId).style.display = 'inline';
+            document.getElementById(loadingId).style.display = 'none';
+        }
+
+        function showResult(resultId, data, isSuccess = true) {
+            const resultDiv = document.getElementById(resultId);
+            resultDiv.style.display = 'block';
+            resultDiv.className = `result ${isSuccess ? 'success' : 'error'}`;
+            resultDiv.textContent = JSON.stringify(data, null, 2);
+        }
+
+        // Encryption Form Handler
+        document.getElementById('encryptForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const text = document.getElementById('encryptText').value;
+            const algorithm = document.getElementById('encryptAlgorithm').value;
+            
+            showLoading('encryptBtnText', 'encryptLoading', '🔒 Encrypting...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/encrypt`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text, algorithm })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('encryptResult', data, true);
+                } else {
+                    showResult('encryptResult', data, false);
+                }
+            } catch (error) {
+                showResult('encryptResult', { error: 'Request failed', message: error.message }, false);
+            } finally {
+                hideLoading('encryptBtnText', 'encryptLoading', '🔒 Encrypt Text');
+            }
+        });
+
+        // Decryption Form Handler
+        document.getElementById('decryptForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const encrypted = document.getElementById('decryptEncrypted').value;
+            const key = document.getElementById('decryptKey').value;
+            const iv = document.getElementById('decryptIV').value;
+            const algorithm = document.getElementById('decryptAlgorithm').value;
+            
+            showLoading('decryptBtnText', 'decryptLoading', '🔓 Decrypting...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/decrypt`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ encrypted, key, iv, algorithm })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('decryptResult', data, true);
+                } else {
+                    showResult('decryptResult', data, false);
+                }
+            } catch (error) {
+                showResult('decryptResult', { error: 'Request failed', message: error.message }, false);
+            } finally {
+                hideLoading('decryptBtnText', 'decryptLoading', '🔓 Decrypt Text');
+            }
+        });
+
+        // Hashing Form Handler
+        document.getElementById('hashForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const text = document.getElementById('hashText').value;
+            const algorithm = document.getElementById('hashAlgorithm').value;
+            
+            showLoading('hashBtnText', 'hashLoading', '📝 Hashing...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/hash`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text, algorithm })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('hashResult', data, true);
+                } else {
+                    showResult('hashResult', data, false);
+                }
+            } catch (error) {
+                showResult('hashResult', { error: 'Request failed', message: error.message }, false);
+            } finally {
+                hideLoading('hashBtnText', 'hashLoading', '📝 Generate Hash');
+            }
+        });
+
+        // Key Generation Form Handler
+        document.getElementById('generateKeyForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const type = document.getElementById('keyType').value;
+            const length = parseInt(document.getElementById('keyLength').value);
+            
+            showLoading('generateKeyBtnText', 'generateKeyLoading', '🔑 Generating...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/generate-key`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ type, length })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('generateKeyResult', data, true);
+                } else {
+                    showResult('generateKeyResult', data, false);
+                }
+            } catch (error) {
+                showResult('generateKeyResult', { error: 'Request failed', message: error.message }, false);
+            } finally {
+                hideLoading('generateKeyBtnText', 'generateKeyLoading', '🔑 Generate Key');
+            }
+        });
+
+        // Dynamic Key Length Options
+        document.getElementById('keyType').addEventListener('change', function() {
+            const keyLengthSelect = document.getElementById('keyLength');
+            const type = this.value;
+            
+            keyLengthSelect.innerHTML = '';
+            
+            if (type === 'aes') {
+                [128, 192, 256].forEach(length => {
+                    const option = document.createElement('option');
+                    option.value = length;
+                    option.textContent = `${length} bits (AES)`;
+                    keyLengthSelect.appendChild(option);
+                });
+            } else if (type === 'rsa') {
+                [2048, 3072, 4096].forEach(length => {
+                    const option = document.createElement('option');
+                    option.value = length;
+                    option.textContent = `${length} bits (RSA)`;
+                    keyLengthSelect.appendChild(option);
+                });
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAPIStatus();
+            
+            // Check API status every 30 seconds
+            setInterval(checkAPIStatus, 30000);
+        });
+    </script>
+</body>
+</html> 

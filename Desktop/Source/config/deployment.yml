@@ -1,0 +1,105 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: star5ide-rawrz
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: star5ide-rawrz
+  template:
+    metadata:
+      labels:
+        app: star5ide-rawrz
+    spec:
+      containers:
+      - name: rawrz
+        image: registry.digitalocean.com/star5ide/rawrz
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        volumeMounts:
+        - name: uploads
+          mountPath: /app/uploads
+      volumes:
+      - name: uploads
+        persistentVolumeClaim:
+          claimName: star5ide-uploads
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: star5ide-web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: star5ide-web
+  template:
+    metadata:
+      labels:
+        app: star5ide-web
+    spec:
+      containers:
+      - name: web
+        image: registry.digitalocean.com/star5ide/web
+        ports:
+        - containerPort: 8000
+        env:
+        - name: FLASK_ENV
+          value: "production"
+        - name: RAWRZ_HOST
+          value: "star5ide-rawrz"
+        - name: RAWRZ_PORT
+          value: "8000"
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
+        volumeMounts:
+        - name: uploads
+          mountPath: /app/uploads
+      volumes:
+      - name: uploads
+        persistentVolumeClaim:
+          claimName: star5ide-uploads
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: star5ide-rawrz
+spec:
+  selector:
+    app: star5ide-rawrz
+  ports:
+  - port: 8000
+    targetPort: 8000
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: star5ide-web
+spec:
+  selector:
+    app: star5ide-web
+  ports:
+  - port: 80
+    targetPort: 8000
+  type: LoadBalancer
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: star5ide-uploads
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: do-block-storage

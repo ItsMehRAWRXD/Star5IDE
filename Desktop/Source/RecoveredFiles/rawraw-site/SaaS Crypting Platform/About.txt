@@ -1,0 +1,21 @@
+Stub Customization
+Edit stub-engine/src/stub_generator.cpp to modify:
+
+Encryption algorithms
+
+Polymorphic patterns
+
+Anti-debug techniques
+
+VM detection methods
+
+Security Features
+JWT-based authentication
+
+Role-based access control
+
+Rate limiting
+
+File type validation
+
+Secure file handling

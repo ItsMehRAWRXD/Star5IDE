@@ -1,0 +1,17 @@
+# Database Configuration
+DATABASE_URL=sqlite:///crypting_saas.db
+# For production PostgreSQL: postgresql://user:password@host:port/database?sslmode=require
+
+# Security Keys (CHANGE THESE IN PRODUCTION!)
+SECRET_KEY=your-super-secret-key-change-this-in-production
+JWT_SECRET=your-jwt-secret-key-change-this-in-production
+
+# CORS Configuration
+CORS_ORIGINS=http://localhost:3000,https://precious-cat-89543d.netlify.app
+
+# Flask Configuration
+FLASK_ENV=production
+FLASK_APP=main.py
+
+# Upload Configuration
+MAX_CONTENT_LENGTH=16777216

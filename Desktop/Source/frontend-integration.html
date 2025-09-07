@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SaaS Backend Integration Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .btn { padding: 10px 20px; margin: 5px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .result { margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 4px; }
+        .error { background: #f8d7da; color: #721c24; }
+        .success { background: #d4edda; color: #155724; }
+        input { padding: 8px; margin: 5px; border: 1px solid #ddd; border-radius: 4px; width: 200px; }
+    </style>
+</head>
+<body>
+    <h1>🚀 SaaS Backend Integration Test</h1>
+    <p>This page tests the integration with your SaaS backend API.</p>
+
+    <div class="test-section">
+        <h3>1. Health Check</h3>
+        <button class="btn btn-primary" onclick="testHealth()">Test Health Endpoint</button>
+        <div id="health-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>2. User Registration</h3>
+        <input type="email" id="reg-email" placeholder="Email" value="test@example.com">
+        <input type="password" id="reg-password" placeholder="Password" value="password123">
+        <input type="text" id="reg-firstName" placeholder="First Name" value="John">
+        <input type="text" id="reg-lastName" placeholder="Last Name" value="Doe">
+        <br>
+        <button class="btn btn-success" onclick="testRegistration()">Test Registration</button>
+        <div id="reg-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>3. User Login</h3>
+        <input type="email" id="login-email" placeholder="Email" value="test@example.com">
+        <input type="password" id="login-password" placeholder="Password" value="password123">
+        <br>
+        <button class="btn btn-success" onclick="testLogin()">Test Login</button>
+        <div id="login-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>4. Get Profile (Protected Route)</h3>
+        <button class="btn btn-primary" onclick="testProfile()">Test Profile Endpoint</button>
+        <div id="profile-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>5. Subscription Plans</h3>
+        <button class="btn btn-primary" onclick="testPlans()">Test Plans Endpoint</button>
+        <div id="plans-result" class="result"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000';
+        let authToken = '';
+
+        function showResult(elementId, data, isError = false) {
+            const element = document.getElementById(elementId);
+            element.className = `result ${isError ? 'error' : 'success'}`;
+            element.innerHTML = `<strong>${isError ? '❌ Error:' : '✅ Success:'}</strong><br><pre>${JSON.stringify(data, null, 2)}</pre>`;
+        }
+
+        async function testHealth() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                showResult('health-result', data);
+            } catch (error) {
+                showResult('health-result', { error: error.message }, true);
+            }
+        }
+
+        async function testRegistration() {
+            try {
+                const userData = {
+                    email: document.getElementById('reg-email').value,
+                    password: document.getElementById('reg-password').value,
+                    firstName: document.getElementById('reg-firstName').value,
+                    lastName: document.getElementById('reg-lastName').value
+                };
+
+                const response = await fetch(`${API_BASE}/api/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userData)
+                });
+
+                const data = await response.json();
+                
+                if (data.token) {
+                    authToken = data.token;
+                    showResult('reg-result', { ...data, message: 'Registration successful! Token stored.' });
+                } else {
+                    showResult('reg-result', data, true);
+                }
+            } catch (error) {
+                showResult('reg-result', { error: error.message }, true);
+            }
+        }
+
+        async function testLogin() {
+            try {
+                const userData = {
+                    email: document.getElementById('login-email').value,
+                    password: document.getElementById('login-password').value
+                };
+
+                const response = await fetch(`${API_BASE}/api/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userData)
+                });
+
+                const data = await response.json();
+                
+                if (data.token) {
+                    authToken = data.token;
+                    showResult('login-result', { ...data, message: 'Login successful! Token stored.' });
+                } else {
+                    showResult('login-result', data, true);
+                }
+            } catch (error) {
+                showResult('login-result', { error: error.message }, true);
+            }
+        }
+
+        async function testProfile() {
+            if (!authToken) {
+                showResult('profile-result', { error: 'No auth token. Please login first.' }, true);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/auth/profile`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                const data = await response.json();
+                showResult('profile-result', data);
+            } catch (error) {
+                showResult('profile-result', { error: error.message }, true);
+            }
+        }
+
+        async function testPlans() {
+            if (!authToken) {
+                showResult('plans-result', { error: 'No auth token. Please login first.' }, true);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/subscriptions/plans`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                const data = await response.json();
+                showResult('plans-result', data);
+            } catch (error) {
+                showResult('plans-result', { error: error.message }, true);
+            }
+        }
+
+        // Test health endpoint on page load
+        window.onload = function() {
+            testHealth();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+Smart Stub Generator - Test Report
+Generated: 2025-09-02 08:21:20
+============================================================
+
+Summary:
+  Total Templates: 8
+  Working Templates: 2
+  Success Rate: 25%
+
+Detailed Results:
+------------------------------------------------------------
+Template: cpp_simple (C++)
+  Description: Simple C++ stub with basic encryption
+  Working: No
+  Tested: Yes
+  Last Test: 2025-09-02 08:21:20
+  Result: Build failed with exit code 1
+
+Template: cpp_openssl (C++)
+  Description: C++ stub with OpenSSL encryption
+  Working: No
+  Tested: Yes
+  Last Test: 2025-09-02 08:21:20
+  Result: Build failed with exit code 1
+
+Template: c_simple (C)
+  Description: Simple C stub with basic encryption
+  Working: No
+  Tested: Yes
+  Last Test: 2025-09-02 08:21:20
+  Result: Build failed with exit code 1
+
+Template: asm_x86 (Assembly)
+  Description: x86 Assembly stub with basic encryption
+  Working: No
+  Tested: Yes
+  Last Test: 2025-09-02 08:21:20
+  Result: Build failed with exit code 1
+
+Template: python_simple (Python)
+  Description: Python stub with basic encryption
+  Working: Yes
+  Tested: Yes
+  Last Test: 2025-09-02 08:21:20
+  Result: Build successful
+
+Template: powershell_simple (PowerShell)
+  Description: PowerShell stub with basic encryption
+  Working: Yes
+  Tested: Yes
+  Last Test: 2025-09-02 08:21:20
+  Result: Build successful
+
+Template: go_simple (Go)
+  Description: Go stub with basic encryption
+  Working: No
+  Tested: Yes
+  Last Test: 2025-09-02 08:21:20
+  Result: Build failed with exit code 1
+
+Template: rust_simple (Rust)
+  Description: Rust stub with basic encryption
+  Working: No
+  Tested: Yes
+  Last Test: 2025-09-02 08:21:20
+  Result: Build failed with exit code 1
+

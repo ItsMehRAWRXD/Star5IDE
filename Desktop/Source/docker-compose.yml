@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  rawrz:
+    build:
+      context: .
+      dockerfile: Dockerfile.rawrz
+    volumes:
+      - uploads:/app/uploads
+    environment:
+      - OPENSSL_CONF=/etc/ssl/openssl.cnf
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    ports:
+      - "8000:8000"
+    volumes:
+      - uploads:/app/uploads
+    environment:
+      - FLASK_ENV=production
+      - RAWRZ_HOST=rawrz
+      - RAWRZ_PORT=8000
+    depends_on:
+      - rawrz
+    restart: unless-stopped
+
+volumes:
+  uploads:

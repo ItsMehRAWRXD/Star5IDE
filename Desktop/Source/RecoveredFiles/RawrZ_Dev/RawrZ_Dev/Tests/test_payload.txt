@@ -1,0 +1,7 @@
+This is a test payload for RawrZ encryption methods.
+It contains some sample data to encrypt and decrypt.
+RawrZ Framework - Advanced Encryption Testing
+Payload ID: TEST-001
+Timestamp: 2024-01-01
+Features: Hybrid, Triple, Enhanced, Cross-Platform
+End of test payload.

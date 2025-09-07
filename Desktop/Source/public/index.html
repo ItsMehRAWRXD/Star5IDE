@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cryptify - Advanced Encryption Platform</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .header {
+            background: rgba(0,0,0,0.3);
+            padding: 1rem;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .encryption-tools {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        .tool-card {
+            background: rgba(255,255,255,0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .tool-card h3 {
+            margin-top: 0;
+            color: #4CAF50;
+        }
+        .input-group {
+            margin: 1rem 0;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        .input-group input, .input-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.9);
+            color: #333;
+            font-family: monospace;
+            box-sizing: border-box;
+        }
+        .input-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .btn {
+            background: #4CAF50;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 0.5rem;
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background: #2196F3;
+        }
+        .btn-secondary:hover {
+            background: #1976D2;
+        }
+        .btn-danger {
+            background: #f44336;
+        }
+        .btn-danger:hover {
+            background: #da190b;
+        }
+        .result {
+            background: rgba(0,0,0,0.5);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            font-family: monospace;
+            word-break: break-all;
+            border-left: 4px solid #4CAF50;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .error {
+            border-left-color: #f44336;
+        }
+        .pricing {
+            background: rgba(255,255,255,0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            margin: 2rem 0;
+            text-align: center;
+        }
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        .price-card {
+            background: rgba(255,255,255,0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        .price-card:hover {
+            border-color: #4CAF50;
+            transform: translateY(-5px);
+        }
+        .price {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        .features {
+            list-style: none;
+            padding: 0;
+        }
+        .features li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .features li:before {
+            content: "✅ ";
+            color: #4CAF50;
+        }
+        .status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            z-index: 1000;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔐 Cryptify - Advanced Encryption Platform</h1>
+        <p>Professional-grade encryption tools for developers and businesses</p>
+    </div>
+
+    <div class="status" id="status"></div>
+
+    <div class="container">
+        <div>
+            <a href="/.netlify/functions/api" class="btn">🔐 View Encryption API</a>
+            <a href="/.netlify/functions/api/health" class="btn btn-secondary">📊 Check Status</a>
+            <a href="pricing.html" class="btn btn-secondary">💰 View Pricing</a>
+        </div>
+        <div class="encryption-tools">
+            <div class="tool-card">
+                <h3>🔒 AES-256-GCM Encryption</h3>
+                <div class="input-group">
+                    <label for="aes-text">Text to Encrypt:</label>
+                    <textarea id="aes-text" placeholder="Enter your text here..."></textarea>
+                </div>
+                <div class="input-group">
+                    <label for="aes-key">Encryption Key (32+ chars):</label>
+                    <input type="text" id="aes-key" placeholder="Enter your secret key (min 32 characters)">
+                </div>
+                <button class="btn" onclick="encryptAES()">🔒 Encrypt</button>
+                <button class="btn btn-secondary" onclick="decryptAES()">🔓 Decrypt</button>
+                <button class="btn btn-danger" onclick="clearAES()">🗑️ Clear</button>
+                <div id="aes-result" class="result" style="display: none;"></div>
+            </div>
+
+            <div class="tool-card">
+                <h3>🔐 SHA-256 Hashing</h3>
+                <div class="input-group">
+                    <label for="hash-text">Text to Hash:</label>
+                    <textarea id="hash-text" placeholder="Enter text to generate hash..."></textarea>
+                </div>
+                <button class="btn" onclick="generateHash()">🔐 Generate Hash</button>
+                <button class="btn btn-danger" onclick="clearHash()">🗑️ Clear</button>
+                <div id="hash-result" class="result" style="display: none;"></div>
+            </div>
+
+            <div class="tool-card">
+                <h3>🔑 Secure Key Generator</h3>
+                <div class="input-group">
+                    <label for="key-length">Key Length:</label>
+                    <input type="number" id="key-length" value="32" min="16" max="128">
+                </div>
+                <button class="btn" onclick="generateKey()">🔑 Generate Key</button>
+                <button class="btn btn-secondary" onclick="copyKey()">📋 Copy</button>
+                <div id="key-result" class="result" style="display: none;"></div>
+            </div>
+
+            <div class="tool-card">
+                <h3>📝 Base64 Encoding</h3>
+                <div class="input-group">
+                    <label for="base64-text">Text to Encode/Decode:</label>
+                    <textarea id="base64-text" placeholder="Enter text or base64 string..."></textarea>
+                </div>
+                <button class="btn" onclick="encodeBase64()">📝 Encode</button>
+                <button class="btn btn-secondary" onclick="decodeBase64()">📖 Decode</button>
+                <button class="btn btn-danger" onclick="clearBase64()">🗑️ Clear</button>
+                <div id="base64-result" class="result" style="display: none;"></div>
+        </div>
+
+            <div class="tool-card">
+                <h3>🔐 Password Strength Checker</h3>
+                <div class="input-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" placeholder="Enter password to check...">
+                </div>
+                <button class="btn" onclick="checkPassword()">🔍 Check Strength</button>
+                <div id="password-result" class="result" style="display: none;"></div>
+        </div>
+
+            <div class="tool-card">
+                <h3>🔄 Text Converter</h3>
+                <div class="input-group">
+                    <label for="convert-text">Text to Convert:</label>
+                    <textarea id="convert-text" placeholder="Enter text to convert..."></textarea>
+                </div>
+                <button class="btn" onclick="convertToUppercase()">🔠 UPPERCASE</button>
+                <button class="btn btn-secondary" onclick="convertToLowercase()">🔡 lowercase</button>
+                <button class="btn" onclick="convertToTitleCase()">📝 Title Case</button>
+                <div id="convert-result" class="result" style="display: none;"></div>
+            </div>
+        </div>
+
+        <div class="pricing">
+            <h2>💎 Pricing Plans</h2>
+            <div class="pricing-grid">
+                <div class="price-card">
+                    <h3>Free</h3>
+                    <div class="price">$0</div>
+                    <ul class="features">
+                        <li>Basic encryption tools</li>
+                        <li>100 requests/month</li>
+                        <li>Standard algorithms</li>
+                        <li>Community support</li>
+                    </ul>
+                    <button class="btn">Get Started</button>
+                </div>
+                <div class="price-card">
+                    <h3>Pro</h3>
+                    <div class="price">$29</div>
+                    <ul class="features">
+                        <li>Advanced encryption</li>
+                        <li>10,000 requests/month</li>
+                        <li>Priority algorithms</li>
+                        <li>Email support</li>
+                        <li>API access</li>
+                    </ul>
+                    <button class="btn">Choose Pro</button>
+                </div>
+                <div class="price-card">
+                    <h3>Enterprise</h3>
+                    <div class="price">$99</div>
+                    <ul class="features">
+                        <li>Custom encryption</li>
+                        <li>Unlimited requests</li>
+                        <li>White-label solution</li>
+                        <li>24/7 support</li>
+                        <li>Custom integrations</li>
+                        <li>SLA guarantee</li>
+                    </ul>
+                    <button class="btn">Contact Sales</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Modern Web Crypto API for AES encryption
+        async function encryptAES() {
+            const text = document.getElementById('aes-text').value;
+            const key = document.getElementById('aes-key').value;
+            
+            if (!text || !key) {
+                showStatus('Please enter both text and key', 'error');
+                return;
+            }
+            
+            if (key.length < 32) {
+                showStatus('Key must be at least 32 characters long', 'error');
+                return;
+            }
+            
+            try {
+                // Generate a random IV
+                const iv = crypto.getRandomValues(new Uint8Array(12));
+                
+                // Import the key
+                const keyBuffer = new TextEncoder().encode(key);
+                const cryptoKey = await crypto.subtle.importKey(
+                    'raw',
+                    keyBuffer,
+                    { name: 'AES-GCM' },
+                    false,
+                    ['encrypt']
+                );
+                
+                // Encrypt the text
+                const textBuffer = new TextEncoder().encode(text);
+                const encrypted = await crypto.subtle.encrypt(
+                    { name: 'AES-GCM', iv: iv },
+                    cryptoKey,
+                    textBuffer
+                );
+                
+                // Combine IV and encrypted data
+                const combined = new Uint8Array(iv.length + encrypted.byteLength);
+                combined.set(iv);
+                combined.set(new Uint8Array(encrypted), iv.length);
+                
+                // Convert to base64
+                const result = btoa(String.fromCharCode(...combined));
+                
+                showResult('aes-result', '🔒 Encrypted Text (AES-256-GCM):', result);
+                showStatus('Encryption successful!', 'success');
+            } catch (error) {
+                showResult('aes-result', '❌ Encryption Error:', error.message);
+                showStatus('Encryption failed', 'error');
+            }
+        }
+
+        async function decryptAES() {
+            const text = document.getElementById('aes-text').value;
+            const key = document.getElementById('aes-key').value;
+            
+            if (!text || !key) {
+                showStatus('Please enter both encrypted text and key', 'error');
+                return;
+            }
+            
+            try {
+                // Decode from base64
+                const combined = new Uint8Array(atob(text).split('').map(c => c.charCodeAt(0)));
+                
+                // Extract IV and encrypted data
+                const iv = combined.slice(0, 12);
+                const encrypted = combined.slice(12);
+                
+                // Import the key
+                const keyBuffer = new TextEncoder().encode(key);
+                const cryptoKey = await crypto.subtle.importKey(
+                    'raw',
+                    keyBuffer,
+                    { name: 'AES-GCM' },
+                    false,
+                    ['decrypt']
+                );
+                
+                // Decrypt
+                const decrypted = await crypto.subtle.decrypt(
+                    { name: 'AES-GCM', iv: iv },
+                    cryptoKey,
+                    encrypted
+                );
+                
+                const result = new TextDecoder().decode(decrypted);
+                showResult('aes-result', '🔓 Decrypted Text:', result);
+                showStatus('Decryption successful!', 'success');
+            } catch (error) {
+                showResult('aes-result', '❌ Decryption Error:', 'Invalid key or corrupted data');
+                showStatus('Decryption failed', 'error');
+            }
+        }
+
+        // SHA-256 Hashing using Web Crypto API
+        async function generateHash() {
+            const text = document.getElementById('hash-text').value;
+            
+            if (!text) {
+                showStatus('Please enter text to hash', 'error');
+                return;
+            }
+            
+            try {
+                const textBuffer = new TextEncoder().encode(text);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', textBuffer);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                
+                showResult('hash-result', '🔐 SHA-256 Hash:', hashHex);
+                showStatus('Hash generated successfully!', 'success');
+            } catch (error) {
+                showResult('hash-result', '❌ Hashing Error:', error.message);
+                showStatus('Hashing failed', 'error');
+            }
+        }
+
+        // Secure key generator
+        function generateKey() {
+            const length = parseInt(document.getElementById('key-length').value);
+            const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?';
+            let key = '';
+            
+            // Use crypto.getRandomValues for better randomness
+            const randomValues = new Uint8Array(length);
+            crypto.getRandomValues(randomValues);
+            
+            for (let i = 0; i < length; i++) {
+                key += charset[randomValues[i] % charset.length];
+            }
+            
+            showResult('key-result', '🔑 Generated Secure Key:', key);
+            showStatus('Key generated successfully!', 'success');
+        }
+
+        // Copy key to clipboard
+        async function copyKey() {
+            const resultElement = document.getElementById('key-result');
+            if (resultElement.style.display === 'none') {
+                showStatus('Generate a key first', 'error');
+                return;
+            }
+            
+            const key = resultElement.textContent.split(':')[1].trim();
+            try {
+                await navigator.clipboard.writeText(key);
+                showStatus('Key copied to clipboard!', 'success');
+            } catch (error) {
+                showStatus('Failed to copy key', 'error');
+            }
+        }
+
+        // Base64 encoding/decoding
+        function encodeBase64() {
+            const text = document.getElementById('base64-text').value;
+            
+            if (!text) {
+                showStatus('Please enter text to encode', 'error');
+                return;
+            }
+            
+            try {
+                const encoded = btoa(unescape(encodeURIComponent(text)));
+                showResult('base64-result', '📝 Base64 Encoded:', encoded);
+                showStatus('Encoding successful!', 'success');
+            } catch (error) {
+                showResult('base64-result', '❌ Encoding Error:', error.message);
+                showStatus('Encoding failed', 'error');
+            }
+        }
+
+        function decodeBase64() {
+            const text = document.getElementById('base64-text').value;
+            
+            if (!text) {
+                showStatus('Please enter base64 string to decode', 'error');
+                return;
+            }
+            
+            try {
+                const decoded = decodeURIComponent(escape(atob(text)));
+                showResult('base64-result', '📖 Base64 Decoded:', decoded);
+                showStatus('Decoding successful!', 'success');
+            } catch (error) {
+                showResult('base64-result', '❌ Decoding Error:', 'Invalid base64 string');
+                showStatus('Decoding failed', 'error');
+            }
+        }
+
+        // Password strength checker
+        function checkPassword() {
+            const password = document.getElementById('password').value;
+            
+            if (!password) {
+                showStatus('Please enter a password', 'error');
+                return;
+            }
+            
+            let score = 0;
+            let feedback = [];
+            
+            // Length check
+            if (password.length >= 8) score += 1;
+            else feedback.push('At least 8 characters');
+            
+            // Uppercase check
+            if (/[A-Z]/.test(password)) score += 1;
+            else feedback.push('Include uppercase letters');
+            
+            // Lowercase check
+            if (/[a-z]/.test(password)) score += 1;
+            else feedback.push('Include lowercase letters');
+            
+            // Numbers check
+            if (/[0-9]/.test(password)) score += 1;
+            else feedback.push('Include numbers');
+            
+            // Special characters check
+            if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) score += 1;
+            else feedback.push('Include special characters');
+            
+            let strength = '';
+            let color = '';
+            
+            if (score <= 2) {
+                strength = 'Weak';
+                color = '#f44336';
+            } else if (score <= 4) {
+                strength = 'Medium';
+                color = '#ff9800';
+            } else {
+                strength = 'Strong';
+                color = '#4CAF50';
+            }
+            
+            const result = `
+                <div style="color: ${color}; font-weight: bold;">Password Strength: ${strength} (${score}/5)</div>
+                <div style="margin-top: 10px;">
+                    <strong>Suggestions:</strong><br>
+                    ${feedback.join('<br>')}
+                </div>
+            `;
+            
+            showResult('password-result', '🔐 Password Analysis:', result);
+            showStatus('Password analysis complete!', 'success');
+        }
+
+        // Text conversion functions
+        function convertToUppercase() {
+            const text = document.getElementById('convert-text').value;
+            if (!text) {
+                showStatus('Please enter text to convert', 'error');
+                return;
+            }
+            showResult('convert-result', '🔠 UPPERCASE:', text.toUpperCase());
+        }
+
+        function convertToLowercase() {
+            const text = document.getElementById('convert-text').value;
+            if (!text) {
+                showStatus('Please enter text to convert', 'error');
+                return;
+            }
+            showResult('convert-result', '🔡 lowercase:', text.toLowerCase());
+        }
+
+        function convertToTitleCase() {
+            const text = document.getElementById('convert-text').value;
+            if (!text) {
+                showStatus('Please enter text to convert', 'error');
+                return;
+            }
+            const titleCase = text.replace(/\w\S*/g, (txt) => 
+                txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+            );
+            showResult('convert-result', '📝 Title Case:', titleCase);
+        }
+
+        // Clear functions
+        function clearAES() {
+            document.getElementById('aes-text').value = '';
+            document.getElementById('aes-key').value = '';
+            document.getElementById('aes-result').style.display = 'none';
+        }
+
+        function clearHash() {
+            document.getElementById('hash-text').value = '';
+            document.getElementById('hash-result').style.display = 'none';
+        }
+
+        function clearBase64() {
+            document.getElementById('base64-text').value = '';
+            document.getElementById('base64-result').style.display = 'none';
+        }
+
+        // Helper functions
+        function showResult(elementId, title, content) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<strong>${title}</strong><br>${content}`;
+            element.style.display = 'block';
+            element.className = 'result';
+        }
+
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.style.display = 'block';
+            status.style.background = type === 'error' ? 'rgba(244, 67, 54, 0.9)' : 'rgba(76, 175, 80, 0.9)';
+            
+            setTimeout(() => {
+                status.style.display = 'none';
+            }, 3000);
+        }
+
+        // Auto-generate a secure key on page load
+        window.onload = function() {
+            generateKey();
+            showStatus('Cryptify loaded successfully!', 'success');
+        };
+    </script>
+</body>
+</html>

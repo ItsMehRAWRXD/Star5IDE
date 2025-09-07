@@ -1,0 +1,95 @@
+using System;
+using System.IO;
+using System.Text;
+using System.Text.Json;
+using System.Diagnostics;
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        // For security, immediately check the extension ID passed as the first argument
+        // In a real app, you would validate this against your extension's ID
+        if (args.Length > 0)
+        {
+            // This is where you would log a valid origin, for example:
+            // Debug.WriteLine($"Connected from extension: {args[0]}");
+        }
+
+        // Set I/O to binary mode for safe JSON message handling
+        if (OperatingSystem.IsWindows())
+        {
+            __NativeMethods.SetBinaryMode(Console.OpenStandardInput().Handle);
+            __NativeMethods.SetBinaryMode(Console.OpenStandardOutput().Handle);
+        }
+
+        while (true)
+        {
+            try
+            {
+                // Read message length (4 bytes)
+                byte[] lengthBytes = new byte[4];
+                if (Console.OpenStandardInput().Read(lengthBytes, 0, 4) != 4)
+                {
+                    return; // Disconnected or error
+                }
+                int length = BitConverter.ToInt32(lengthBytes, 0);
+
+                // Read the JSON message
+                byte[] messageBytes = new byte[length];
+                if (Console.OpenStandardInput().Read(messageBytes, 0, length) != length)
+                {
+                    return; // Disconnected or error
+                }
+                string messageString = Encoding.UTF8.GetString(messageBytes);
+
+                // Process the message securely
+                JsonDocument message = JsonDocument.Parse(messageString);
+                var action = message.RootElement.GetProperty("action").GetString();
+
+                // Securely process the command (e.g., call a whitelisted function)
+                string responseMessage = ProcessSecureCommand(action, message);
+
+                // Echo a secure response
+                byte[] responseBytes = Encoding.UTF8.GetBytes(responseMessage);
+                byte[] responseLengthBytes = BitConverter.GetBytes(responseBytes.Length);
+                Console.OpenStandardOutput().Write(responseLengthBytes, 0, 4);
+                Console.OpenStandardOutput().Write(responseBytes, 0, responseBytes.Length);
+                Console.OpenStandardOutput().Flush();
+
+            }
+            catch (Exception ex)
+            {
+                // For debugging, write errors to stderr
+                Console.Error.WriteLine($"Error in native host: {ex.Message}");
+                return;
+            }
+        }
+    }
+
+    // IMPORTANT: Implement this function with strict input validation and a whitelist
+    static string ProcessSecureCommand(string action, JsonDocument message)
+    {
+        if (action == "sayHello")
+        {
+            return JsonSerializer.Serialize(new { response = "Hello from the native host!" });
+        }
+        // Add other whitelisted commands here
+        return JsonSerializer.Serialize(new { response = "Error: Invalid or unauthorized command." });
+    }
+
+    // Internal methods for setting binary mode on Windows
+    private static class __NativeMethods
+    {
+        private const int _setmode = 20480;
+        private const int _O_BINARY = 0x8000;
+
+        [System.Runtime.InteropServices.DllImport("msvcrt.dll", CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
+        private static extern int _setmode(int fd, int mode);
+
+        internal static void SetBinaryMode(IntPtr handle)
+        {
+            _setmode(handle.ToInt32(), _O_BINARY);
+        }
+    }
+}

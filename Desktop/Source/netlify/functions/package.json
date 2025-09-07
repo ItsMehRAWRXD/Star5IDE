@@ -1,0 +1,19 @@
+{
+  "name": "saas-backend-functions",
+  "version": "1.0.0",
+  "description": "Netlify Functions for SaaS Backend",
+  "main": "index.js",
+  "dependencies": {
+    "mongoose": "^7.0.0",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.0",
+    "crypto": "^1.0.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["netlify", "functions", "saas", "backend"],
+  "author": "",
+  "license": "ISC"
+}
