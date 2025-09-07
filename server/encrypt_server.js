@@ -239,6 +239,38 @@ const server = http.createServer(async (req, res) => {
         return;
       }
 
+      // Spoof base API: set/clear/status
+      if (method === "POST" && pathname === "/hot/spoof") {
+        if (!isOriginAllowed(origin)) return bad(res, 403, "origin not allowed");
+        setCors(res, origin);
+        let payload = {};
+        try { payload = JSON.parse(body.toString('utf8')); } catch {}
+        const name = String(payload.name || '');
+        const code = String(payload.code || '');
+        if (!name || !code) return bad(res, 400, 'name and code required');
+        try {
+          const info = HP.setBase(name, code);
+          res.writeHead(200, { "content-type": "application/json" });
+          res.end(JSON.stringify({ ok: true, spoof: info }));
+        } catch (e) {
+          return bad(res, 400, String(e && e.message ? e.message : e));
+        }
+        return;
+      }
+
+      if (method === "POST" && pathname === "/hot/spoof/clear") {
+        if (!isOriginAllowed(origin)) return bad(res, 403, "origin not allowed");
+        setCors(res, origin);
+        let payload = {};
+        try { payload = JSON.parse(body.toString('utf8')); } catch {}
+        const name = String(payload.name || '');
+        if (!name) return bad(res, 400, 'name required');
+        const info = HP.clearBase(name);
+        res.writeHead(200, { "content-type": "application/json" });
+        res.end(JSON.stringify({ ok: true, spoof: info }));
+        return;
+      }
+
       if (method === "POST" && pathname === "/encrypt") {
         if (!isOriginAllowed(origin)) return bad(res, 403, "origin not allowed");
         const download = parsed.query.download === "1";
@@ -300,7 +332,7 @@ function getStaticCapabilities() {
     modes: ['password', 'autokey'],
     ciphers,
     defaultCipher: 'camellia-256-cbc',
-    endpoints: ['/encrypt', '/decrypt', '/health', '/capabilities', '/capabilities/dynamic', '/stub', '/bundle', '/hot/install', '/hot/uninstall', '/hot/status'],
+    endpoints: ['/encrypt', '/decrypt', '/health', '/capabilities', '/capabilities/dynamic', '/stub', '/bundle', '/hot/install', '/hot/uninstall', '/hot/status', '/hot/spoof', '/hot/spoof/clear'],
     stubs: ['powershell', 'node']
   };
 }

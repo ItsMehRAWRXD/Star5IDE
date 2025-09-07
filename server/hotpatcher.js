@@ -3,7 +3,7 @@
 const vm = require("vm");
 
 function createHotPatcher() {
-  const targets = new Map(); // name -> { original, patches: [{id, wrap}], effective }
+  const targets = new Map(); // name -> { original, base, patches: [{id, wrap}], effective }
   let nextId = 1;
 
   function ensure(name) {
@@ -13,7 +13,7 @@ function createHotPatcher() {
   }
 
   function recompute(rec) {
-    let fn = rec.original;
+    let fn = rec.base || rec.original;
     for (const p of rec.patches) {
       try {
         fn = p.wrap(fn);
@@ -26,7 +26,7 @@ function createHotPatcher() {
 
   function registerTarget(name, originalFn) {
     if (targets.has(name)) return;
-    targets.set(name, { original: originalFn, patches: [], effective: originalFn });
+    targets.set(name, { original: originalFn, base: undefined, patches: [], effective: originalFn });
   }
 
   function get(name) {
@@ -76,15 +76,32 @@ function createHotPatcher() {
     recompute(rec);
   }
 
+  // Spoof base function (non-destructive): set a temporary base that shadows original for composition
+  function setBase(name, baseFnOrCode) {
+    const rec = ensure(name);
+    const baseFn = typeof baseFnOrCode === 'function' ? baseFnOrCode : compileWrapper(String(baseFnOrCode))(rec.original);
+    if (typeof baseFn !== 'function') throw new Error('Base must be a function');
+    rec.base = baseFn;
+    recompute(rec);
+    return { name, spoofed: true };
+  }
+
+  function clearBase(name) {
+    const rec = ensure(name);
+    rec.base = undefined;
+    recompute(rec);
+    return { name, spoofed: false };
+  }
+
   function status() {
     const out = [];
     for (const [name, rec] of targets) {
-      out.push({ name, patches: rec.patches.map(p => ({ id: p.id })), hasPatches: rec.patches.length > 0 });
+      out.push({ name, patches: rec.patches.map(p => ({ id: p.id })), hasPatches: rec.patches.length > 0, spoofed: !!rec.base });
     }
     return out;
   }
 
-  return { registerTarget, get, installPatch, uninstallPatch, clear, status };
+  return { registerTarget, get, installPatch, uninstallPatch, clear, setBase, clearBase, status };
 }
 
 module.exports = { createHotPatcher };
