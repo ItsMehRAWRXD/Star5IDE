@@ -19,8 +19,7 @@ services:
         value: '3001'
         scope: RUN_AND_BUILD_TIME
       - key: MONGODB_URI
-        value: >-
-          mongodb+srv://garrettaosborne_db_user:bibbles11@cluster0.sjccoyd.mongodb.net/
+        value: mongodb+srv://garrettaosborne_db_user:bibbles11@cluster0.sjccoyd.mongodb.net/saas-app
         scope: RUN_AND_BUILD_TIME
       - key: JWT_SECRET
         value: your-super-secret-jwt-key-change-in-production
