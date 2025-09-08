@@ -1,14 +1,35 @@
-FROM node:20-bullseye
+# Production Dockerfile for RawrZ Security Platform
+FROM node:18-alpine AS builder
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-  openssl curl wget git nano vim-tiny perl python3 unzip zip jq ca-certificates tzdata procps \
-  && rm -rf /var/lib/apt/lists/*
-
+# Set working directory
 WORKDIR /app
 
-# Copy runtime files
-COPY server/ server/
-COPY tools/ tools/
+# Copy package files
+COPY package*.json ./
+COPY package.prod.json ./
 
-# App Platform provides $PORT; the server will bind to it.
-CMD ["node", "server/encrypt_server.js"]
+# Install dependencies
+RUN npm ci --only=production && npm cache clean --force
+
+# Copy source code
+COPY src/ ./src/
+COPY public/ ./public/
+COPY scripts/ ./scripts/
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S rawrz -u 1001
+
+# Set ownership
+RUN chown -R rawrz:nodejs /app
+USER rawrz
+
+# Expose port
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node scripts/healthcheck.js
+
+# Start the application
+CMD ["node", "src/app.js"]
