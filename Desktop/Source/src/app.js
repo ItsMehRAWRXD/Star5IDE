@@ -3,19 +3,44 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const compression = require('compression');
 const config = require('../config');
+const { logger, requestLogger } = require('./utils/logger');
 require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
 const subscriptionRoutes = require('./routes/subscriptions');
+const cryptoRoutes = require('./routes/crypto');
+const securityRoutes = require('./routes/security');
+const imageRoutes = require('./routes/images');
 
 const app = express();
 
 // Middleware
 app.use(helmet());
 app.use(cors());
+app.use(compression()); // Enable gzip compression
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+// Request logging middleware
+app.use((req, res, next) => {
+  const start = Date.now();
+  
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    requestLogger.info({
+      method: req.method,
+      url: req.url,
+      status: res.statusCode,
+      duration: `${duration}ms`,
+      ip: req.ip,
+      userAgent: req.get('User-Agent')
+    });
+  });
+  
+  next();
+});
 
 // Serve static files (but not index.html from rawraw-site)
 app.use(express.static('public'));
@@ -39,10 +64,13 @@ const connectDB = () => {
     useUnifiedTopology: true,
   })
   .then(() => {
+    logger.info('MongoDB connected successfully');
+    logger.info('Database features enabled');
     console.log('✅ MongoDB connected successfully');
     console.log('📊 Database features enabled');
   })
   .catch((err) => {
+    logger.error('MongoDB connection error', { error: err.message });
     console.log('⚠️ MongoDB connection error:', err.message);
     console.log('⚠️ Server will continue without database connection');
     console.log('📊 Database features disabled - running in demo mode');
@@ -55,6 +83,9 @@ connectDB();
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
+app.use('/api/crypto', cryptoRoutes);
+app.use('/api/security', securityRoutes);
+app.use('/api/images', imageRoutes);
 
 // Advanced UI routes (keeping existing Camellia server)
 app.get('/advanced-ui', (req, res) => {
@@ -93,6 +124,15 @@ app.get('/tools', (req, res) => {
   res.sendFile('dev-tools.html', { root: 'rawraw-site' });
 });
 
+// Admin Panel
+app.get('/admin', (req, res) => {
+  res.sendFile('admin-panel.html', { root: 'public' });
+});
+
+app.get('/panel', (req, res) => {
+  res.sendFile('admin-panel.html', { root: 'public' });
+});
+
 // Main IDE Dashboard - The Fun Coding Interface!
 app.get('/', (req, res) => {
   res.sendFile('ide-dashboard.html', { root: 'rawraw-site' });
@@ -117,6 +157,9 @@ app.get('/api', (req, res) => {
       health: '/health',
       auth: '/api/auth',
       subscriptions: '/api/subscriptions',
+      crypto: '/api/crypto',
+      security: '/api/security',
+      images: '/api/images',
       advanced_ui: '/advanced-ui',
       rawrz_ui: '/rawrz',
       saas_platform: '/saas',
@@ -147,10 +190,12 @@ const PORT = config.PORT;
 
 // Start server
 app.listen(PORT, () => {
+  logger.info(`SaaS Backend Server started on port ${PORT}`);
   console.log(`🚀 SaaS Backend Server running on port ${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/health`);
   console.log(`🔗 API Base: http://localhost:${PORT}/api`);
   console.log(`🌐 Open in browser: http://localhost:${PORT}`);
+  console.log(`📝 Logs available in: ./logs/`);
 });
 
 module.exports = app;

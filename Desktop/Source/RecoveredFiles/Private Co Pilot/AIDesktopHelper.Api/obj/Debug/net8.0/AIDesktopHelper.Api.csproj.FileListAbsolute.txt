@@ -1,0 +1,9 @@
+C:\Users\Garre\Desktop\Source\RecoveredFiles\Private Co Pilot\AIDesktopHelper.Api\obj\Debug\net8.0\AIDesktopHelper.Api.csproj.AssemblyReference.cache
+C:\Users\Garre\Desktop\Source\RecoveredFiles\Private Co Pilot\AIDesktopHelper.Api\obj\Debug\net8.0\rpswa.dswa.cache.json
+C:\Users\Garre\Desktop\Source\RecoveredFiles\Private Co Pilot\AIDesktopHelper.Api\obj\Debug\net8.0\AIDesktopHelper.Api.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Garre\Desktop\Source\RecoveredFiles\Private Co Pilot\AIDesktopHelper.Api\obj\Debug\net8.0\AIDesktopHelper.Api.AssemblyInfoInputs.cache
+C:\Users\Garre\Desktop\Source\RecoveredFiles\Private Co Pilot\AIDesktopHelper.Api\obj\Debug\net8.0\AIDesktopHelper.Api.AssemblyInfo.cs
+C:\Users\Garre\Desktop\Source\RecoveredFiles\Private Co Pilot\AIDesktopHelper.Api\obj\Debug\net8.0\AIDesktopHelper.Api.csproj.CoreCompileInputs.cache
+C:\Users\Garre\Desktop\Source\RecoveredFiles\Private Co Pilot\AIDesktopHelper.Api\obj\Debug\net8.0\AIDesktopHelper.Api.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\Garre\Desktop\Source\RecoveredFiles\Private Co Pilot\AIDesktopHelper.Api\obj\Debug\net8.0\AIDesktopHelper.Api.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\Garre\Desktop\Source\RecoveredFiles\Private Co Pilot\AIDesktopHelper.Api\obj\Debug\net8.0\AIDesktopHelper.Api.sourcelink.json

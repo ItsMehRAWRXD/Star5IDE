@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "fm/bngwxwgs=",
+  "dgSpecHash": "nisDCWxbuBQ=",
   "success": true,
-  "projectFilePath": "c:\\Users\\Garre\\Desktop\\Source\\RecoveredFiles\\Private Co Pilot\\AIDesktopHelper.Api\\AIDesktopHelper.Api.csproj",
+  "projectFilePath": "C:\\Users\\Garre\\Desktop\\Source\\RecoveredFiles\\Private Co Pilot\\AIDesktopHelper.Api\\AIDesktopHelper.Api.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Garre\\.nuget\\packages\\awssdk.core\\3.7.303.18\\awssdk.core.3.7.303.18.nupkg.sha512",
     "C:\\Users\\Garre\\.nuget\\packages\\awssdk.s3\\3.7.307.19\\awssdk.s3.3.7.307.19.nupkg.sha512",
@@ -67,9 +67,9 @@
       "code": "NU1902",
       "level": "Warning",
       "message": "Package 'System.IdentityModel.Tokens.Jwt' 7.0.3 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-59j7-ghrg-fj52",
-      "projectPath": "c:\\Users\\Garre\\Desktop\\Source\\RecoveredFiles\\Private Co Pilot\\AIDesktopHelper.Api\\AIDesktopHelper.Api.csproj",
+      "projectPath": "C:\\Users\\Garre\\Desktop\\Source\\RecoveredFiles\\Private Co Pilot\\AIDesktopHelper.Api\\AIDesktopHelper.Api.csproj",
       "warningLevel": 1,
-      "filePath": "c:\\Users\\Garre\\Desktop\\Source\\RecoveredFiles\\Private Co Pilot\\AIDesktopHelper.Api\\AIDesktopHelper.Api.csproj",
+      "filePath": "C:\\Users\\Garre\\Desktop\\Source\\RecoveredFiles\\Private Co Pilot\\AIDesktopHelper.Api\\AIDesktopHelper.Api.csproj",
       "libraryId": "System.IdentityModel.Tokens.Jwt",
       "targetGraphs": [
         "net8.0"

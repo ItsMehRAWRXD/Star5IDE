@@ -3126,11 +3126,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "c:\\Users\\Garre\\Desktop\\Source\\RecoveredFiles\\Private Co Pilot\\AIDesktopHelper.Api\\AIDesktopHelper.Api.csproj",
+      "projectUniqueName": "C:\\Users\\Garre\\Desktop\\Source\\RecoveredFiles\\Private Co Pilot\\AIDesktopHelper.Api\\AIDesktopHelper.Api.csproj",
       "projectName": "AIDesktopHelper.Api",
-      "projectPath": "c:\\Users\\Garre\\Desktop\\Source\\RecoveredFiles\\Private Co Pilot\\AIDesktopHelper.Api\\AIDesktopHelper.Api.csproj",
+      "projectPath": "C:\\Users\\Garre\\Desktop\\Source\\RecoveredFiles\\Private Co Pilot\\AIDesktopHelper.Api\\AIDesktopHelper.Api.csproj",
       "packagesPath": "C:\\Users\\Garre\\.nuget\\packages\\",
-      "outputPath": "c:\\Users\\Garre\\Desktop\\Source\\RecoveredFiles\\Private Co Pilot\\AIDesktopHelper.Api\\obj\\",
+      "outputPath": "C:\\Users\\Garre\\Desktop\\Source\\RecoveredFiles\\Private Co Pilot\\AIDesktopHelper.Api\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
