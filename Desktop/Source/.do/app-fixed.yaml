@@ -10,7 +10,7 @@ services:
     instance_size_slug: basic-xxs
     github:
       repo: ItsMehRAWRXD/Star5IDE
-      branch: security/cleanup
+      branch: main
     envs:
       - key: NODE_ENV
         value: production
@@ -20,13 +20,19 @@ services:
         scope: RUN_AND_BUILD_TIME
       - key: MONGODB_URI
         value: >-
-          mongodb+srv://garrettaosborne_db_user:bibbles11@cluster0.sjccoyd.mongodb.net/
+          mongodb+srv://garrettaosborne_db_user:bibbles11@cluster0.sjccoyd.mongodb.net/saas-app
         scope: RUN_AND_BUILD_TIME
       - key: JWT_SECRET
         value: your-super-secret-jwt-key-change-in-production
         scope: RUN_AND_BUILD_TIME
       - key: FRONTEND_URL
         value: https://screenpilot.dev
+        scope: RUN_AND_BUILD_TIME
+      - key: STRIPE_SECRET_KEY
+        value: sk_test_your_stripe_secret_key
+        scope: RUN_AND_BUILD_TIME
+      - key: SENDGRID_API_KEY
+        value: your_sendgrid_key
         scope: RUN_AND_BUILD_TIME
 ingress:
   rules:

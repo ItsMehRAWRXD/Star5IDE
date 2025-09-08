@@ -13,6 +13,7 @@ const subscriptionRoutes = require('./routes/subscriptions');
 const cryptoRoutes = require('./routes/crypto');
 const securityRoutes = require('./routes/security');
 const imageRoutes = require('./routes/images');
+const ideRoutes = require('./routes/ide');
 
 const app = express();
 
@@ -86,6 +87,7 @@ app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/crypto', cryptoRoutes);
 app.use('/api/security', securityRoutes);
 app.use('/api/images', imageRoutes);
+app.use('/api/ide', ideRoutes);
 
 // Advanced UI routes (keeping existing Camellia server)
 app.get('/advanced-ui', (req, res) => {
@@ -133,6 +135,15 @@ app.get('/panel', (req, res) => {
   res.sendFile('admin-panel.html', { root: 'public' });
 });
 
+// Custom IDE - Your Own Development Platform
+app.get('/custom-ide', (req, res) => {
+  res.sendFile('custom-ide.html', { root: 'public' });
+});
+
+app.get('/ide', (req, res) => {
+  res.sendFile('custom-ide.html', { root: 'public' });
+});
+
 // Main Dashboard - Central Hub
 app.get('/', (req, res) => {
   res.sendFile('index.html', { root: 'public' });
@@ -160,9 +171,11 @@ app.get('/api', (req, res) => {
       crypto: '/api/crypto',
       security: '/api/security',
       images: '/api/images',
+      ide: '/api/ide',
       advanced_ui: '/advanced-ui',
       rawrz_ui: '/rawrz',
       saas_platform: '/saas',
+      custom_ide: '/custom-ide',
       ide_dashboard: '/'
     }
   });

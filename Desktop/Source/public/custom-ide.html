@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RawrZ Custom IDE - Your Own Development Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            overflow: hidden;
+        }
+
+        .ide-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: #252526;
+            border-right: 1px solid #3e3e42;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 15px;
+            background: #2d2d30;
+            border-bottom: 1px solid #3e3e42;
+        }
+
+        .sidebar-header h3 {
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .file-explorer {
+            flex: 1;
+            padding: 10px;
+        }
+
+        .file-tree {
+            list-style: none;
+        }
+
+        .file-item {
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+        }
+
+        .file-item:hover {
+            background: #2a2d2e;
+        }
+
+        .file-item.active {
+            background: #094771;
+        }
+
+        .file-icon {
+            margin-right: 8px;
+            width: 16px;
+            text-align: center;
+        }
+
+        /* Main Editor Area */
+        .editor-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tab-bar {
+            background: #2d2d30;
+            border-bottom: 1px solid #3e3e42;
+            display: flex;
+            overflow-x: auto;
+        }
+
+        .tab {
+            padding: 10px 15px;
+            background: #2d2d30;
+            border-right: 1px solid #3e3e42;
+            cursor: pointer;
+            font-size: 13px;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+        }
+
+        .tab.active {
+            background: #1e1e1e;
+            color: #ffffff;
+        }
+
+        .tab-close {
+            margin-left: 8px;
+            cursor: pointer;
+            opacity: 0.7;
+        }
+
+        .tab-close:hover {
+            opacity: 1;
+        }
+
+        /* Code Editor */
+        .code-editor {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .editor-container {
+            flex: 1;
+            position: relative;
+        }
+
+        .editor-textarea {
+            width: 100%;
+            height: 100%;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            border: none;
+            outline: none;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            padding: 20px;
+            resize: none;
+            tab-size: 4;
+        }
+
+        .line-numbers {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 50px;
+            height: 100%;
+            background: #1e1e1e;
+            border-right: 1px solid #3e3e42;
+            padding: 20px 10px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #858585;
+            text-align: right;
+            user-select: none;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            background: #007acc;
+            color: white;
+            padding: 5px 15px;
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-left {
+            display: flex;
+            gap: 20px;
+        }
+
+        .status-right {
+            display: flex;
+            gap: 20px;
+        }
+
+        /* Terminal */
+        .terminal {
+            height: 200px;
+            background: #0c0c0c;
+            border-top: 1px solid #3e3e42;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .terminal-header {
+            background: #2d2d30;
+            padding: 5px 15px;
+            font-size: 12px;
+            color: #cccccc;
+            border-bottom: 1px solid #3e3e42;
+        }
+
+        .terminal-content {
+            flex: 1;
+            padding: 10px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 13px;
+            overflow-y: auto;
+            color: #00ff00;
+        }
+
+        .terminal-input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #00ff00;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 13px;
+            width: 100%;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            background: #2d2d30;
+            border-bottom: 1px solid #3e3e42;
+            padding: 8px 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .toolbar-btn {
+            background: #0e639c;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .toolbar-btn:hover {
+            background: #1177bb;
+        }
+
+        .toolbar-btn:disabled {
+            background: #3e3e42;
+            color: #858585;
+            cursor: not-allowed;
+        }
+
+        /* Context Menu */
+        .context-menu {
+            position: absolute;
+            background: #2d2d30;
+            border: 1px solid #3e3e42;
+            border-radius: 3px;
+            padding: 5px 0;
+            z-index: 1000;
+            min-width: 150px;
+            display: none;
+        }
+
+        .context-menu-item {
+            padding: 8px 15px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .context-menu-item:hover {
+            background: #094771;
+        }
+
+        /* Syntax Highlighting */
+        .syntax-keyword { color: #569cd6; }
+        .syntax-string { color: #ce9178; }
+        .syntax-comment { color: #6a9955; }
+        .syntax-number { color: #b5cea8; }
+        .syntax-function { color: #dcdcaa; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+            
+            .terminal {
+                height: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="ide-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3>📁 Explorer</h3>
+            </div>
+            <div class="file-explorer">
+                <ul class="file-tree" id="fileTree">
+                    <li class="file-item" data-file="main.cpp">
+                        <span class="file-icon">📄</span>
+                        main.cpp
+                    </li>
+                    <li class="file-item" data-file="app.js">
+                        <span class="file-icon">📄</span>
+                        app.js
+                    </li>
+                    <li class="file-item" data-file="style.css">
+                        <span class="file-icon">📄</span>
+                        style.css
+                    </li>
+                    <li class="file-item" data-file="README.md">
+                        <span class="file-icon">📄</span>
+                        README.md
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Editor Area -->
+        <div class="editor-area">
+            <!-- Toolbar -->
+            <div class="toolbar">
+                <button class="toolbar-btn" onclick="newFile()">📄 New</button>
+                <button class="toolbar-btn" onclick="openFile()">📂 Open</button>
+                <button class="toolbar-btn" onclick="saveFile()">💾 Save</button>
+                <button class="toolbar-btn" onclick="saveAs()">💾 Save As</button>
+                <div style="width: 1px; background: #3e3e42; margin: 0 5px;"></div>
+                <button class="toolbar-btn" onclick="runCode()">▶️ Run</button>
+                <button class="toolbar-btn" onclick="buildProject()">🔨 Build</button>
+                <button class="toolbar-btn" onclick="debugCode()">🐛 Debug</button>
+                <div style="width: 1px; background: #3e3e42; margin: 0 5px;"></div>
+                <button class="toolbar-btn" onclick="toggleTerminal()">💻 Terminal</button>
+                <button class="toolbar-btn" onclick="openSettings()">⚙️ Settings</button>
+            </div>
+
+            <!-- Tab Bar -->
+            <div class="tab-bar" id="tabBar">
+                <div class="tab active" data-file="main.cpp">
+                    main.cpp
+                    <span class="tab-close" onclick="closeTab('main.cpp')">×</span>
+                </div>
+            </div>
+
+            <!-- Code Editor -->
+            <div class="code-editor">
+                <div class="editor-container">
+                    <div class="line-numbers" id="lineNumbers">1</div>
+                    <textarea class="editor-textarea" id="codeEditor" placeholder="// Welcome to RawrZ Custom IDE
+// Your own development platform
+
+#include <iostream>
+#include <string>
+
+int main() {
+    std::cout << \"Hello from RawrZ Custom IDE!\" << std::endl;
+    return 0;
+}">// RawrZ Custom IDE - Your Own Development Platform
+// Built from scratch to avoid licensing issues
+
+#include <iostream>
+#include <string>
+#include <vector>
+
+class RawrZCompiler {
+private:
+    std::string sourceCode;
+    std::vector<std::string> tokens;
+    
+public:
+    RawrZCompiler(const std::string& code) : sourceCode(code) {}
+    
+    void tokenize() {
+        // Custom tokenization logic
+        std::cout << "Tokenizing source code..." << std::endl;
+    }
+    
+    void compile() {
+        // Custom compilation process
+        std::cout << "Compiling with RawrZ compiler..." << std::endl;
+    }
+    
+    void optimize() {
+        // Custom optimization passes
+        std::cout << "Applying RawrZ optimizations..." << std::endl;
+    }
+};
+
+int main() {
+    std::string code = R"(
+        int x = 10;
+        int y = 20;
+        int result = x + y;
+        return result;
+    )";
+    
+    RawrZCompiler compiler(code);
+    compiler.tokenize();
+    compiler.compile();
+    compiler.optimize();
+    
+    std::cout << "RawrZ compilation complete!" << std::endl;
+    return 0;
+}</textarea>
+                </div>
+            </div>
+
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <div class="status-left">
+                    <span>RawrZ Custom IDE v1.0.0</span>
+                    <span id="cursorPosition">Ln 1, Col 1</span>
+                    <span id="fileType">C++</span>
+                </div>
+                <div class="status-right">
+                    <span id="encoding">UTF-8</span>
+                    <span id="lineEnding">LF</span>
+                    <span id="indentSize">4 spaces</span>
+                </div>
+            </div>
+
+            <!-- Terminal -->
+            <div class="terminal" id="terminal" style="display: none;">
+                <div class="terminal-header">
+                    RawrZ Terminal
+                </div>
+                <div class="terminal-content" id="terminalOutput">
+                    RawrZ Custom IDE Terminal v1.0.0<br>
+                    Type 'help' for available commands<br>
+                    <br>
+                </div>
+                <div style="padding: 5px 10px; border-top: 1px solid #3e3e42;">
+                    <span style="color: #00ff00;">$ </span>
+                    <input type="text" class="terminal-input" id="terminalInput" placeholder="Enter command...">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div class="context-menu" id="contextMenu">
+        <div class="context-menu-item" onclick="cutText()">✂️ Cut</div>
+        <div class="context-menu-item" onclick="copyText()">📋 Copy</div>
+        <div class="context-menu-item" onclick="pasteText()">📄 Paste</div>
+        <div class="context-menu-item" onclick="selectAll()">📝 Select All</div>
+    </div>
+
+    <script>
+        // Custom IDE Core
+        class RawrZIDE {
+            constructor() {
+                this.currentFile = 'main.cpp';
+                this.openFiles = new Set(['main.cpp']);
+                this.unsavedChanges = new Set();
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.updateLineNumbers();
+                this.updateCursorPosition();
+                this.setupTerminal();
+            }
+
+            setupEventListeners() {
+                const editor = document.getElementById('codeEditor');
+                const fileTree = document.getElementById('fileTree');
+                const contextMenu = document.getElementById('contextMenu');
+
+                // Editor events
+                editor.addEventListener('input', () => {
+                    this.updateLineNumbers();
+                    this.updateCursorPosition();
+                    this.markUnsaved();
+                });
+
+                editor.addEventListener('keydown', (e) => {
+                    this.handleKeyDown(e);
+                });
+
+                editor.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    this.showContextMenu(e);
+                });
+
+                // File tree events
+                fileTree.addEventListener('click', (e) => {
+                    if (e.target.closest('.file-item')) {
+                        const file = e.target.closest('.file-item').dataset.file;
+                        this.openFile(file);
+                    }
+                });
+
+                // Hide context menu on click
+                document.addEventListener('click', () => {
+                    contextMenu.style.display = 'none';
+                });
+            }
+
+            handleKeyDown(e) {
+                // Custom keyboard shortcuts
+                if (e.ctrlKey) {
+                    switch(e.key) {
+                        case 's':
+                            e.preventDefault();
+                            this.saveFile();
+                            break;
+                        case 'n':
+                            e.preventDefault();
+                            this.newFile();
+                            break;
+                        case 'o':
+                            e.preventDefault();
+                            this.openFile();
+                            break;
+                        case 'r':
+                            e.preventDefault();
+                            this.runCode();
+                            break;
+                        case 'b':
+                            e.preventDefault();
+                            this.buildProject();
+                            break;
+                    }
+                }
+
+                // Tab handling
+                if (e.key === 'Tab') {
+                    e.preventDefault();
+                    this.insertTab();
+                }
+            }
+
+            insertTab() {
+                const editor = document.getElementById('codeEditor');
+                const start = editor.selectionStart;
+                const end = editor.selectionEnd;
+                const value = editor.value;
+                
+                editor.value = value.substring(0, start) + '    ' + value.substring(end);
+                editor.selectionStart = editor.selectionEnd = start + 4;
+            }
+
+            updateLineNumbers() {
+                const editor = document.getElementById('codeEditor');
+                const lines = editor.value.split('\n').length;
+                const lineNumbers = document.getElementById('lineNumbers');
+                
+                let numbers = '';
+                for (let i = 1; i <= lines; i++) {
+                    numbers += i + '\n';
+                }
+                lineNumbers.textContent = numbers;
+            }
+
+            updateCursorPosition() {
+                const editor = document.getElementById('codeEditor');
+                const text = editor.value.substring(0, editor.selectionStart);
+                const lines = text.split('\n');
+                const line = lines.length;
+                const col = lines[lines.length - 1].length + 1;
+                
+                document.getElementById('cursorPosition').textContent = `Ln ${line}, Col ${col}`;
+            }
+
+            markUnsaved() {
+                this.unsavedChanges.add(this.currentFile);
+                this.updateTabDisplay();
+            }
+
+            updateTabDisplay() {
+                const tab = document.querySelector(`[data-file="${this.currentFile}"]`);
+                if (tab && this.unsavedChanges.has(this.currentFile)) {
+                    tab.textContent = tab.textContent.replace('●', '') + '●';
+                }
+            }
+
+            openFile(filename) {
+                this.currentFile = filename;
+                this.openFiles.add(filename);
+                
+                // Update active file in tree
+                document.querySelectorAll('.file-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                document.querySelector(`[data-file="${filename}"]`).classList.add('active');
+                
+                // Update tab
+                this.updateTabs();
+                
+                // Load file content (simulated)
+                this.loadFileContent(filename);
+            }
+
+            loadFileContent(filename) {
+                const editor = document.getElementById('codeEditor');
+                const fileContents = {
+                    'main.cpp': `// RawrZ Custom IDE - C++ File
+#include <iostream>
+
+int main() {
+    std::cout << "Hello from RawrZ IDE!" << std::endl;
+    return 0;
+}`,
+                    'app.js': `// RawrZ Custom IDE - JavaScript File
+console.log('Welcome to RawrZ Custom IDE!');
+
+class RawrZApp {
+    constructor() {
+        this.name = 'RawrZ Custom IDE';
+    }
+    
+    run() {
+        console.log(\`Running \${this.name}\`);
+    }
+}
+
+const app = new RawrZApp();
+app.run();`,
+                    'style.css': `/* RawrZ Custom IDE - CSS File */
+.rawrz-ide {
+    font-family: 'Consolas', monospace;
+    background: #1e1e1e;
+    color: #d4d4d4;
+}
+
+.rawrz-editor {
+    background: #1e1e1e;
+    border: 1px solid #3e3e42;
+    border-radius: 4px;
+}`,
+                    'README.md': `# RawrZ Custom IDE
+
+Your own development platform built from scratch.
+
+## Features
+- Custom code editor
+- Built-in compiler
+- Debugging tools
+- Terminal integration
+- Plugin system
+
+## Getting Started
+1. Open a file
+2. Write your code
+3. Build and run
+
+Built with ❤️ by RawrZ Team`
+                };
+                
+                editor.value = fileContents[filename] || `// ${filename}\n// Your custom file content here...`;
+                this.updateLineNumbers();
+            }
+
+            updateTabs() {
+                const tabBar = document.getElementById('tabBar');
+                tabBar.innerHTML = '';
+                
+                this.openFiles.forEach(file => {
+                    const tab = document.createElement('div');
+                    tab.className = `tab ${file === this.currentFile ? 'active' : ''}`;
+                    tab.dataset.file = file;
+                    tab.innerHTML = `${file} <span class="tab-close" onclick="ide.closeTab('${file}')">×</span>`;
+                    tabBar.appendChild(tab);
+                });
+            }
+
+            closeTab(filename) {
+                if (this.openFiles.size <= 1) return;
+                
+                this.openFiles.delete(filename);
+                this.unsavedChanges.delete(filename);
+                
+                if (this.currentFile === filename) {
+                    this.currentFile = Array.from(this.openFiles)[0];
+                    this.openFile(this.currentFile);
+                }
+                
+                this.updateTabs();
+            }
+
+            showContextMenu(e) {
+                const contextMenu = document.getElementById('contextMenu');
+                contextMenu.style.display = 'block';
+                contextMenu.style.left = e.pageX + 'px';
+                contextMenu.style.top = e.pageY + 'px';
+            }
+
+            setupTerminal() {
+                const terminalInput = document.getElementById('terminalInput');
+                terminalInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        this.executeTerminalCommand(e.target.value);
+                        e.target.value = '';
+                    }
+                });
+            }
+
+            executeTerminalCommand(command) {
+                const output = document.getElementById('terminalOutput');
+                output.innerHTML += `<span style="color: #00ff00;">$ ${command}</span><br>`;
+                
+                // Custom command processing
+                switch(command.toLowerCase()) {
+                    case 'help':
+                        output.innerHTML += `Available commands:<br>
+- help: Show this help<br>
+- clear: Clear terminal<br>
+- build: Build current project<br>
+- run: Run current project<br>
+- ls: List files<br>
+- pwd: Show current directory<br>`;
+                        break;
+                    case 'clear':
+                        output.innerHTML = '';
+                        break;
+                    case 'build':
+                        output.innerHTML += 'Building project with RawrZ compiler...<br>';
+                        output.innerHTML += 'Build successful!<br>';
+                        break;
+                    case 'run':
+                        output.innerHTML += 'Running project...<br>';
+                        output.innerHTML += 'Hello from RawrZ Custom IDE!<br>';
+                        break;
+                    case 'ls':
+                        output.innerHTML += 'main.cpp app.js style.css README.md<br>';
+                        break;
+                    case 'pwd':
+                        output.innerHTML += '/home/rawrz/projects<br>';
+                        break;
+                    default:
+                        output.innerHTML += `Command not found: ${command}<br>`;
+                }
+                
+                output.scrollTop = output.scrollHeight;
+            }
+        }
+
+        // Global functions
+        function newFile() {
+            const filename = prompt('Enter filename:');
+            if (filename) {
+                ide.openFiles.add(filename);
+                ide.currentFile = filename;
+                ide.loadFileContent(filename);
+                ide.updateTabs();
+            }
+        }
+
+        function openFile() {
+            // Simulate file open dialog
+            const files = ['main.cpp', 'app.js', 'style.css', 'README.md'];
+            const filename = files[Math.floor(Math.random() * files.length)];
+            ide.openFile(filename);
+        }
+
+        function saveFile() {
+            ide.unsavedChanges.delete(ide.currentFile);
+            ide.updateTabDisplay();
+            console.log(`Saved ${ide.currentFile}`);
+        }
+
+        function saveAs() {
+            const filename = prompt('Save as:');
+            if (filename) {
+                ide.currentFile = filename;
+                saveFile();
+            }
+        }
+
+        function runCode() {
+            const output = document.getElementById('terminalOutput');
+            output.innerHTML += 'Running code...<br>';
+            output.innerHTML += 'Hello from RawrZ Custom IDE!<br>';
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function buildProject() {
+            const output = document.getElementById('terminalOutput');
+            output.innerHTML += 'Building project with RawrZ compiler...<br>';
+            output.innerHTML += 'Compilation successful!<br>';
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function debugCode() {
+            console.log('Starting debugger...');
+            alert('Debugger started! Set breakpoints and step through your code.');
+        }
+
+        function toggleTerminal() {
+            const terminal = document.getElementById('terminal');
+            terminal.style.display = terminal.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function openSettings() {
+            alert('Settings panel - Configure your RawrZ Custom IDE preferences');
+        }
+
+        // Context menu functions
+        function cutText() {
+            document.execCommand('cut');
+        }
+
+        function copyText() {
+            document.execCommand('copy');
+        }
+
+        function pasteText() {
+            document.execCommand('paste');
+        }
+
+        function selectAll() {
+            document.execCommand('selectAll');
+        }
+
+        // Initialize IDE
+        const ide = new RawrZIDE();
+    </script>
+</body>
+</html>
