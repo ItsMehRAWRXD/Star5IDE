@@ -1,7 +1,7 @@
 # PowerShell Script to Create Minimal Deployment Package
 # Creates a clean, deployable version without the bloat
 
-Write-Host "🚀 Creating minimal deployment package..." -ForegroundColor Green
+Write-Host "[START] Creating minimal deployment package..." -ForegroundColor Green
 
 # Set paths
 $sourcePath = "C:\Users\Garre\Desktop\Source"
@@ -13,7 +13,7 @@ if (Test-Path $deployPath) {
 }
 New-Item -ItemType Directory -Path $deployPath -Force
 
-Write-Host "📁 Created deployment directory: $deployPath" -ForegroundColor Cyan
+Write-Host "[FOLDER] Created deployment directory: $deployPath" -ForegroundColor Cyan
 
 # Essential files and folders to copy
 $essentialItems = @(
@@ -26,7 +26,7 @@ $essentialItems = @(
     "DEPLOYMENT.md"
 )
 
-Write-Host "📦 Copying essential files..." -ForegroundColor Yellow
+Write-Host "[DEBUG] Copying essential files..." -ForegroundColor Yellow
 
 foreach ($item in $essentialItems) {
     $sourceItem = Join-Path $sourcePath $item
@@ -36,14 +36,14 @@ foreach ($item in $essentialItems) {
         if (Test-Path $sourceItem -PathType Container) {
             # Copy folder
             Copy-Item $sourceItem $destItem -Recurse -Force
-            Write-Host "   ✅ Copied folder: $item" -ForegroundColor Green
+            Write-Host "   [OK] Copied folder: $item" -ForegroundColor Green
         } else {
             # Copy file
             Copy-Item $sourceItem $destItem -Force
-            Write-Host "   ✅ Copied file: $item" -ForegroundColor Green
+            Write-Host "   [OK] Copied file: $item" -ForegroundColor Green
         }
     } else {
-        Write-Host "   ⚠️ Not found: $item" -ForegroundColor Yellow
+        Write-Host "   [WARN] Not found: $item" -ForegroundColor Yellow
     }
 }
 
@@ -80,19 +80,19 @@ $cleanPackageJson = @{
 
 $cleanPackageJson | ConvertTo-Json -Depth 3 | Out-File -FilePath "$deployPath\package.json" -Encoding UTF8
 
-Write-Host "📊 Deployment package created!" -ForegroundColor Green
+Write-Host "[STATUS] Deployment package created!" -ForegroundColor Green
 
 # Show size comparison
 $sourceSize = (Get-ChildItem $sourcePath -Recurse | Measure-Object -Property Length -Sum).Sum / 1GB
 $deploySize = (Get-ChildItem $deployPath -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB
 
-Write-Host "📈 Size comparison:" -ForegroundColor Cyan
+Write-Host "[CHAR][CHAR] Size comparison:" -ForegroundColor Cyan
 Write-Host "   Original: $([math]::Round($sourceSize, 2)) GB" -ForegroundColor Red
 Write-Host "   Deploy: $([math]::Round($deploySize, 2)) MB" -ForegroundColor Green
 
-Write-Host "✅ Minimal deployment package ready!" -ForegroundColor Green
-Write-Host "📁 Location: $deployPath" -ForegroundColor Cyan
-Write-Host "🚀 Ready to zip and upload to DigitalOcean!" -ForegroundColor Green
+Write-Host "[OK] Minimal deployment package ready!" -ForegroundColor Green
+Write-Host "[FOLDER] Location: $deployPath" -ForegroundColor Cyan
+Write-Host "[START] Ready to zip and upload to DigitalOcean!" -ForegroundColor Green
 
 # Wait for user input
 Read-Host "Press Enter to continue..."

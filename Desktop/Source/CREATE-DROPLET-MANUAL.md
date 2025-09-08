@@ -1,8 +1,8 @@
 # MANUAL DROPLET CREATION - DigitalOcean Web Interface
 
-## 🚨 Problem: No droplet exists, commands freeze
+## [ALERT] Problem: No droplet exists, commands freeze
 
-## ✅ Solution: Create droplet manually via web interface
+## [OK] Solution: Create droplet manually via web interface
 
 ### Step 1: Go to DigitalOcean Dashboard
 1. Open browser
@@ -33,15 +33,15 @@
 ### Step 6: Continue Manual Deployment
 Once you have the IP address, we can continue with the manual deployment using the checklist.
 
-## 🎯 Result:
+## [TARGET] Result:
 - New droplet created
 - IP address obtained
 - Ready for RawrZ Security Platform deployment
 
-## ⚡ Next Steps:
+## [CHAR] Next Steps:
 1. Create droplet (5 minutes)
 2. Get IP address
 3. Continue with manual deployment checklist
 4. Deploy RawrZ Security Platform
 
-**No freezing - just web interface!** 🚀
+**No freezing - just web interface!** [START]

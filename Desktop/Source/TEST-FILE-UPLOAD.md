@@ -1,6 +1,6 @@
 # Test File Upload - Current Panel
 
-## 🧪 **Testing Plan:**
+## [CHAR][CHAR] **Testing Plan:**
 
 ### **Step 1: Test Current Panel**
 1. Go to: https://lionfish-app-ey7kn.ondigitalocean.app/panel
@@ -10,11 +10,11 @@
 
 ### **Step 2: Test File Types**
 Try uploading different file types:
-- ✅ **Text files** (.txt)
-- ✅ **Images** (.jpg, .png)
-- ✅ **Documents** (.pdf, .docx)
-- ✅ **Executables** (.exe)
-- ✅ **Archives** (.zip, .rar)
+- [OK] **Text files** (.txt)
+- [OK] **Images** (.jpg, .png)
+- [OK] **Documents** (.pdf, .docx)
+- [OK] **Executables** (.exe)
+- [OK] **Archives** (.zip, .rar)
 
 ### **Step 3: Test Encryption**
 - Test **Camellia-256-CBC** encryption
@@ -28,7 +28,7 @@ Try uploading different file types:
 - Test **PowerShell stubs**
 - Test **Node.js stubs**
 
-## 🎯 **What to Test:**
+## [TARGET] **What to Test:**
 
 1. **File Upload**: Can we upload files?
 2. **Encryption**: Do encryption methods work?
@@ -36,7 +36,7 @@ Try uploading different file types:
 4. **Stubs**: Do stub generators work?
 5. **Hot Patching**: Does hot patching work?
 
-## ⚡ **Test Results:**
+## [CHAR] **Test Results:**
 
 **File Upload**: [ ] Working [ ] Not Working
 **Encryption**: [ ] Working [ ] Not Working  
@@ -44,10 +44,10 @@ Try uploading different file types:
 **Stubs**: [ ] Working [ ] Not Working
 **Hot Patching**: [ ] Working [ ] Not Working
 
-## 🚀 **Next Steps:**
+## [START] **Next Steps:**
 
 - If **everything works**: Keep current panel, maybe enhance
 - If **some things don't work**: Fix issues first
 - If **nothing works**: Deploy our advanced version
 
-**Test the current panel first before making any changes!** 🛡️
+**Test the current panel first before making any changes!** [SECURITY]

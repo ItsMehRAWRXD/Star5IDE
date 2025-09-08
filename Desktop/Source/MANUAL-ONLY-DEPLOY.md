@@ -1,12 +1,12 @@
 # MANUAL DEPLOYMENT - No Automation (Everything Freezes!)
 
-## 🚨 Problem: All automated scripts freeze
+## [ALERT] Problem: All automated scripts freeze
 - Terminal commands freeze
 - Git operations freeze  
 - Deployment scripts freeze
 - Everything gets stuck!
 
-## ✅ Solution: Manual Step-by-Step
+## [OK] Solution: Manual Step-by-Step
 
 ### Step 1: Get Your Server Info
 1. Go to DigitalOcean dashboard
@@ -54,13 +54,13 @@ systemctl restart nginx
 ### Step 5: Test
 Visit: https://lionfish-app-ey7kn.ondigitalocean.app
 
-## 🎯 Why This Works:
+## [TARGET] Why This Works:
 - No batch files (they freeze)
 - No PowerShell (it freezes)
 - No automated scripts (they freeze)
 - Just manual commands one by one
 
-## ⚡ Result:
+## [CHAR] Result:
 RawrZ Security Platform will be live with:
 - Dual Crypto Engine
 - Advanced Encryption
@@ -68,4 +68,4 @@ RawrZ Security Platform will be live with:
 - Hot Patching
 - Clean antivirus scanning (proven working)
 
-**Manual approach = No freezing!** 🚀
+**Manual approach = No freezing!** [START]

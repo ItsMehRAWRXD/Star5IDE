@@ -296,24 +296,24 @@
         <!-- Sidebar -->
         <div class="sidebar">
             <div class="sidebar-header">
-                <h3>📁 Explorer</h3>
+                <h3>[FOLDER] Explorer</h3>
             </div>
             <div class="file-explorer">
                 <ul class="file-tree" id="fileTree">
                     <li class="file-item" data-file="main.cpp">
-                        <span class="file-icon">📄</span>
+                        <span class="file-icon">[CHAR][CHAR]</span>
                         main.cpp
                     </li>
                     <li class="file-item" data-file="app.js">
-                        <span class="file-icon">📄</span>
+                        <span class="file-icon">[CHAR][CHAR]</span>
                         app.js
                     </li>
                     <li class="file-item" data-file="style.css">
-                        <span class="file-icon">📄</span>
+                        <span class="file-icon">[CHAR][CHAR]</span>
                         style.css
                     </li>
                     <li class="file-item" data-file="README.md">
-                        <span class="file-icon">📄</span>
+                        <span class="file-icon">[CHAR][CHAR]</span>
                         README.md
                     </li>
                 </ul>
@@ -324,24 +324,24 @@
         <div class="editor-area">
             <!-- Toolbar -->
             <div class="toolbar">
-                <button class="toolbar-btn" onclick="newFile()">📄 New</button>
-                <button class="toolbar-btn" onclick="openFile()">📂 Open</button>
-                <button class="toolbar-btn" onclick="saveFile()">💾 Save</button>
-                <button class="toolbar-btn" onclick="saveAs()">💾 Save As</button>
+                <button class="toolbar-btn" onclick="newFile()">[CHAR][CHAR] New</button>
+                <button class="toolbar-btn" onclick="openFile()">[CHAR][CHAR] Open</button>
+                <button class="toolbar-btn" onclick="saveFile()">[SAVE] Save</button>
+                <button class="toolbar-btn" onclick="saveAs()">[SAVE] Save As</button>
                 <div style="width: 1px; background: #3e3e42; margin: 0 5px;"></div>
-                <button class="toolbar-btn" onclick="runCode()">▶️ Run</button>
-                <button class="toolbar-btn" onclick="buildProject()">🔨 Build</button>
-                <button class="toolbar-btn" onclick="debugCode()">🐛 Debug</button>
+                <button class="toolbar-btn" onclick="runCode()">[CHAR][CHAR] Run</button>
+                <button class="toolbar-btn" onclick="buildProject()">[CHAR][CHAR] Build</button>
+                <button class="toolbar-btn" onclick="debugCode()">[CHAR][CHAR] Debug</button>
                 <div style="width: 1px; background: #3e3e42; margin: 0 5px;"></div>
-                <button class="toolbar-btn" onclick="toggleTerminal()">💻 Terminal</button>
-                <button class="toolbar-btn" onclick="openSettings()">⚙️ Settings</button>
+                <button class="toolbar-btn" onclick="toggleTerminal()">[CHAR][CHAR] Terminal</button>
+                <button class="toolbar-btn" onclick="openSettings()">[CHAR][CHAR] Settings</button>
             </div>
 
             <!-- Tab Bar -->
             <div class="tab-bar" id="tabBar">
                 <div class="tab active" data-file="main.cpp">
                     main.cpp
-                    <span class="tab-close" onclick="closeTab('main.cpp')">×</span>
+                    <span class="tab-close" onclick="closeTab('main.cpp')">[CHAR]</span>
                 </div>
             </div>
 
@@ -442,10 +442,10 @@ int main() {
 
     <!-- Context Menu -->
     <div class="context-menu" id="contextMenu">
-        <div class="context-menu-item" onclick="cutText()">✂️ Cut</div>
-        <div class="context-menu-item" onclick="copyText()">📋 Copy</div>
-        <div class="context-menu-item" onclick="pasteText()">📄 Paste</div>
-        <div class="context-menu-item" onclick="selectAll()">📝 Select All</div>
+        <div class="context-menu-item" onclick="cutText()">[CHAR][CHAR] Cut</div>
+        <div class="context-menu-item" onclick="copyText()">[LIST] Copy</div>
+        <div class="context-menu-item" onclick="pasteText()">[CHAR][CHAR] Paste</div>
+        <div class="context-menu-item" onclick="selectAll()">[LOG] Select All</div>
     </div>
 
     <script>
@@ -585,7 +585,7 @@ int main() {
             updateTabDisplay() {
                 const tab = document.querySelector(`[data-file="${this.currentFile}"]`);
                 if (tab && this.unsavedChanges.has(this.currentFile)) {
-                    tab.textContent = tab.textContent.replace('●', '') + '●';
+                    tab.textContent = tab.textContent.replace('[CHAR]', '') + '[CHAR]';
                 }
             }
 
@@ -659,7 +659,7 @@ Your own development platform built from scratch.
 2. Write your code
 3. Build and run
 
-Built with ❤️ by RawrZ Team`
+Built with [CHAR][CHAR] by RawrZ Team`
                 };
                 
                 editor.value = fileContents[filename] || `// ${filename}\n// Your custom file content here...`;
@@ -674,7 +674,7 @@ Built with ❤️ by RawrZ Team`
                     const tab = document.createElement('div');
                     tab.className = `tab ${file === this.currentFile ? 'active' : ''}`;
                     tab.dataset.file = file;
-                    tab.innerHTML = `${file} <span class="tab-close" onclick="ide.closeTab('${file}')">×</span>`;
+                    tab.innerHTML = `${file} <span class="tab-close" onclick="ide.closeTab('${file}')">[CHAR]</span>`;
                     tabBar.appendChild(tab);
                 });
             }
@@ -799,12 +799,12 @@ Built with ❤️ by RawrZ Team`
                                 path: `/usr/bin/${compiler.command}`,
                                 installed: true
                             });
-                            output.innerHTML += `✓ ${compiler.name} found at /usr/bin/${compiler.command}<br>`;
+                            output.innerHTML += `[CHAR] ${compiler.name} found at /usr/bin/${compiler.command}<br>`;
                         } else {
-                            output.innerHTML += `✗ ${compiler.name} not found<br>`;
+                            output.innerHTML += `[CHAR] ${compiler.name} not found<br>`;
                         }
                     } catch (error) {
-                        output.innerHTML += `✗ ${compiler.name} detection failed<br>`;
+                        output.innerHTML += `[CHAR] ${compiler.name} detection failed<br>`;
                     }
                 }
                 
@@ -816,17 +816,17 @@ Built with ❤️ by RawrZ Team`
                 const output = document.getElementById('terminalOutput');
                 output.innerHTML += `Compiler Download Links:<br><br>
 <b>C/C++ Compilers:</b><br>
-• GCC/G++: https://gcc.gnu.org/install/<br>
-• Clang/Clang++: https://clang.llvm.org/get_started.html<br>
-• MinGW: https://www.mingw-w64.org/downloads/<br><br>
+[CHAR] GCC/G++: https://gcc.gnu.org/install/<br>
+[CHAR] Clang/Clang++: https://clang.llvm.org/get_started.html<br>
+[CHAR] MinGW: https://www.mingw-w64.org/downloads/<br><br>
 <b>Other Languages:</b><br>
-• Node.js: https://nodejs.org/<br>
-• Python: https://www.python.org/downloads/<br>
-• Java JDK: https://adoptium.net/<br>
-• .NET SDK: https://dotnet.microsoft.com/download<br><br>
+[CHAR] Node.js: https://nodejs.org/<br>
+[CHAR] Python: https://www.python.org/downloads/<br>
+[CHAR] Java JDK: https://adoptium.net/<br>
+[CHAR] .NET SDK: https://dotnet.microsoft.com/download<br><br>
 <b>IDE Extensions:</b><br>
-• VS Code: https://code.visualstudio.com/<br>
-• IntelliJ: https://www.jetbrains.com/<br><br>
+[CHAR] VS Code: https://code.visualstudio.com/<br>
+[CHAR] IntelliJ: https://www.jetbrains.com/<br><br>
 After installation, run 'detect-compilers' to configure.<br>`;
                 output.scrollTop = output.scrollHeight;
             }
@@ -835,15 +835,15 @@ After installation, run 'detect-compilers' to configure.<br>`;
                 const output = document.getElementById('terminalOutput');
                 output.innerHTML += `Compiler Configuration:<br><br>
 To configure compiler paths:<br>
-1. Go to Settings (⚙️ button)<br>
+1. Go to Settings ([CHAR][CHAR] button)<br>
 2. Select "Compiler Paths"<br>
 3. Set paths for each compiler<br>
 4. Save configuration<br><br>
 Example paths:<br>
-• GCC: C:\\mingw64\\bin\\gcc.exe<br>
-• G++: C:\\mingw64\\bin\\g++.exe<br>
-• Node.js: C:\\Program Files\\nodejs\\node.exe<br>
-• Python: C:\\Python39\\python.exe<br>`;
+[CHAR] GCC: C:\\mingw64\\bin\\gcc.exe<br>
+[CHAR] G++: C:\\mingw64\\bin\\g++.exe<br>
+[CHAR] Node.js: C:\\Program Files\\nodejs\\node.exe<br>
+[CHAR] Python: C:\\Python39\\python.exe<br>`;
                 output.scrollTop = output.scrollHeight;
             }
 
@@ -865,14 +865,14 @@ Example paths:<br>
                     const result = await response.json();
                     
                     if (result.success) {
-                        output.innerHTML += '✓ Build successful!<br>';
+                        output.innerHTML += '[CHAR] Build successful!<br>';
                         output.innerHTML += `Output: ${result.data.output}<br>`;
                     } else {
-                        output.innerHTML += '✗ Build failed!<br>';
+                        output.innerHTML += '[CHAR] Build failed!<br>';
                         output.innerHTML += `Errors: ${result.data.errors.join('<br>')}<br>`;
                     }
                 } catch (error) {
-                    output.innerHTML += `✗ Build error: ${error.message}<br>`;
+                    output.innerHTML += `[CHAR] Build error: ${error.message}<br>`;
                 }
                 
                 output.scrollTop = output.scrollHeight;
@@ -895,14 +895,14 @@ Example paths:<br>
                     const result = await response.json();
                     
                     if (result.success) {
-                        output.innerHTML += '✓ Execution successful!<br>';
+                        output.innerHTML += '[CHAR] Execution successful!<br>';
                         output.innerHTML += `Output: ${result.data.execution.output}<br>`;
                     } else {
-                        output.innerHTML += '✗ Execution failed!<br>';
+                        output.innerHTML += '[CHAR] Execution failed!<br>';
                         output.innerHTML += `Errors: ${result.data.execution.errors.join('<br>')}<br>`;
                     }
                 } catch (error) {
-                    output.innerHTML += `✗ Execution error: ${error.message}<br>`;
+                    output.innerHTML += `[CHAR] Execution error: ${error.message}<br>`;
                 }
                 
                 output.scrollTop = output.scrollHeight;
@@ -1001,7 +1001,7 @@ Example paths:<br>
             
             modal.innerHTML = `
                 <div style="background: #2d2d30; border-radius: 8px; padding: 20px; width: 600px; max-height: 80vh; overflow-y: auto;">
-                    <h2 style="color: #ffffff; margin-bottom: 20px;">⚙️ RawrZ IDE Settings</h2>
+                    <h2 style="color: #ffffff; margin-bottom: 20px;">[CHAR][CHAR] RawrZ IDE Settings</h2>
                     
                     <div style="margin-bottom: 20px;">
                         <h3 style="color: #ffd700; margin-bottom: 10px;">Editor Settings</h3>

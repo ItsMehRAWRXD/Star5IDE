@@ -7,15 +7,15 @@ Write-Host ""
 # Check if doctl is installed
 try {
     $doctlVersion = doctl version
-    Write-Host "✅ doctl found: $doctlVersion" -ForegroundColor Green
+    Write-Host "[OK] doctl found: $doctlVersion" -ForegroundColor Green
 } catch {
-    Write-Host "❌ doctl not found. Please install doctl CLI first." -ForegroundColor Red
+    Write-Host "[ERROR] doctl not found. Please install doctl CLI first." -ForegroundColor Red
     Write-Host "Download from: https://github.com/digitalocean/doctl/releases" -ForegroundColor Yellow
     exit 1
 }
 
 Write-Host ""
-Write-Host "🚀 Creating RawrZ Security Platform app..." -ForegroundColor Yellow
+Write-Host "[START] Creating RawrZ Security Platform app..." -ForegroundColor Yellow
 
 # Create app spec file
 $appSpec = @"
@@ -49,10 +49,10 @@ services:
 
 # Write app spec to file
 $appSpec | Out-File -FilePath "app-spec.yaml" -Encoding UTF8
-Write-Host "✅ App spec created: app-spec.yaml" -ForegroundColor Green
+Write-Host "[OK] App spec created: app-spec.yaml" -ForegroundColor Green
 
 Write-Host ""
-Write-Host "🔧 Creating app on DigitalOcean..." -ForegroundColor Yellow
+Write-Host "[CHAR][CHAR] Creating app on DigitalOcean..." -ForegroundColor Yellow
 
 try {
     # Create the app

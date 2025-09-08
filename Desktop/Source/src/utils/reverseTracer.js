@@ -25,7 +25,7 @@ class ReverseTracer {
     }
 
     initializeTracing() {
-        logger.info('🔍 Reverse Tracer initialized - monitoring for malformities');
+        logger.info('[SEARCH] Reverse Tracer initialized - monitoring for malformities');
         this.startGlobalMonitoring();
     }
 
@@ -68,8 +68,8 @@ class ReverseTracer {
         for (const [patternName, pattern] of Object.entries(this.knownPatterns)) {
             if (pattern.test(output)) {
                 this.recordCorruption(source, output, null, patternName);
-                logger.error(`🚨 MALFORMITY DETECTED: ${patternName} in ${source}`);
-                logger.error(`🚨 Content: ${output}`);
+                logger.error(`[ALERT] MALFORMITY DETECTED: ${patternName} in ${source}`);
+                logger.error(`[ALERT] Content: ${output}`);
             }
         }
 
@@ -121,7 +121,7 @@ class ReverseTracer {
         }
         this.malformityPatterns.get(patternType).push(corruptionEvent);
 
-        logger.error(`🚨 CORRUPTION RECORDED: ${patternType} from ${source}`);
+        logger.error(`[ALERT] CORRUPTION RECORDED: ${patternType} from ${source}`);
         
         // Auto-trace if critical pattern
         if (['ROE_FONT_CORRUPTION', 'MENU_CORRUPTION'].includes(patternType)) {
@@ -131,13 +131,13 @@ class ReverseTracer {
 
     // Auto-trace corruption to find origin
     async autoTraceCorruption(corruptionEvent) {
-        logger.info(`🔍 AUTO-TRACING: ${corruptionEvent.patternType}`);
+        logger.info(`[SEARCH] AUTO-TRACING: ${corruptionEvent.patternType}`);
         
         // Check recent operations
         const recentOps = this.operationChain.slice(-10);
         for (const op of recentOps) {
             if (this.isOperationSuspicious(op, corruptionEvent)) {
-                logger.error(`🎯 SUSPICIOUS OPERATION FOUND: ${op.type} - ${op.description}`);
+                logger.error(`[TARGET] SUSPICIOUS OPERATION FOUND: ${op.type} - ${op.description}`);
                 await this.deepTraceOperation(op);
             }
         }
@@ -159,14 +159,14 @@ class ReverseTracer {
 
     // Deep trace operation
     async deepTraceOperation(operation) {
-        logger.info(`🔍 DEEP TRACING: ${operation.type}`);
+        logger.info(`[SEARCH] DEEP TRACING: ${operation.type}`);
         
         try {
             // Check input data
             if (operation.inputData) {
                 const inputCorruption = this.detectEncodingCorruption(operation.inputData);
                 if (inputCorruption) {
-                    logger.error(`🎯 INPUT CORRUPTION FOUND in ${operation.type}`);
+                    logger.error(`[TARGET] INPUT CORRUPTION FOUND in ${operation.type}`);
                     this.recordCorruption('deepTrace', operation.inputData, null, 'INPUT_CORRUPTION');
                 }
             }
@@ -175,7 +175,7 @@ class ReverseTracer {
             if (operation.outputData) {
                 const outputCorruption = this.detectEncodingCorruption(operation.outputData);
                 if (outputCorruption) {
-                    logger.error(`🎯 OUTPUT CORRUPTION FOUND in ${operation.type}`);
+                    logger.error(`[TARGET] OUTPUT CORRUPTION FOUND in ${operation.type}`);
                     this.recordCorruption('deepTrace', operation.outputData, null, 'OUTPUT_CORRUPTION');
                 }
             }
@@ -188,11 +188,11 @@ class ReverseTracer {
                     operation.type
                 );
                 if (transformationIssue) {
-                    logger.error(`🎯 TRANSFORMATION ISSUE: ${transformationIssue}`);
+                    logger.error(`[TARGET] TRANSFORMATION ISSUE: ${transformationIssue}`);
                 }
             }
         } catch (error) {
-            logger.error(`❌ Deep trace failed: ${error.message}`);
+            logger.error(`[ERROR] Deep trace failed: ${error.message}`);
         }
     }
 
@@ -259,7 +259,7 @@ class ReverseTracer {
             if (snapshot.timestamp > Date.now() - 60000) { // Last minute
                 const corruption = this.detectEncodingCorruption(snapshot.data);
                 if (corruption) {
-                    logger.error(`🎯 SNAPSHOT CORRUPTION: ${snapshotId}`);
+                    logger.error(`[TARGET] SNAPSHOT CORRUPTION: ${snapshotId}`);
                     this.recordCorruption('snapshotCheck', snapshot.data, null, 'SNAPSHOT_CORRUPTION');
                 }
             }
@@ -355,7 +355,7 @@ class ReverseTracer {
         const filepath = path.join(__dirname, '../../logs', filename);
         
         await fs.writeFile(filepath, JSON.stringify(report, null, 2));
-        logger.info(`📊 Corruption report exported: ${filepath}`);
+        logger.info(`[STATUS] Corruption report exported: ${filepath}`);
         
         return filepath;
     }

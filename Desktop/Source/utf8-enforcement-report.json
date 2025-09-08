@@ -1,0 +1,3283 @@
+{
+  "timestamp": "2025-09-08T17:49:02.337Z",
+  "scannedFiles": 235,
+  "violations": [
+    {
+      "file": "src\\app.js",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\udd10"
+          ],
+          "count": 2,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🔐"
+          ],
+          "count": 1,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.665Z"
+    },
+    {
+      "file": "src\\engines\\dual-crypto-engine.js",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\udd25",
+            "\ud83d",
+            "\udd25",
+            "\ud83d",
+            "\udd25"
+          ],
+          "count": 6,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🔥",
+            "🔥",
+            "🔥"
+          ],
+          "count": 3,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.668Z"
+    },
+    {
+      "file": "src\\utils\\chatterbox.js",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "→"
+          ],
+          "count": 1,
+          "severity": "CRITICAL"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.673Z"
+    },
+    {
+      "file": "src\\utils\\dataIntegrity.js",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "Γ",
+            "£",
+            "à",
+            "ÿ",
+            "Γ",
+            "£",
+            "à",
+            "≡",
+            "ƒ",
+            "Ä"
+          ],
+          "count": 15,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "CORRUPTED_CHARS",
+          "pattern": "/Γ£[à-ÿ]|≡ƒ[Ä-ÿ]/g",
+          "matches": [
+            "Γ£à",
+            "≡ƒÄ"
+          ],
+          "count": 2,
+          "severity": "CRITICAL"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.674Z"
+    },
+    {
+      "file": "src\\utils\\ircBot.js",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "→",
+            "\ud83d",
+            "\udc93",
+            "\ud83d",
+            "\udca5",
+            "\ud83d",
+            "\udcc8",
+            "•",
+            "•",
+            "•"
+          ],
+          "count": 11,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "💓",
+            "💥",
+            "📈"
+          ],
+          "count": 3,
+          "severity": "HIGH"
+        },
+        {
+          "type": "UNICODE_CONTROL",
+          "pattern": "/[\\u2000-\\u206F\\u2E00-\\u2E7F\\u3000-\\u303F]/g",
+          "matches": [
+            "•",
+            "•",
+            "•",
+            "•"
+          ],
+          "count": 4,
+          "severity": "MEDIUM"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.675Z"
+    },
+    {
+      "file": "src\\utils\\reverseTracePipeline.js",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83c",
+            "\udfaf",
+            "\ud83c",
+            "\udfaf",
+            "\ud83c",
+            "\udfaf",
+            "\ud83c",
+            "\udfaf",
+            "\ud83c",
+            "\udfaf"
+          ],
+          "count": 12,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🎯",
+            "🎯",
+            "🎯",
+            "🎯",
+            "🎯",
+            "🎯"
+          ],
+          "count": 6,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.676Z"
+    },
+    {
+      "file": "src\\utils\\reverseTracer.js",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83c",
+            "\udfaf",
+            "\ud83c",
+            "\udfaf",
+            "\ud83c",
+            "\udfaf",
+            "\ud83c",
+            "\udfaf",
+            "\ud83c",
+            "\udfaf"
+          ],
+          "count": 10,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🎯",
+            "🎯",
+            "🎯",
+            "🎯",
+            "🎯"
+          ],
+          "count": 5,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.677Z"
+    },
+    {
+      "file": "public\\admin-panel.html",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\udcb3",
+            "\ud83d",
+            "\udd10",
+            "\ud83d",
+            "\udcb3",
+            "⚡",
+            "\ud83d",
+            "\udd12",
+            "\ud83d"
+          ],
+          "count": 18,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "💳",
+            "🔐",
+            "💳",
+            "⚡",
+            "🔒",
+            "💾",
+            "🔐",
+            "💳",
+            "⚡",
+            "🔒"
+          ],
+          "count": 10,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.677Z"
+    },
+    {
+      "file": "public\\custom-ide.html",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\udcc1",
+            "\ud83d",
+            "\udcc4",
+            "\ud83d",
+            "\udcc4",
+            "\ud83d",
+            "\udcc4",
+            "\ud83d",
+            "\udcc4"
+          ],
+          "count": 66,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "📁",
+            "📄",
+            "📄",
+            "📄",
+            "📄",
+            "📄",
+            "📂",
+            "💾",
+            "💾",
+            "🔨"
+          ],
+          "count": 28,
+          "severity": "HIGH"
+        },
+        {
+          "type": "UNICODE_CONTROL",
+          "pattern": "/[\\u2000-\\u206F\\u2E00-\\u2E7F\\u3000-\\u303F]/g",
+          "matches": [
+            "•",
+            "•",
+            "•",
+            "•",
+            "•",
+            "•",
+            "•",
+            "•",
+            "•",
+            "•"
+          ],
+          "count": 13,
+          "severity": "MEDIUM"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.679Z"
+    },
+    {
+      "file": "public\\index.html",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\udd10",
+            "\ud83d",
+            "\udcbc",
+            "\ud83c",
+            "\udfae",
+            "\ud83d",
+            "\udd27",
+            "⚙",
+            "️"
+          ],
+          "count": 12,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🔐",
+            "💼",
+            "🎮",
+            "🔧",
+            "⚙",
+            "💻"
+          ],
+          "count": 6,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.680Z"
+    },
+    {
+      "file": "public\\monitor.html",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "⏸",
+            "️",
+            "\ud83d",
+            "\uddd1",
+            "️",
+            "\ud83d",
+            "\udda5",
+            "️",
+            "\ud83d",
+            "\udcbe"
+          ],
+          "count": 15,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🗑",
+            "🖥",
+            "💾",
+            "⚡",
+            "🏥",
+            "📋"
+          ],
+          "count": 6,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.680Z"
+    },
+    {
+      "file": "public\\pricing.html",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\udd10",
+            "©"
+          ],
+          "count": 3,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🔐"
+          ],
+          "count": 1,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.681Z"
+    },
+    {
+      "file": "scripts\\build-packages.js",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83c",
+            "\udfaf",
+            "\ud83d",
+            "\udcc1",
+            "\ud83d",
+            "\udccb",
+            "\ud83d",
+            "\udd39",
+            "\ud83c",
+            "\udf89"
+          ],
+          "count": 12,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🎯",
+            "📁",
+            "📋",
+            "🔹",
+            "🎉",
+            "📁"
+          ],
+          "count": 6,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.682Z"
+    },
+    {
+      "file": "scripts\\deploy-digitalocean.ps1",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\ude80",
+            "\ud83d",
+            "\udd0d",
+            "❌",
+            "❌",
+            "✅",
+            "\ud83d",
+            "\udd17",
+            "✅"
+          ],
+          "count": 36,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🚀",
+            "🔍",
+            "❌",
+            "❌",
+            "✅",
+            "🔗",
+            "✅",
+            "❌",
+            "❌",
+            "🌐"
+          ],
+          "count": 23,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.683Z"
+    },
+    {
+      "file": "scripts\\deploy-digitalocean.sh",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\ude80",
+            "\ud83c",
+            "\udf89"
+          ],
+          "count": 4,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🚀",
+            "🎉"
+          ],
+          "count": 2,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.683Z"
+    },
+    {
+      "file": "scripts\\deploy-panel.sh",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\ude80",
+            "✅",
+            "\ud83c",
+            "\udf89"
+          ],
+          "count": 5,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🚀",
+            "✅",
+            "🎉"
+          ],
+          "count": 3,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.684Z"
+    },
+    {
+      "file": "scripts\\git-freeze-handler.ps1",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\udd27",
+            "✅",
+            "⏰",
+            "❌",
+            "\ud83d",
+            "\udcc1",
+            "❌",
+            "❌",
+            "✅"
+          ],
+          "count": 10,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🔧",
+            "✅",
+            "❌",
+            "📁",
+            "❌",
+            "❌",
+            "✅"
+          ],
+          "count": 7,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.684Z"
+    },
+    {
+      "file": "scripts\\healthcheck-utf8.ps1",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "世",
+            "界",
+            "\ud83c",
+            "\udf0d",
+            "Ñ",
+            "ë"
+          ],
+          "count": 6,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🌍"
+          ],
+          "count": 1,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.685Z"
+    },
+    {
+      "file": "scripts\\instant-git-check.ps1",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "⚡",
+            "✅",
+            "❌",
+            "⏰",
+            "❌",
+            "\ud83d",
+            "\udcc1",
+            "❌",
+            "✅"
+          ],
+          "count": 9,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "⚡",
+            "✅",
+            "❌",
+            "❌",
+            "📁",
+            "❌",
+            "✅"
+          ],
+          "count": 7,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.686Z"
+    },
+    {
+      "file": "scripts\\safe-git-check.ps1",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "✅",
+            "❌",
+            "⏰",
+            "⚠",
+            "️",
+            "\ud83d",
+            "\udd27",
+            "❌",
+            "⏳",
+            "❌"
+          ],
+          "count": 20,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "✅",
+            "❌",
+            "⚠",
+            "🔧",
+            "❌",
+            "❌",
+            "🔧",
+            "🔄",
+            "✅",
+            "❌"
+          ],
+          "count": 13,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.687Z"
+    },
+    {
+      "file": "packages\\RawrZ-Basic-Security\\public\\admin-panel.html",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\udee1",
+            "️",
+            "\ud83d",
+            "\udcb3",
+            "\ud83d",
+            "\udd10",
+            "\ud83d",
+            "\udee1",
+            "️"
+          ],
+          "count": 35,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🛡",
+            "💳",
+            "🔐",
+            "🛡",
+            "💳",
+            "🔍",
+            "⚡",
+            "🔒",
+            "🔄",
+            "💾"
+          ],
+          "count": 17,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.688Z"
+    },
+    {
+      "file": "packages\\RawrZ-Basic-Security\\public\\custom-ide.html",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\udcc1",
+            "\ud83d",
+            "\udcc4",
+            "\ud83d",
+            "\udcc4",
+            "\ud83d",
+            "\udcc4",
+            "\ud83d",
+            "\udcc4"
+          ],
+          "count": 68,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "📁",
+            "📄",
+            "📄",
+            "📄",
+            "📄",
+            "📄",
+            "📂",
+            "💾",
+            "💾",
+            "🔨"
+          ],
+          "count": 29,
+          "severity": "HIGH"
+        },
+        {
+          "type": "UNICODE_CONTROL",
+          "pattern": "/[\\u2000-\\u206F\\u2E00-\\u2E7F\\u3000-\\u303F]/g",
+          "matches": [
+            "•",
+            "•",
+            "•",
+            "•",
+            "•",
+            "•",
+            "•",
+            "•",
+            "•",
+            "•"
+          ],
+          "count": 13,
+          "severity": "MEDIUM"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.689Z"
+    },
+    {
+      "file": "packages\\RawrZ-Basic-Security\\public\\index.html",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\ude80",
+            "\ud83d",
+            "\udd10",
+            "\ud83d",
+            "\udee1",
+            "️",
+            "\ud83d",
+            "\udcbc",
+            "\ud83c"
+          ],
+          "count": 21,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🚀",
+            "🔐",
+            "🛡",
+            "💼",
+            "🎮",
+            "🔧",
+            "⚙",
+            "💻",
+            "🔍",
+            "🔗"
+          ],
+          "count": 10,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.690Z"
+    },
+    {
+      "file": "packages\\RawrZ-Basic-Security\\public\\monitor.html",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\udd0d",
+            "\ud83d",
+            "\udd04",
+            "⏸",
+            "️",
+            "\ud83d",
+            "\udcca",
+            "\ud83d",
+            "\uddd1"
+          ],
+          "count": 21,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🔍",
+            "🔄",
+            "📊",
+            "🗑",
+            "🖥",
+            "💾",
+            "⚡",
+            "🏥",
+            "📋"
+          ],
+          "count": 9,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.691Z"
+    },
+    {
+      "file": "packages\\RawrZ-Basic-Security\\public\\pricing.html",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\udd10",
+            "©"
+          ],
+          "count": 3,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🔐"
+          ],
+          "count": 1,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.692Z"
+    },
+    {
+      "file": "packages\\RawrZ-Basic-Security\\src\\app.js",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "✅",
+            "❌",
+            "❌",
+            "\ud83d",
+            "\udd04",
+            "\ud83d",
+            "\udce6",
+            "\ud83d",
+            "\udce6",
+            "❌"
+          ],
+          "count": 73,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "✅",
+            "❌",
+            "❌",
+            "🔄",
+            "📦",
+            "📦",
+            "❌",
+            "⚠",
+            "🔗",
+            "✅"
+          ],
+          "count": 47,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.692Z"
+    },
+    {
+      "file": "packages\\RawrZ-Basic-Security\\src\\engines\\camellia-assembly.js",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "✅",
+            "❌",
+            "⚠",
+            "️",
+            "✅",
+            "⚠",
+            "️"
+          ],
+          "count": 7,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "✅",
+            "❌",
+            "⚠",
+            "✅",
+            "⚠"
+          ],
+          "count": 5,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.694Z"
+    },
+    {
+      "file": "packages\\RawrZ-Basic-Security\\src\\engines\\dual-crypto-engine.js",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "✅",
+            "✅",
+            "❌",
+            "\ud83d",
+            "\udd25",
+            "\ud83d",
+            "\udd04",
+            "\ud83d",
+            "\udd25",
+            "\ud83d"
+          ],
+          "count": 21,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "✅",
+            "✅",
+            "❌",
+            "🔥",
+            "🔄",
+            "🔥",
+            "🔄",
+            "🔥",
+            "🔄",
+            "⚠"
+          ],
+          "count": 13,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.695Z"
+    },
+    {
+      "file": "packages\\RawrZ-Basic-Security\\src\\engines\\rawrz-engine.js",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\udd04",
+            "✅",
+            "⚠",
+            "️"
+          ],
+          "count": 5,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🔄",
+            "✅",
+            "⚠"
+          ],
+          "count": 3,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.696Z"
+    },
+    {
+      "file": "packages\\RawrZ-Basic-Security\\src\\routes\\crypto.js",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\udd04",
+            "✅",
+            "\ud83d",
+            "\udd04",
+            "✅"
+          ],
+          "count": 6,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🔄",
+            "✅",
+            "🔄",
+            "✅"
+          ],
+          "count": 4,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.698Z"
+    },
+    {
+      "file": "packages\\RawrZ-Enterprise-Security\\package.json",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "✅",
+            "✅"
+          ],
+          "count": 2,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "✅",
+            "✅"
+          ],
+          "count": 2,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.700Z"
+    },
+    {
+      "file": "packages\\RawrZ-Enterprise-Security\\public\\admin-panel.html",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\udee1",
+            "️",
+            "\ud83d",
+            "\udcb3",
+            "\ud83d",
+            "\udd10",
+            "\ud83d",
+            "\udee1",
+            "️"
+          ],
+          "count": 35,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🛡",
+            "💳",
+            "🔐",
+            "🛡",
+            "💳",
+            "🔍",
+            "⚡",
+            "🔒",
+            "🔄",
+            "💾"
+          ],
+          "count": 17,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.701Z"
+    },
+    {
+      "file": "packages\\RawrZ-Enterprise-Security\\public\\custom-ide.html",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\udcc1",
+            "\ud83d",
+            "\udcc4",
+            "\ud83d",
+            "\udcc4",
+            "\ud83d",
+            "\udcc4",
+            "\ud83d",
+            "\udcc4"
+          ],
+          "count": 68,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "📁",
+            "📄",
+            "📄",
+            "📄",
+            "📄",
+            "📄",
+            "📂",
+            "💾",
+            "💾",
+            "🔨"
+          ],
+          "count": 29,
+          "severity": "HIGH"
+        },
+        {
+          "type": "UNICODE_CONTROL",
+          "pattern": "/[\\u2000-\\u206F\\u2E00-\\u2E7F\\u3000-\\u303F]/g",
+          "matches": [
+            "•",
+            "•",
+            "•",
+            "•",
+            "•",
+            "•",
+            "•",
+            "•",
+            "•",
+            "•"
+          ],
+          "count": 13,
+          "severity": "MEDIUM"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.702Z"
+    },
+    {
+      "file": "packages\\RawrZ-Enterprise-Security\\public\\index.html",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\ude80",
+            "\ud83d",
+            "\udd10",
+            "\ud83d",
+            "\udee1",
+            "️",
+            "\ud83d",
+            "\udcbc",
+            "\ud83c"
+          ],
+          "count": 21,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🚀",
+            "🔐",
+            "🛡",
+            "💼",
+            "🎮",
+            "🔧",
+            "⚙",
+            "💻",
+            "🔍",
+            "🔗"
+          ],
+          "count": 10,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.703Z"
+    },
+    {
+      "file": "packages\\RawrZ-Enterprise-Security\\public\\monitor.html",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\udd0d",
+            "\ud83d",
+            "\udd04",
+            "⏸",
+            "️",
+            "\ud83d",
+            "\udcca",
+            "\ud83d",
+            "\uddd1"
+          ],
+          "count": 21,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🔍",
+            "🔄",
+            "📊",
+            "🗑",
+            "🖥",
+            "💾",
+            "⚡",
+            "🏥",
+            "📋"
+          ],
+          "count": 9,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.704Z"
+    },
+    {
+      "file": "packages\\RawrZ-Enterprise-Security\\public\\pricing.html",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\udd10",
+            "©"
+          ],
+          "count": 3,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🔐"
+          ],
+          "count": 1,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.704Z"
+    },
+    {
+      "file": "packages\\RawrZ-Enterprise-Security\\src\\app.js",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "✅",
+            "❌",
+            "❌",
+            "\ud83d",
+            "\udd04",
+            "\ud83d",
+            "\udce6",
+            "\ud83d",
+            "\udce6",
+            "❌"
+          ],
+          "count": 73,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "✅",
+            "❌",
+            "❌",
+            "🔄",
+            "📦",
+            "📦",
+            "❌",
+            "⚠",
+            "🔗",
+            "✅"
+          ],
+          "count": 47,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.705Z"
+    },
+    {
+      "file": "packages\\RawrZ-Enterprise-Security\\src\\engines\\camellia-assembly.js",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "✅",
+            "❌",
+            "⚠",
+            "️",
+            "✅",
+            "⚠",
+            "️"
+          ],
+          "count": 7,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "✅",
+            "❌",
+            "⚠",
+            "✅",
+            "⚠"
+          ],
+          "count": 5,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.707Z"
+    },
+    {
+      "file": "packages\\RawrZ-Enterprise-Security\\src\\engines\\dual-crypto-engine.js",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "✅",
+            "✅",
+            "❌",
+            "\ud83d",
+            "\udd25",
+            "\ud83d",
+            "\udd04",
+            "\ud83d",
+            "\udd25",
+            "\ud83d"
+          ],
+          "count": 21,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "✅",
+            "✅",
+            "❌",
+            "🔥",
+            "🔄",
+            "🔥",
+            "🔄",
+            "🔥",
+            "🔄",
+            "⚠"
+          ],
+          "count": 13,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.708Z"
+    },
+    {
+      "file": "packages\\RawrZ-Enterprise-Security\\src\\engines\\rawrz-engine.js",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\udd04",
+            "✅",
+            "⚠",
+            "️"
+          ],
+          "count": 5,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🔄",
+            "✅",
+            "⚠"
+          ],
+          "count": 3,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.709Z"
+    },
+    {
+      "file": "packages\\RawrZ-Enterprise-Security\\src\\routes\\crypto.js",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\udd04",
+            "✅",
+            "\ud83d",
+            "\udd04",
+            "✅"
+          ],
+          "count": 6,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🔄",
+            "✅",
+            "🔄",
+            "✅"
+          ],
+          "count": 4,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.711Z"
+    },
+    {
+      "file": "packages\\README.md",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83c",
+            "\udfaf",
+            "\ud83d",
+            "\udd39",
+            "\ud83d",
+            "\udd39",
+            "\ud83d",
+            "\udd39",
+            "\ud83d",
+            "\udd39"
+          ],
+          "count": 26,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🎯",
+            "🔹",
+            "🔹",
+            "🔹",
+            "🔹",
+            "🚀",
+            "🔧",
+            "📊",
+            "🛡",
+            "✅"
+          ],
+          "count": 16,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.713Z"
+    },
+    {
+      "file": "netlify\\functions\\api.js",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\udd10"
+          ],
+          "count": 2,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🔐"
+          ],
+          "count": 1,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.713Z"
+    },
+    {
+      "file": "AUTO-CREATE-APP.ps1",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "✅",
+            "❌",
+            "\ud83d",
+            "\ude80",
+            "✅",
+            "\ud83d",
+            "\udd27"
+          ],
+          "count": 7,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "✅",
+            "❌",
+            "🚀",
+            "✅",
+            "🔧"
+          ],
+          "count": 5,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.715Z"
+    },
+    {
+      "file": "BYPASS-GIT-DEPLOY.bat",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "✅",
+            "\ud83d",
+            "\ude80",
+            "\ud83d",
+            "\udccb",
+            "\ud83c",
+            "\udfaf"
+          ],
+          "count": 7,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "✅",
+            "🚀",
+            "📋",
+            "🎯"
+          ],
+          "count": 4,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.716Z"
+    },
+    {
+      "file": "BYPASS-GIT-DEPLOY.ps1",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "✅",
+            "❌",
+            "\ud83d",
+            "\ude80",
+            "\ud83d",
+            "\udccb",
+            "\ud83c",
+            "\udfaf"
+          ],
+          "count": 8,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "✅",
+            "❌",
+            "🚀",
+            "📋",
+            "🎯"
+          ],
+          "count": 5,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.716Z"
+    },
+    {
+      "file": "check-utf8-only.js",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "✅",
+            "❌",
+            "⚠",
+            "️",
+            "\ud83d",
+            "\udea8",
+            "\ud83d",
+            "\udd04",
+            "\ud83d",
+            "\udce6"
+          ],
+          "count": 37,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "✅",
+            "❌",
+            "⚠",
+            "🚨",
+            "🔄",
+            "📦",
+            "🔗",
+            "🚀",
+            "📊",
+            "📝"
+          ],
+          "count": 18,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.717Z"
+    },
+    {
+      "file": "cleanup-and-deploy.js",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\ude80",
+            "✅",
+            "\ud83d",
+            "\udcca",
+            "\ud83d",
+            "\udd0d",
+            "\ud83d",
+            "\udcdd",
+            "❌"
+          ],
+          "count": 10,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🚀",
+            "✅",
+            "📊",
+            "🔍",
+            "📝",
+            "❌"
+          ],
+          "count": 6,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.718Z"
+    },
+    {
+      "file": "cleanup-src.ps1",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83e",
+            "\uddf9",
+            "\ud83d",
+            "\udcc1",
+            "❌",
+            "\ud83d",
+            "\udcca",
+            "\ud83d",
+            "\uddd1",
+            "️"
+          ],
+          "count": 19,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🧹",
+            "📁",
+            "❌",
+            "📊",
+            "🗑",
+            "✅",
+            "📊",
+            "📄",
+            "🎯",
+            "⚠"
+          ],
+          "count": 10,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.718Z"
+    },
+    {
+      "file": "CORE-COMPONENTS-STATUS.md",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\udee1",
+            "️",
+            "✅",
+            "\ud83d",
+            "\udcca",
+            "✅",
+            "✅",
+            "✅",
+            "✅"
+          ],
+          "count": 211,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🛡",
+            "✅",
+            "📊",
+            "✅",
+            "✅",
+            "✅",
+            "✅",
+            "✅",
+            "✅",
+            "✅"
+          ],
+          "count": 194,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.719Z"
+    },
+    {
+      "file": "create-2-files.ps1",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\ude80",
+            "\ud83d",
+            "\udcc1",
+            "✅",
+            "❌",
+            "✅",
+            "\ud83d",
+            "\udcca",
+            "\ud83d"
+          ],
+          "count": 11,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🚀",
+            "📁",
+            "✅",
+            "❌",
+            "✅",
+            "📊",
+            "📄"
+          ],
+          "count": 7,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.719Z"
+    },
+    {
+      "file": "create-4-files.ps1",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\ude80",
+            "\ud83d",
+            "\udcc1",
+            "✅",
+            "❌",
+            "✅",
+            "\ud83d",
+            "\udcca",
+            "\ud83d"
+          ],
+          "count": 11,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🚀",
+            "📁",
+            "✅",
+            "❌",
+            "✅",
+            "📊",
+            "📄"
+          ],
+          "count": 7,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.720Z"
+    },
+    {
+      "file": "create-clean-deploy.ps1",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\ude80",
+            "\ud83d",
+            "\udcc1",
+            "✅",
+            "❌",
+            "✅",
+            "\ud83d",
+            "\udcca",
+            "\ud83d"
+          ],
+          "count": 13,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🚀",
+            "📁",
+            "✅",
+            "❌",
+            "✅",
+            "📊",
+            "📄",
+            "🚫"
+          ],
+          "count": 8,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.720Z"
+    },
+    {
+      "file": "CREATE-DROPLET-MANUAL.md",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\udea8",
+            "✅",
+            "\ud83c",
+            "\udfaf",
+            "⚡",
+            "\ud83d",
+            "\ude80"
+          ],
+          "count": 8,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🚨",
+            "✅",
+            "🎯",
+            "⚡",
+            "🚀"
+          ],
+          "count": 5,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.721Z"
+    },
+    {
+      "file": "create-essential-deploy.ps1",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\ude80",
+            "\ud83d",
+            "\udcc1",
+            "\ud83d",
+            "\udce6",
+            "✅",
+            "✅",
+            "❌",
+            "✅"
+          ],
+          "count": 24,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🚀",
+            "📁",
+            "📦",
+            "✅",
+            "✅",
+            "❌",
+            "✅",
+            "📁",
+            "📊",
+            "📄"
+          ],
+          "count": 12,
+          "severity": "HIGH"
+        },
+        {
+          "type": "UNICODE_CONTROL",
+          "pattern": "/[\\u2000-\\u206F\\u2E00-\\u2E7F\\u3000-\\u303F]/g",
+          "matches": [
+            "•",
+            "•",
+            "•",
+            "•"
+          ],
+          "count": 4,
+          "severity": "MEDIUM"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.721Z"
+    },
+    {
+      "file": "create-minimal-deploy.ps1",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\ude80",
+            "\ud83d",
+            "\udcc1",
+            "\ud83d",
+            "\udce6",
+            "✅",
+            "✅",
+            "⚠",
+            "️"
+          ],
+          "count": 19,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🚀",
+            "📁",
+            "📦",
+            "✅",
+            "✅",
+            "⚠",
+            "📊",
+            "📈",
+            "✅",
+            "📁"
+          ],
+          "count": 11,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.722Z"
+    },
+    {
+      "file": "create-production-packages.ps1",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83c",
+            "\udfaf",
+            "\ud83d",
+            "\udce6",
+            "✅",
+            "\ud83d",
+            "\udce6",
+            "\ud83c",
+            "\udf89",
+            "\ud83d"
+          ],
+          "count": 17,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🎯",
+            "📦",
+            "✅",
+            "📦",
+            "🎉",
+            "📁",
+            "📋",
+            "📦",
+            "🚀"
+          ],
+          "count": 9,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.723Z"
+    },
+    {
+      "file": "delete-bloat.ps1",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\uddd1",
+            "️",
+            "\ud83d",
+            "\udcc1",
+            "\ud83d",
+            "\uddd1",
+            "️",
+            "✅",
+            "❌"
+          ],
+          "count": 18,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🗑",
+            "📁",
+            "🗑",
+            "✅",
+            "❌",
+            "⚠",
+            "📊",
+            "🎯",
+            "⚠"
+          ],
+          "count": 9,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.723Z"
+    },
+    {
+      "file": "deploy-to-droplet.bat",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\ude80",
+            "✅",
+            "\ud83c",
+            "\udf10"
+          ],
+          "count": 5,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🚀",
+            "✅",
+            "🌐"
+          ],
+          "count": 3,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.724Z"
+    },
+    {
+      "file": "DEPLOYMENT.md",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "┌",
+            "─",
+            "─",
+            "─",
+            "─",
+            "─",
+            "─",
+            "─",
+            "─",
+            "─"
+          ],
+          "count": 155,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "✅",
+            "🔧",
+            "📊",
+            "🔒",
+            "📈"
+          ],
+          "count": 5,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.724Z"
+    },
+    {
+      "file": "DIRECT-DROPLET-DEPLOY.ps1",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\ude80",
+            "\ud83d",
+            "\udce6",
+            "✅",
+            "❌",
+            "\ud83d",
+            "\udce4",
+            "✅",
+            "❌"
+          ],
+          "count": 19,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🚀",
+            "📦",
+            "✅",
+            "❌",
+            "📤",
+            "✅",
+            "❌",
+            "💡",
+            "🔧",
+            "❌"
+          ],
+          "count": 12,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.725Z"
+    },
+    {
+      "file": "fix-branch-structure.ps1",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\udd27",
+            "\ud83d",
+            "\udcc1",
+            "\ud83d",
+            "\udd04",
+            "⚠",
+            "️",
+            "✅",
+            "\ud83c"
+          ],
+          "count": 14,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🔧",
+            "📁",
+            "🔄",
+            "⚠",
+            "✅",
+            "🎉",
+            "📋",
+            "❌"
+          ],
+          "count": 8,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.726Z"
+    },
+    {
+      "file": "FIX-DOMAIN-ISSUES.md",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\udea8",
+            "✅",
+            "\ud83c",
+            "\udfaf",
+            "⚡",
+            "\ud83d",
+            "\ude80"
+          ],
+          "count": 8,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🚨",
+            "✅",
+            "🎯",
+            "⚡",
+            "🚀"
+          ],
+          "count": 5,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.726Z"
+    },
+    {
+      "file": "fix-utf8-violations.js",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "❌",
+            "❌",
+            "❌",
+            "❌",
+            "❌",
+            "❌",
+            "❌",
+            "❌",
+            "❌",
+            "❌"
+          ],
+          "count": 562,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "❌",
+            "❌",
+            "❌",
+            "❌",
+            "❌",
+            "❌",
+            "❌",
+            "❌",
+            "❌",
+            "❌"
+          ],
+          "count": 150,
+          "severity": "HIGH"
+        },
+        {
+          "type": "UNICODE_CONTROL",
+          "pattern": "/[\\u2000-\\u206F\\u2E00-\\u2E7F\\u3000-\\u303F]/g",
+          "matches": [
+            "•",
+            "•",
+            "•",
+            "•",
+            "•",
+            "•",
+            "•",
+            "•",
+            "•",
+            "•"
+          ],
+          "count": 34,
+          "severity": "MEDIUM"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:01.861Z"
+    },
+    {
+      "file": "MANUAL-CHECKLIST.txt",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "□",
+            "□",
+            "□",
+            "□",
+            "□",
+            "□",
+            "□",
+            "□",
+            "□",
+            "□"
+          ],
+          "count": 31,
+          "severity": "CRITICAL"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:02.300Z"
+    },
+    {
+      "file": "MANUAL-DEPLOY.md",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "→",
+            "→",
+            "✅",
+            "✅",
+            "✅",
+            "✅",
+            "✅",
+            "✅",
+            "\ud83d",
+            "\ude80"
+          ],
+          "count": 10,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "✅",
+            "✅",
+            "✅",
+            "✅",
+            "✅",
+            "✅",
+            "🚀"
+          ],
+          "count": 7,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:02.300Z"
+    },
+    {
+      "file": "MANUAL-ONLY-DEPLOY.md",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\udea8",
+            "✅",
+            "\ud83c",
+            "\udfaf",
+            "⚡",
+            "\ud83d",
+            "\ude80"
+          ],
+          "count": 8,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🚨",
+            "✅",
+            "🎯",
+            "⚡",
+            "🚀"
+          ],
+          "count": 5,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:02.301Z"
+    },
+    {
+      "file": "NETLIFY_DEPLOYMENT.md",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "✅",
+            "\ud83d",
+            "\ude80",
+            "\ud83d",
+            "\udd27",
+            "\ud83c",
+            "\udf10",
+            "\ud83d",
+            "\udd12",
+            "\ud83d"
+          ],
+          "count": 23,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "✅",
+            "🚀",
+            "🔧",
+            "🌐",
+            "🔒",
+            "💾",
+            "🧪",
+            "🚨",
+            "📱",
+            "🎯"
+          ],
+          "count": 12,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:02.302Z"
+    },
+    {
+      "file": "package.json",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "✅",
+            "✅"
+          ],
+          "count": 2,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "✅",
+            "✅"
+          ],
+          "count": 2,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:02.303Z"
+    },
+    {
+      "file": "PANEL-DEPLOYMENT.md",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83c",
+            "\udfaf",
+            "\ud83d",
+            "\ude80",
+            "\ud83d",
+            "\udcc1",
+            "├",
+            "─",
+            "─",
+            "└"
+          ],
+          "count": 46,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🎯",
+            "🚀",
+            "📁",
+            "🔧",
+            "🛡",
+            "🔍",
+            "📊",
+            "🔄",
+            "🚨",
+            "🎉"
+          ],
+          "count": 16,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:02.304Z"
+    },
+    {
+      "file": "PROJECT-STRUCTURE.md",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83c",
+            "\udfd7",
+            "️",
+            "\ud83d",
+            "\udcc1",
+            "├",
+            "─",
+            "─",
+            "\ud83d",
+            "\udcc1"
+          ],
+          "count": 128,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🏗",
+            "📁",
+            "📁",
+            "✅",
+            "📁",
+            "🤖",
+            "📁",
+            "🛡",
+            "📁",
+            "🔒"
+          ],
+          "count": 20,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:02.304Z"
+    },
+    {
+      "file": "QUICK-DEPLOY-GUIDE.md",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\ude80",
+            "✅",
+            "✅",
+            "✅",
+            "\ud83c",
+            "\udfaf",
+            "\ud83c",
+            "\udf10",
+            "\ud83d"
+          ],
+          "count": 24,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🚀",
+            "✅",
+            "✅",
+            "✅",
+            "🎯",
+            "🌐",
+            "🔧",
+            "📋",
+            "🎉",
+            "✅"
+          ],
+          "count": 15,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:02.305Z"
+    },
+    {
+      "file": "QUICK-DEPLOY.md",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "✅",
+            "✅",
+            "✅",
+            "✅",
+            "✅",
+            "✅",
+            "✅",
+            "✅",
+            "\ud83d",
+            "\udee1"
+          ],
+          "count": 11,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "✅",
+            "✅",
+            "✅",
+            "✅",
+            "✅",
+            "✅",
+            "✅",
+            "✅",
+            "🛡"
+          ],
+          "count": 9,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:02.306Z"
+    },
+    {
+      "file": "RAWRZ-COMPLETION-REPORT.md",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83c",
+            "\udf89",
+            "✅",
+            "\ud83c",
+            "\udfc6",
+            "✅",
+            "✅",
+            "✅",
+            "✅",
+            "✅"
+          ],
+          "count": 135,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🎉",
+            "✅",
+            "🏆",
+            "✅",
+            "✅",
+            "✅",
+            "✅",
+            "✅",
+            "✅",
+            "✅"
+          ],
+          "count": 106,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:02.306Z"
+    },
+    {
+      "file": "README.md",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "├",
+            "─",
+            "─",
+            "├",
+            "─",
+            "─",
+            "├",
+            "─",
+            "─",
+            "├"
+          ],
+          "count": 24,
+          "severity": "CRITICAL"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:02.307Z"
+    },
+    {
+      "file": "restart-rawrz.bat",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\udd04",
+            "\ud83d",
+            "\uded1",
+            "⏳",
+            "\ud83d",
+            "\ude80",
+            "✅",
+            "✅",
+            "\ud83c"
+          ],
+          "count": 14,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🔄",
+            "🛑",
+            "🚀",
+            "✅",
+            "✅",
+            "🌐",
+            "❌",
+            "🎉"
+          ],
+          "count": 8,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:02.308Z"
+    },
+    {
+      "file": "restart-rawrz.ps1",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\udd04",
+            "\ud83d",
+            "\uded1",
+            "✅",
+            "ℹ",
+            "️",
+            "❌",
+            "\ud83d",
+            "\ude80"
+          ],
+          "count": 24,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🔄",
+            "🛑",
+            "✅",
+            "❌",
+            "🚀",
+            "📁",
+            "🔄",
+            "✅",
+            "🌐",
+            "❌"
+          ],
+          "count": 14,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:02.309Z"
+    },
+    {
+      "file": "scan-entire-desktop.js",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\udcdd",
+            "\ud83d",
+            "\udd0d",
+            "\ud83d",
+            "\udee1",
+            "️",
+            "\ud83d",
+            "\udde3",
+            "️"
+          ],
+          "count": 27,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "📝",
+            "🔍",
+            "🛡",
+            "🗣",
+            "🤖",
+            "🌐",
+            "🔍",
+            "📊",
+            "📁",
+            "✅"
+          ],
+          "count": 13,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:02.309Z"
+    },
+    {
+      "file": "SCREENPILOT-DOMAIN-SETUP.md",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\udccb",
+            "\ud83d",
+            "\udea8",
+            "✅",
+            "\ud83c",
+            "\udfaf",
+            "⚡",
+            "\ud83d",
+            "\ude80"
+          ],
+          "count": 10,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "📋",
+            "🚨",
+            "✅",
+            "🎯",
+            "⚡",
+            "🚀"
+          ],
+          "count": 6,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:02.310Z"
+    },
+    {
+      "file": "SETUP.md",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "├",
+            "─",
+            "─",
+            "├",
+            "─",
+            "─",
+            "├",
+            "─",
+            "─",
+            "├"
+          ],
+          "count": 24,
+          "severity": "CRITICAL"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:02.311Z"
+    },
+    {
+      "file": "TEST-FILE-UPLOAD.md",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83e",
+            "\uddea",
+            "✅",
+            "✅",
+            "✅",
+            "✅",
+            "✅",
+            "\ud83c",
+            "\udfaf",
+            "⚡"
+          ],
+          "count": 15,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🧪",
+            "✅",
+            "✅",
+            "✅",
+            "✅",
+            "✅",
+            "🎯",
+            "⚡",
+            "🚀",
+            "🛡"
+          ],
+          "count": 10,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:02.311Z"
+    },
+    {
+      "file": "UNIFIED-STANDARDS.md",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83c",
+            "\udfc6",
+            "\ud83c",
+            "\udfaf",
+            "✅",
+            "✅",
+            "✅",
+            "✅",
+            "✅",
+            "✅"
+          ],
+          "count": 89,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🏆",
+            "🎯",
+            "✅",
+            "✅",
+            "✅",
+            "✅",
+            "✅",
+            "✅",
+            "✅",
+            "✅"
+          ],
+          "count": 35,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:02.312Z"
+    },
+    {
+      "file": "utf8-enforcement-master.js",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "Γ",
+            "£",
+            "à",
+            "ÿ",
+            "≡",
+            "ƒ",
+            "Ä",
+            "ÿ",
+            "✅",
+            "❌"
+          ],
+          "count": 57,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "✅",
+            "❌",
+            "⚠",
+            "🚨",
+            "🔄",
+            "📦",
+            "🔗",
+            "🚀",
+            "📊",
+            "📝"
+          ],
+          "count": 24,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:02.313Z"
+    },
+    {
+      "file": "validate-deployment.js",
+      "violations": [
+        {
+          "type": "NON_ASCII",
+          "pattern": "/[^\\x00-\\x7F]/g",
+          "matches": [
+            "\ud83d",
+            "\udd0d",
+            "\ud83d",
+            "\udcf1",
+            "❌",
+            "⚠",
+            "️",
+            "✅",
+            "⚠",
+            "️"
+          ],
+          "count": 67,
+          "severity": "CRITICAL"
+        },
+        {
+          "type": "EMOJIS",
+          "pattern": "/[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]/gu",
+          "matches": [
+            "🔍",
+            "📱",
+            "❌",
+            "⚠",
+            "✅",
+            "⚠",
+            "📄",
+            "✅",
+            "✅",
+            "❌"
+          ],
+          "count": 49,
+          "severity": "HIGH"
+        }
+      ],
+      "timestamp": "2025-09-08T17:49:02.314Z"
+    }
+  ],
+  "fixedFiles": [
+    "src\\app.js",
+    "src\\engines\\dual-crypto-engine.js",
+    "src\\utils\\chatterbox.js",
+    "src\\utils\\dataIntegrity.js",
+    "src\\utils\\ircBot.js",
+    "src\\utils\\reverseTracePipeline.js",
+    "src\\utils\\reverseTracer.js",
+    "public\\admin-panel.html",
+    "public\\custom-ide.html",
+    "public\\index.html",
+    "public\\monitor.html",
+    "public\\pricing.html",
+    "scripts\\build-packages.js",
+    "scripts\\deploy-digitalocean.ps1",
+    "scripts\\deploy-digitalocean.sh",
+    "scripts\\deploy-panel.sh",
+    "scripts\\git-freeze-handler.ps1",
+    "scripts\\healthcheck-utf8.ps1",
+    "scripts\\instant-git-check.ps1",
+    "scripts\\safe-git-check.ps1",
+    "packages\\RawrZ-Basic-Security\\public\\admin-panel.html",
+    "packages\\RawrZ-Basic-Security\\public\\custom-ide.html",
+    "packages\\RawrZ-Basic-Security\\public\\index.html",
+    "packages\\RawrZ-Basic-Security\\public\\monitor.html",
+    "packages\\RawrZ-Basic-Security\\public\\pricing.html",
+    "packages\\RawrZ-Basic-Security\\src\\app.js",
+    "packages\\RawrZ-Basic-Security\\src\\engines\\camellia-assembly.js",
+    "packages\\RawrZ-Basic-Security\\src\\engines\\dual-crypto-engine.js",
+    "packages\\RawrZ-Basic-Security\\src\\engines\\rawrz-engine.js",
+    "packages\\RawrZ-Basic-Security\\src\\routes\\crypto.js",
+    "packages\\RawrZ-Enterprise-Security\\package.json",
+    "packages\\RawrZ-Enterprise-Security\\public\\admin-panel.html",
+    "packages\\RawrZ-Enterprise-Security\\public\\custom-ide.html",
+    "packages\\RawrZ-Enterprise-Security\\public\\index.html",
+    "packages\\RawrZ-Enterprise-Security\\public\\monitor.html",
+    "packages\\RawrZ-Enterprise-Security\\public\\pricing.html",
+    "packages\\RawrZ-Enterprise-Security\\src\\app.js",
+    "packages\\RawrZ-Enterprise-Security\\src\\engines\\camellia-assembly.js",
+    "packages\\RawrZ-Enterprise-Security\\src\\engines\\dual-crypto-engine.js",
+    "packages\\RawrZ-Enterprise-Security\\src\\engines\\rawrz-engine.js",
+    "packages\\RawrZ-Enterprise-Security\\src\\routes\\crypto.js",
+    "packages\\README.md",
+    "netlify\\functions\\api.js",
+    "AUTO-CREATE-APP.ps1",
+    "BYPASS-GIT-DEPLOY.bat",
+    "BYPASS-GIT-DEPLOY.ps1",
+    "check-utf8-only.js",
+    "cleanup-and-deploy.js",
+    "cleanup-src.ps1",
+    "CORE-COMPONENTS-STATUS.md",
+    "create-2-files.ps1",
+    "create-4-files.ps1",
+    "create-clean-deploy.ps1",
+    "CREATE-DROPLET-MANUAL.md",
+    "create-essential-deploy.ps1",
+    "create-minimal-deploy.ps1",
+    "create-production-packages.ps1",
+    "delete-bloat.ps1",
+    "deploy-to-droplet.bat",
+    "DEPLOYMENT.md",
+    "DIRECT-DROPLET-DEPLOY.ps1",
+    "fix-branch-structure.ps1",
+    "FIX-DOMAIN-ISSUES.md",
+    "fix-utf8-violations.js",
+    "MANUAL-CHECKLIST.txt",
+    "MANUAL-DEPLOY.md",
+    "MANUAL-ONLY-DEPLOY.md",
+    "NETLIFY_DEPLOYMENT.md",
+    "package.json",
+    "PANEL-DEPLOYMENT.md",
+    "PROJECT-STRUCTURE.md",
+    "QUICK-DEPLOY-GUIDE.md",
+    "QUICK-DEPLOY.md",
+    "RAWRZ-COMPLETION-REPORT.md",
+    "README.md",
+    "restart-rawrz.bat",
+    "restart-rawrz.ps1",
+    "scan-entire-desktop.js",
+    "SCREENPILOT-DOMAIN-SETUP.md",
+    "SETUP.md",
+    "TEST-FILE-UPLOAD.md",
+    "UNIFIED-STANDARDS.md",
+    "utf8-enforcement-master.js",
+    "validate-deployment.js"
+  ],
+  "summary": {
+    "totalViolations": 170,
+    "criticalViolations": 85,
+    "autoFixed": 84
+  }
+}

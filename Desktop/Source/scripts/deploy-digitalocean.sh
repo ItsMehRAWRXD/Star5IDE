@@ -5,7 +5,7 @@
 
 set -e
 
-echo "🚀 Starting DigitalOcean deployment for screenpilot.dev"
+echo "[START] Starting DigitalOcean deployment for screenpilot.dev"
 echo "=================================================="
 
 # Configuration
@@ -182,7 +182,7 @@ main() {
     deploy_app
     setup_monitoring
     
-    print_success "🎉 Deployment completed successfully!"
+    print_success "[SUCCESS] Deployment completed successfully!"
     print_status "Your application is now available at: https://$DOMAIN"
     print_status "Droplet IP: $DROPLET_IP"
     print_status "SSH access: ssh root@$DROPLET_IP"

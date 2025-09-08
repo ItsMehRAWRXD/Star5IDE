@@ -3,7 +3,7 @@ param(
     [string]$Command = "config --get remote.origin.url"
 )
 
-Write-Host "⚡ Instant Git Check - Zero Tolerance for Freezes" -ForegroundColor Cyan
+Write-Host "[CHAR] Instant Git Check - Zero Tolerance for Freezes" -ForegroundColor Cyan
 
 # Kill all git processes first
 Get-Process -Name "git" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
@@ -36,19 +36,19 @@ try {
         $error = $process.StandardError.ReadToEnd()
         
         if ($process.ExitCode -eq 0) {
-            Write-Host "✅ Git responded instantly: $output" -ForegroundColor Green
+            Write-Host "[OK] Git responded instantly: $output" -ForegroundColor Green
         } else {
-            Write-Host "❌ Git failed: $error" -ForegroundColor Red
+            Write-Host "[ERROR] Git failed: $error" -ForegroundColor Red
         }
     } else {
-        Write-Host "⏰ Git frozen (took >1 second) - killing immediately" -ForegroundColor Red
+        Write-Host "[CHAR] Git frozen (took >1 second) - killing immediately" -ForegroundColor Red
         $process.Kill($true)
     }
     
     $process.Close()
     
 } catch {
-    Write-Host "❌ Git command failed: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "[ERROR] Git command failed: $($_.Exception.Message)" -ForegroundColor Red
 }
 
 # Alternative: Read git config directly from file
@@ -59,11 +59,11 @@ try {
         $config = Get-Content $configPath -Raw
         if ($config -match 'url = (.+)') {
             $repoUrl = $matches[1]
-            Write-Host "📁 Repository URL: $repoUrl" -ForegroundColor Green
+            Write-Host "[FOLDER] Repository URL: $repoUrl" -ForegroundColor Green
         }
     }
 } catch {
-    Write-Host "❌ Could not read git config file" -ForegroundColor Red
+    Write-Host "[ERROR] Could not read git config file" -ForegroundColor Red
 }
 
-Write-Host "✅ Instant check completed" -ForegroundColor Green
+Write-Host "[OK] Instant check completed" -ForegroundColor Green

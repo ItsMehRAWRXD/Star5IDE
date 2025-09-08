@@ -22,7 +22,7 @@ class DualCryptoEngine {
 
   async initialize() {
     if (this.initialized) {
-      console.log('✅ Dual Crypto Engine already initialized, skipping...');
+      console.log('[OK] Dual Crypto Engine already initialized, skipping...');
       return;
     }
     
@@ -30,9 +30,9 @@ class DualCryptoEngine {
       // Initialize with empty generators - load on demand
       this.generators = {};
       this.initialized = true;
-      console.log('✅ Dual Crypto Engine initialized (lazy loading enabled)');
+      console.log('[OK] Dual Crypto Engine initialized (lazy loading enabled)');
     } catch (error) {
-      console.error('❌ Failed to initialize Dual Crypto Engine:', error.message);
+      console.error('[ERROR] Failed to initialize Dual Crypto Engine:', error.message);
       throw error;
     }
   }
@@ -42,12 +42,12 @@ class DualCryptoEngine {
     this.hotPatchers.set('aes', {
       patch: async (newGenerator) => {
         this.generators.aes = newGenerator;
-        console.log('🔥 Hot-patched AES generator');
+        console.log('[CHAR][CHAR] Hot-patched AES generator');
       },
       rollback: async () => {
         delete require.cache[require.resolve('./advanced-crypto')];
         this.generators.aes = require('./advanced-crypto');
-        console.log('🔄 Rolled back AES generator');
+        console.log('[INFO] Rolled back AES generator');
       }
     });
 
@@ -55,12 +55,12 @@ class DualCryptoEngine {
     this.hotPatchers.set('camellia', {
       patch: async (newGenerator) => {
         this.generators.camellia = newGenerator;
-        console.log('🔥 Hot-patched Camellia generator');
+        console.log('[CHAR][CHAR] Hot-patched Camellia generator');
       },
       rollback: async () => {
         delete require.cache[require.resolve('./camellia-assembly')];
         this.generators.camellia = require('./camellia-assembly');
-        console.log('🔄 Rolled back Camellia generator');
+        console.log('[INFO] Rolled back Camellia generator');
       }
     });
 
@@ -69,15 +69,15 @@ class DualCryptoEngine {
       this.hotPatchers.set('chacha', {
         patch: async (newGenerator) => {
           this.generators.chacha = newGenerator;
-          console.log('🔥 Hot-patched ChaCha20 generator');
+          console.log('[CHAR][CHAR] Hot-patched ChaCha20 generator');
         },
         rollback: async () => {
           try {
             delete require.cache[require.resolve('./chacha20-engine')];
             this.generators.chacha = require('./chacha20-engine');
-            console.log('🔄 Rolled back ChaCha20 generator');
+            console.log('[INFO] Rolled back ChaCha20 generator');
           } catch (error) {
-            console.log('⚠️ Cannot rollback ChaCha20 generator - module not found');
+            console.log('[WARN] Cannot rollback ChaCha20 generator - module not found');
             this.generators.chacha = null;
           }
         }
@@ -91,7 +91,7 @@ class DualCryptoEngine {
     }
     
     try {
-      console.log(`🔄 Loading ${name} generator on demand...`);
+      console.log(`[INFO] Loading ${name} generator on demand...`);
       
       switch (name) {
         case 'aes':
@@ -111,10 +111,10 @@ class DualCryptoEngine {
         await this.generators[name].initialize();
       }
       
-      console.log(`✅ ${name} generator loaded successfully`);
+      console.log(`[OK] ${name} generator loaded successfully`);
       return this.generators[name];
     } catch (error) {
-      console.error(`❌ Failed to load ${name} generator:`, error.message);
+      console.error(`[ERROR] Failed to load ${name} generator:`, error.message);
       this.generators[name] = null;
       return null;
     }

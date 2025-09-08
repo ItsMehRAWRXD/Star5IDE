@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-console.log('🎯 RawrZ Security Platform - Production Package Builder');
+console.log('[TARGET] RawrZ Security Platform - Production Package Builder');
 console.log('=======================================================');
 
 // Security level configurations
@@ -67,11 +67,11 @@ function copyFile(src, dest) {
 function createPackage(level) {
   const config = securityLevels[level];
   if (!config) {
-    console.error(`❌ Unknown security level: ${level}`);
+    console.error(`[ERROR] Unknown security level: ${level}`);
     return;
   }
 
-  console.log(`\n📦 Creating ${config.name} package...`);
+  console.log(`\n[DEBUG] Creating ${config.name} package...`);
 
   const packageDir = `packages/${config.name}`;
   
@@ -82,13 +82,13 @@ function createPackage(level) {
   fs.mkdirSync(packageDir, { recursive: true });
 
   // Copy core files
-  console.log('  📁 Copying core files...');
+  console.log('  [FOLDER] Copying core files...');
   coreFiles.forEach(file => {
     if (fs.existsSync(file)) {
       copyFile(file, path.join(packageDir, file));
-      console.log(`    ✅ ${file}`);
+      console.log(`    [OK] ${file}`);
     } else {
-      console.log(`    ⚠️  ${file} not found`);
+      console.log(`    [WARN]  ${file} not found`);
     }
   });
 
@@ -100,7 +100,7 @@ function createPackage(level) {
     main: 'src/app.js',
     scripts: {
       start: 'node src/app.js',
-      test: 'node -e "console.log(\'✅ Package ready for deployment\')"'
+      test: 'node -e "console.log(\'[OK] Package ready for deployment\')"'
     },
     dependencies: {}
   };
@@ -156,25 +156,25 @@ Ready for production deployment!
 
   try {
     execSync(`cd packages && zip -r ${config.name}.zip ${config.name}/`, { stdio: 'pipe' });
-    console.log(`  📦 Created ${zipPath}`);
+    console.log(`  [DEBUG] Created ${zipPath}`);
   } catch (error) {
-    console.log(`  ⚠️  Could not create zip (${error.message}), but package directory is ready`);
+    console.log(`  [WARN]  Could not create zip (${error.message}), but package directory is ready`);
   }
 
   // Clean up temp directory
   fs.rmSync(packageDir, { recursive: true, force: true });
 
-  console.log(`  ✅ ${config.name} package ready!`);
+  console.log(`  [OK] ${config.name} package ready!`);
 }
 
 // Main execution
 const level = process.argv[2];
 
 if (!level) {
-  console.log('\n📋 Available security levels:');
+  console.log('\n[LIST] Available security levels:');
   Object.keys(securityLevels).forEach(level => {
     const config = securityLevels[level];
-    console.log(`  🔹 ${level} - ${config.name}`);
+    console.log(`  [CHAR][CHAR] ${level} - ${config.name}`);
     console.log(`     Features: ${config.features.slice(0, 3).join(', ')}...`);
   });
   console.log('\nUsage: npm run build:<level>');
@@ -188,5 +188,5 @@ if (level === 'all') {
   createPackage(level);
 }
 
-console.log('\n🎉 Package creation complete!');
-console.log('📁 Check the packages/ directory for your deployment zips');
+console.log('\n[SUCCESS] Package creation complete!');
+console.log('[FOLDER] Check the packages/ directory for your deployment zips');

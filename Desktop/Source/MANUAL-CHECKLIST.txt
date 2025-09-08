@@ -2,49 +2,49 @@ MANUAL DEPLOYMENT CHECKLIST - RawrZ Security Platform
 ====================================================
 
 STEP 1: GET SERVER INFO
-□ Go to DigitalOcean dashboard
-□ Find your droplet
-□ Copy the IP address: ________________
-□ Note SSH key is working
+[CHAR] Go to DigitalOcean dashboard
+[CHAR] Find your droplet
+[CHAR] Copy the IP address: ________________
+[CHAR] Note SSH key is working
 
 STEP 2: COPY FILES (Run each command separately)
-□ scp Dockerfile.prod root@[IP]:/root/
-□ scp docker-compose.full-replace.yml root@[IP]:/root/docker-compose.yml
-□ scp nginx/full-replace-nginx.conf root@[IP]:/root/nginx.conf
-□ scp env.production.example root@[IP]:/root/.env.production
-□ scp -r src/ root@[IP]:/root/
-□ scp -r public/ root@[IP]:/root/
-□ scp -r scripts/ root@[IP]:/root/
-□ scp package*.json root@[IP]:/root/
+[CHAR] scp Dockerfile.prod root@[IP]:/root/
+[CHAR] scp docker-compose.full-replace.yml root@[IP]:/root/docker-compose.yml
+[CHAR] scp nginx/full-replace-nginx.conf root@[IP]:/root/nginx.conf
+[CHAR] scp env.production.example root@[IP]:/root/.env.production
+[CHAR] scp -r src/ root@[IP]:/root/
+[CHAR] scp -r public/ root@[IP]:/root/
+[CHAR] scp -r scripts/ root@[IP]:/root/
+[CHAR] scp package*.json root@[IP]:/root/
 
 STEP 3: SSH TO SERVER
-□ ssh root@[IP]
+[CHAR] ssh root@[IP]
 
 STEP 4: DEPLOY ON SERVER (Run each command separately)
-□ docker stop $(docker ps -q) 2>/dev/null || true
-□ docker rm $(docker ps -aq) 2>/dev/null || true
-□ docker-compose up -d --build
-□ cp nginx.conf /etc/nginx/nginx.conf
-□ systemctl restart nginx
+[CHAR] docker stop $(docker ps -q) 2>/dev/null || true
+[CHAR] docker rm $(docker ps -aq) 2>/dev/null || true
+[CHAR] docker-compose up -d --build
+[CHAR] cp nginx.conf /etc/nginx/nginx.conf
+[CHAR] systemctl restart nginx
 
 STEP 5: VERIFY
-□ Visit: https://lionfish-app-ey7kn.ondigitalocean.app
-□ Check health: https://lionfish-app-ey7kn.ondigitalocean.app/health
-□ Verify RawrZ Security Platform is running
+[CHAR] Visit: https://lionfish-app-ey7kn.ondigitalocean.app
+[CHAR] Check health: https://lionfish-app-ey7kn.ondigitalocean.app/health
+[CHAR] Verify RawrZ Security Platform is running
 
 FEATURES TO VERIFY:
-□ Dual Crypto Engine (AES + Camellia)
-□ Advanced Encryption tools
-□ Process Monitoring
-□ Hot Patching capabilities
-□ File upload and scanning
-□ Clean antivirus results (0/13 engines)
+[CHAR] Dual Crypto Engine (AES + Camellia)
+[CHAR] Advanced Encryption tools
+[CHAR] Process Monitoring
+[CHAR] Hot Patching capabilities
+[CHAR] File upload and scanning
+[CHAR] Clean antivirus results (0/13 engines)
 
 RESULT:
-□ RawrZ Security Platform is live
-□ All advanced features working
-□ No freezing issues
-□ Manual deployment successful
+[CHAR] RawrZ Security Platform is live
+[CHAR] All advanced features working
+[CHAR] No freezing issues
+[CHAR] Manual deployment successful
 
 NOTES:
 - Run each command separately

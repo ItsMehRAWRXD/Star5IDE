@@ -28,9 +28,9 @@ class CamelliaAssemblyEngine {
       await this.detectCompilers();
       await this.compileAssemblyEngine();
       this.initialized = true;
-      console.log('✅ Camellia Assembly Engine initialized');
+      console.log('[OK] Camellia Assembly Engine initialized');
     } catch (error) {
-      console.error('❌ Failed to initialize Camellia Assembly Engine:', error.message);
+      console.error('[ERROR] Failed to initialize Camellia Assembly Engine:', error.message);
       throw error;
     }
   }
@@ -49,7 +49,7 @@ class CamelliaAssemblyEngine {
         await this.checkCompiler(command);
         this.compilerPaths[name] = command;
       } catch (error) {
-        console.warn(`⚠️  Compiler ${name} not found: ${error.message}`);
+        console.warn(`[WARN]  Compiler ${name} not found: ${error.message}`);
       }
     }
 
@@ -95,9 +95,9 @@ class CamelliaAssemblyEngine {
         await this.linkWithGCC(objFile, libFile);
       }
 
-      console.log('✅ Assembly engine compiled successfully');
+      console.log('[OK] Assembly engine compiled successfully');
     } catch (error) {
-      console.warn('⚠️  Assembly compilation failed, using fallback:', error.message);
+      console.warn('[WARN]  Assembly compilation failed, using fallback:', error.message);
       // Fallback to JavaScript implementation
     }
   }

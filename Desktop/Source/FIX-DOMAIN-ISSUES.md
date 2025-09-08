@@ -1,8 +1,8 @@
 # FIX DOMAIN ISSUES - screenpilot.dev Privacy Error
 
-## 🚨 Problem: https://screenpilot.dev/ has privacy error
+## [ALERT] Problem: https://screenpilot.dev/ has privacy error
 
-## ✅ Solutions:
+## [OK] Solutions:
 
 ### Option 1: Use Existing DigitalOcean Domain
 Instead of screenpilot.dev, use your working DigitalOcean domain:
@@ -33,17 +33,17 @@ If you want to use screenpilot.dev:
 - No SSL problems
 - Already working
 
-## 🎯 **Recommended Action:**
+## [TARGET] **Recommended Action:**
 
 1. **Create droplet** (if not exists)
 2. **Deploy to**: https://lionfish-app-ey7kn.ondigitalocean.app
 3. **Skip screenpilot.dev** for now
 4. **Fix domain later** if needed
 
-## ⚡ **Result:**
+## [CHAR] **Result:**
 - RawrZ Security Platform live on working domain
 - No privacy errors
 - No SSL issues
 - Ready to use immediately
 
-**Use the working domain first, fix screenpilot.dev later!** 🚀
+**Use the working domain first, fix screenpilot.dev later!** [START]

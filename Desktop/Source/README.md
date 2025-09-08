@@ -15,14 +15,14 @@ A complete Node.js/Express backend for a SaaS platform with authentication, subs
 
 ```
 src/
-├── config/          # Configuration files
-├── controllers/     # Route controllers
-├── middleware/      # Custom middleware
-├── models/          # Mongoose models
-├── routes/          # API routes
-├── services/        # Business logic services
-├── utils/           # Utility functions
-└── app.js          # Main application file
+[CHAR][CHAR][CHAR] config/          # Configuration files
+[CHAR][CHAR][CHAR] controllers/     # Route controllers
+[CHAR][CHAR][CHAR] middleware/      # Custom middleware
+[CHAR][CHAR][CHAR] models/          # Mongoose models
+[CHAR][CHAR][CHAR] routes/          # API routes
+[CHAR][CHAR][CHAR] services/        # Business logic services
+[CHAR][CHAR][CHAR] utils/           # Utility functions
+[CHAR][CHAR][CHAR] app.js          # Main application file
 ```
 
 ## Prerequisites

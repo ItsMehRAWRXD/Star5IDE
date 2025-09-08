@@ -1,6 +1,6 @@
 # screenpilot.dev Domain Configuration
 
-## 📋 Domain Details:
+## [LIST] Domain Details:
 - **Domain**: screenpilot.dev
 - **Registrar**: Porkbun
 - **Expires**: 2026-09-04
@@ -8,10 +8,10 @@
 - **SSL**: Has Certificate
 - **Nameservers**: Porkbun (curitiba.ns.porkbun.com, etc.)
 
-## 🚨 Current Issue:
+## [ALERT] Current Issue:
 Domain is **parked** and not pointing to your server
 
-## ✅ Solution: Configure DNS Records
+## [OK] Solution: Configure DNS Records
 
 ### Step 1: Go to Porkbun DNS Management
 1. Login to Porkbun account
@@ -42,16 +42,16 @@ You need to add these records (replace YOUR_DROPLET_IP with actual IP):
 - DNS changes take 5-60 minutes
 - Test with: nslookup screenpilot.dev
 
-## 🎯 After DNS is Configured:
+## [TARGET] After DNS is Configured:
 
 1. **Deploy RawrZ Security Platform** to your droplet
 2. **Configure SSL** for screenpilot.dev
 3. **Test**: https://screenpilot.dev
 
-## ⚡ Result:
+## [CHAR] Result:
 - screenpilot.dev points to your server
 - RawrZ Security Platform accessible
 - SSL certificate working
 - No privacy errors
 
-**First: Get your droplet IP, then configure DNS!** 🚀
+**First: Get your droplet IP, then configure DNS!** [START]

@@ -197,15 +197,15 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🔍 RawrZ System Monitor</h1>
+            <h1>[SEARCH] RawrZ System Monitor</h1>
             <p>Real-time System Health & Performance Monitoring</p>
         </div>
 
         <div class="controls">
-            <button class="btn" onclick="refreshData()">🔄 Refresh</button>
-            <button class="btn btn-secondary" onclick="toggleAutoRefresh()">⏸️ Auto Refresh</button>
-            <button class="btn" onclick="exportLogs()">📊 Export Logs</button>
-            <button class="btn btn-secondary" onclick="clearLogs()">🗑️ Clear Logs</button>
+            <button class="btn" onclick="refreshData()">[INFO] Refresh</button>
+            <button class="btn btn-secondary" onclick="toggleAutoRefresh()">[CHAR][CHAR] Auto Refresh</button>
+            <button class="btn" onclick="exportLogs()">[STATUS] Export Logs</button>
+            <button class="btn btn-secondary" onclick="clearLogs()">[CHAR][CHAR][CHAR] Clear Logs</button>
         </div>
 
         <div class="refresh-indicator" id="refreshIndicator">
@@ -215,7 +215,7 @@
         <div class="monitor-grid">
             <!-- System Status -->
             <div class="monitor-card">
-                <h3>🖥️ System Status</h3>
+                <h3>[CHAR][CHAR][CHAR] System Status</h3>
                 <div class="metric">
                     <span class="metric-label">Status:</span>
                     <span class="metric-value" id="systemStatus">
@@ -243,7 +243,7 @@
 
             <!-- Memory Usage -->
             <div class="monitor-card">
-                <h3>💾 Memory Usage</h3>
+                <h3>[SAVE] Memory Usage</h3>
                 <div class="metric">
                     <span class="metric-label">Heap Used:</span>
                     <span class="metric-value" id="heapUsed">0 MB</span>
@@ -269,7 +269,7 @@
 
             <!-- CPU & Load -->
             <div class="monitor-card">
-                <h3>⚡ CPU & Load</h3>
+                <h3>[CHAR] CPU & Load</h3>
                 <div class="metric">
                     <span class="metric-label">Load Average:</span>
                     <span class="metric-value" id="loadAverage">0.00</span>
@@ -295,7 +295,7 @@
 
             <!-- Health Status -->
             <div class="monitor-card">
-                <h3>🏥 Health Status</h3>
+                <h3>[CHAR][CHAR] Health Status</h3>
                 <div class="metric">
                     <span class="metric-label">Overall Health:</span>
                     <span class="metric-value" id="overallHealth">
@@ -324,7 +324,7 @@
 
         <!-- System Logs -->
         <div class="monitor-card">
-            <h3>📋 System Logs</h3>
+            <h3>[LIST] System Logs</h3>
             <div class="log-container" id="logContainer">
                 <div class="log-entry log-info">System monitor initialized...</div>
             </div>

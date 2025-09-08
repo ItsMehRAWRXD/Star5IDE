@@ -1,7 +1,7 @@
 # RawrZ Security Platform - Production Package Creator
 # Creates clean deployment packages for different security levels
 
-Write-Host "🎯 RawrZ Security Platform - Production Package Creator" -ForegroundColor Cyan
+Write-Host "[TARGET] RawrZ Security Platform - Production Package Creator" -ForegroundColor Cyan
 Write-Host "========================================================" -ForegroundColor Cyan
 
 # Define security levels and their components
@@ -49,7 +49,7 @@ foreach ($level in $securityLevels.Keys) {
     $packageName = $config.name
     $packageDir = "packages/$packageName"
     
-    Write-Host "`n📦 Creating $packageName package..." -ForegroundColor Yellow
+    Write-Host "`n[DEBUG] Creating $packageName package..." -ForegroundColor Yellow
     
     # Create package directory
     if (Test-Path $packageDir) {
@@ -66,7 +66,7 @@ foreach ($level in $securityLevels.Keys) {
                 New-Item -ItemType Directory -Path $destDir -Force | Out-Null
             }
             Copy-Item $file $destPath -Recurse -Force
-            Write-Host "  ✅ Copied $file" -ForegroundColor Green
+            Write-Host "  [OK] Copied $file" -ForegroundColor Green
         }
     }
     
@@ -134,20 +134,20 @@ Ready for production deployment!
     }
     
     Compress-Archive -Path "$packageDir/*" -DestinationPath $zipPath -Force
-    Write-Host "  📦 Created $zipPath" -ForegroundColor Cyan
+    Write-Host "  [DEBUG] Created $zipPath" -ForegroundColor Cyan
     
     # Clean up temp directory
     Remove-Item $packageDir -Recurse -Force
 }
 
-Write-Host "`n🎉 Production packages created successfully!" -ForegroundColor Green
-Write-Host "📁 Check the 'packages' directory for your deployment zips" -ForegroundColor Yellow
+Write-Host "`n[SUCCESS] Production packages created successfully!" -ForegroundColor Green
+Write-Host "[FOLDER] Check the 'packages' directory for your deployment zips" -ForegroundColor Yellow
 
 # List created packages
-Write-Host "`n📋 Available packages:" -ForegroundColor Cyan
+Write-Host "`n[LIST] Available packages:" -ForegroundColor Cyan
 Get-ChildItem "packages/*.zip" | ForEach-Object {
     $size = [math]::Round($_.Length / 1MB, 2)
-    Write-Host "  📦 $($_.Name) - $size MB" -ForegroundColor White
+    Write-Host "  [DEBUG] $($_.Name) - $size MB" -ForegroundColor White
 }
 
-Write-Host "`n🚀 Ready for deployment!" -ForegroundColor Green
+Write-Host "`n[START] Ready for deployment!" -ForegroundColor Green

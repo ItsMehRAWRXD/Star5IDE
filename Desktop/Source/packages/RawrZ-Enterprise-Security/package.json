@@ -10,8 +10,8 @@
     "build:advanced": "node scripts/build-packages.js advanced",
     "build:enterprise": "node scripts/build-packages.js enterprise",
     "build:all": "npm run build:basic && npm run build:standard && npm run build:advanced && npm run build:enterprise",
-    "test:engine": "node -e \"const engine = require('./src/engines/rawrz-engine'); console.log('✅ Engine loaded:', Object.keys(engine).length, 'methods');\"",
-    "test:server": "node -e \"const app = require('./src/app'); console.log('✅ Server ready');\""
+    "test:engine": "node -e \"const engine = require('./src/engines/rawrz-engine'); console.log('[OK] Engine loaded:', Object.keys(engine).length, 'methods');\"",
+    "test:server": "node -e \"const app = require('./src/app'); console.log('[OK] Server ready');\""
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

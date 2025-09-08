@@ -28,10 +28,10 @@ const processRoutes = require('./routes/process');
 let rawrzEngine;
 try {
   rawrzEngine = require('./engines/rawrz-engine');
-  console.log('✅ RawrZ Engine module loaded successfully');
+  console.log('[OK] RawrZ Engine module loaded successfully');
 } catch (error) {
-  console.error('❌ Failed to load RawrZ Engine module:', error.message);
-  console.error('❌ Stack trace:', error.stack);
+  console.error('[ERROR] Failed to load RawrZ Engine module:', error.message);
+  console.error('[ERROR] Stack trace:', error.stack);
   // Create a mock engine to prevent crashes
   rawrzEngine = {
     initializeModules: async () => { throw new Error('RawrZ Engine not available'); },
@@ -48,6 +48,51 @@ app.use(cors());
 app.use(compression()); // Enable gzip compression
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+// UTF-8 ONLY ENFORCEMENT MIDDLEWARE - Master system for API, generators, templates, stubs, exploits, PowerShell
+app.use((req, res, next) => {
+    // Check request body for UTF-8 violations
+    if (req.body && typeof req.body === 'object') {
+        const bodyStr = JSON.stringify(req.body);
+        const utf8Check = dataIntegrityValidator.enforceUTF8Only(bodyStr, `API_REQUEST_${req.method}_${req.path}`);
+        if (!utf8Check.valid) {
+            logger.error('[UTF8_ENFORCEMENT] Request body contains UTF-8 violations', {
+                violations: utf8Check.violations,
+                path: req.path,
+                method: req.method,
+                service: 'rawrz-security-platform',
+                timestamp: new Date().toISOString()
+            });
+            return res.status(400).json({
+                error: 'UTF8_VIOLATION',
+                message: 'Request contains non-ASCII characters. UTF-8 only allowed.',
+                violations: utf8Check.violations
+            });
+        }
+    }
+    
+    // Check query parameters
+    if (req.query && typeof req.query === 'object') {
+        const queryStr = JSON.stringify(req.query);
+        const utf8Check = dataIntegrityValidator.enforceUTF8Only(queryStr, `API_QUERY_${req.method}_${req.path}`);
+        if (!utf8Check.valid) {
+            logger.error('[UTF8_ENFORCEMENT] Query parameters contain UTF-8 violations', {
+                violations: utf8Check.violations,
+                path: req.path,
+                method: req.method,
+                service: 'rawrz-security-platform',
+                timestamp: new Date().toISOString()
+            });
+            return res.status(400).json({
+                error: 'UTF8_VIOLATION',
+                message: 'Query parameters contain non-ASCII characters. UTF-8 only allowed.',
+                violations: utf8Check.violations
+            });
+        }
+    }
+    
+    next();
+});
 
 // Health check and monitoring middleware
 app.use(healthCheckMiddleware);
@@ -85,13 +130,13 @@ app.use(limiter);
 
 // Database connection with graceful fallback
 const connectDB = () => {
-  console.log('🔄 Starting MongoDB connection...');
-  console.log('📦 Config object:', typeof config);
-  console.log('📦 MONGODB_URI exists:', !!config.MONGODB_URI);
+  console.log('[INFO] Starting MongoDB connection...');
+  console.log('[DEBUG] Config object:', typeof config);
+  console.log('[DEBUG] MONGODB_URI exists:', !!config.MONGODB_URI);
   
   if (!config.MONGODB_URI) {
-    console.error('❌ MONGODB_URI not found in config');
-    console.log('⚠️ Server will continue without database connection');
+    console.error('[ERROR] MONGODB_URI not found in config');
+    console.log('[WARN] Server will continue without database connection');
     return;
   }
   
@@ -99,7 +144,7 @@ const connectDB = () => {
     ? config.MONGODB_URI + 'saas-app'
     : config.MONGODB_URI + '/saas-app';
   
-  console.log('🔗 Connecting to MongoDB URI:', mongoURI.replace(/\/\/.*@/, '//***:***@')); // Hide credentials
+  console.log('[CONNECT] Connecting to MongoDB URI:', mongoURI.replace(/\/\/.*@/, '//***:***@')); // Hide credentials
   
   mongoose.connect(mongoURI, {
     useNewUrlParser: true,
@@ -108,19 +153,19 @@ const connectDB = () => {
   .then(() => {
     logger.info('MongoDB connected successfully');
     logger.info('Database features enabled');
-    console.log('✅ MongoDB connected successfully');
-    console.log('📊 Database features enabled');
+    console.log('[OK] MongoDB connected successfully');
+    console.log('[STATUS] Database features enabled');
   })
   .catch((err) => {
     logger.error('MongoDB connection error', { error: err.message });
-    console.error('❌ MongoDB connection error:', err.message);
-    console.error('❌ Error type:', err.constructor.name);
-    console.error('❌ Full error:', err);
+    console.error('[ERROR] MongoDB connection error:', err.message);
+    console.error('[ERROR] Error type:', err.constructor.name);
+    console.error('[ERROR] Full error:', err);
     if (err.stack) {
-      console.error('❌ Stack trace:', err.stack);
+      console.error('[ERROR] Stack trace:', err.stack);
     }
-    console.log('⚠️ Server will continue without database connection');
-    console.log('📊 Database features disabled - running in demo mode');
+    console.log('[WARN] Server will continue without database connection');
+    console.log('[STATUS] Database features disabled - running in demo mode');
   });
 };
 
@@ -138,17 +183,17 @@ app.use('/api/process', processRoutes);
 
 // RawrZ Engine API routes
 app.get('/api/engine/status', async (req, res) => {
-  console.log('🔍 Engine status endpoint called');
+  console.log('[SEARCH] Engine status endpoint called');
   try {
     if (!rawrzEngine || !rawrzEngine.getStatus) {
       throw new Error('RawrZ Engine not available or not properly initialized');
     }
     const status = rawrzEngine.getStatus();
-    console.log('✅ Engine status retrieved:', status);
+    console.log('[OK] Engine status retrieved:', status);
     res.json({ status: 'healthy', data: status });
   } catch (error) {
-    console.error('❌ Engine status error:', error.message);
-    console.error('❌ Engine status stack:', error.stack);
+    console.error('[ERROR] Engine status error:', error.message);
+    console.error('[ERROR] Engine status stack:', error.stack);
     res.status(500).json({ status: 'error', error: error.message });
   }
 });
@@ -336,27 +381,27 @@ app.post('/api/engine/network-analyze', async (req, res) => {
 });
 
 app.post('/api/engine/encrypt', async (req, res) => {
-  console.log('🔐 Engine encrypt endpoint called');
+  console.log('[CHAR][CHAR] Engine encrypt endpoint called');
   const operationId = `encrypt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   
   try {
-    console.log('📦 Request body:', JSON.stringify(req.body, null, 2));
+    console.log('[DEBUG] Request body:', JSON.stringify(req.body, null, 2));
     
     if (!rawrzEngine || !rawrzEngine.encryptAdvanced) {
       throw new Error('RawrZ Engine not available or encryptAdvanced method not found');
     }
     
     const { data, options } = req.body;
-    console.log('📊 Data:', data, 'Options:', options);
+    console.log('[STATUS] Data:', data, 'Options:', options);
     
     if (!data) {
       throw new Error('No data provided for encryption');
     }
     
     // Pre-encryption integrity check
-    console.log('🔍 Performing pre-encryption integrity check...');
+    console.log('[SEARCH] Performing pre-encryption integrity check...');
     const preCheck = await preEncryptionCheck(data, operationId);
-    console.log('📊 Pre-encryption check result:', preCheck);
+    console.log('[STATUS] Pre-encryption check result:', preCheck);
     
     // Track operation in reverse trace pipeline
     reverseTracer.trackOperation('ENCRYPTION', `Encrypt operation ${operationId}`, data);
@@ -365,14 +410,14 @@ app.post('/api/engine/encrypt', async (req, res) => {
       source: 'api_request'
     });
     
-    console.log('🚀 Calling rawrzEngine.encryptAdvanced()...');
+    console.log('[START] Calling rawrzEngine.encryptAdvanced()...');
     const result = await rawrzEngine.encryptAdvanced(data, options);
-    console.log('✅ Encryption result:', result);
+    console.log('[OK] Encryption result:', result);
     
     // Post-encryption integrity check
-    console.log('🔍 Performing post-encryption integrity check...');
+    console.log('[SEARCH] Performing post-encryption integrity check...');
     const postCheck = await postEncryptionCheck(result, operationId);
-    console.log('📊 Post-encryption check result:', postCheck);
+    console.log('[STATUS] Post-encryption check result:', postCheck);
     
     // Track post-encryption in reverse trace pipeline
     reverseTracePipeline.trackOperation('ENCRYPTION_PIPELINE', 'post_encryption', operationId, result, {
@@ -392,11 +437,11 @@ app.post('/api/engine/encrypt', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('❌ Engine encrypt error:', error.message);
-    console.error('❌ Error type:', error.constructor.name);
-    console.error('❌ Full error:', error);
+    console.error('[ERROR] Engine encrypt error:', error.message);
+    console.error('[ERROR] Error type:', error.constructor.name);
+    console.error('[ERROR] Full error:', error);
     if (error.stack) {
-      console.error('❌ Stack trace:', error.stack);
+      console.error('[ERROR] Stack trace:', error.stack);
     }
     
     // Record encryption failure
@@ -762,7 +807,7 @@ app.get('/', (req, res) => {
 // Legacy API endpoint for programmatic access
 app.get('/api', (req, res) => {
   res.json({
-    message: '🚀 Star5IDE - Mix & Code Playground API',
+    message: '[START] Star5IDE - Mix & Code Playground API',
     version: '1.0.0',
     interfaces: {
       main: '/ (IDE Dashboard)',
@@ -818,7 +863,7 @@ const PORT = config.PORT;
 
 // Initialize RawrZ Engine
 async function initializeRawrZEngine() {
-  console.log('🔄 Starting RawrZ Engine initialization...');
+  console.log('[INFO] Starting RawrZ Engine initialization...');
   
   // Register main app with Chatterbox
   const appScriptId = chatterbox.registerScript('rawrz-main-app', {
@@ -833,19 +878,19 @@ async function initializeRawrZEngine() {
   });
   
   try {
-    console.log('📦 RawrZ Engine object:', typeof rawrzEngine);
-    console.log('📦 RawrZ Engine methods:', Object.keys(rawrzEngine));
+    console.log('[DEBUG] RawrZ Engine object:', typeof rawrzEngine);
+    console.log('[DEBUG] RawrZ Engine methods:', Object.keys(rawrzEngine));
     
     if (!rawrzEngine.initializeModules) {
       throw new Error('initializeModules method not found on RawrZ Engine');
     }
     
-    console.log('🚀 Calling rawrzEngine.initializeModules()...');
+    console.log('[START] Calling rawrzEngine.initializeModules()...');
     await rawrzEngine.initializeModules();
     
     logger.info('RawrZ Engine initialized successfully');
-    console.log('🛡️ RawrZ Security Engine initialized successfully');
-    console.log('✅ All engine endpoints should now be available');
+    console.log('[SECURITY] RawrZ Security Engine initialized successfully');
+    console.log('[OK] All engine endpoints should now be available');
     
     // Update script status
     chatterbox.updateScriptStatus(appScriptId, 'operational', {
@@ -855,13 +900,13 @@ async function initializeRawrZEngine() {
     
   } catch (error) {
     logger.error('Failed to initialize RawrZ Engine:', error);
-    console.error('❌ RawrZ Engine initialization failed:', error.message);
-    console.error('❌ Error type:', error.constructor.name);
-    console.error('❌ Full error object:', error);
+    console.error('[ERROR] RawrZ Engine initialization failed:', error.message);
+    console.error('[ERROR] Error type:', error.constructor.name);
+    console.error('[ERROR] Full error object:', error);
     if (error.stack) {
-      console.error('❌ Stack trace:', error.stack);
+      console.error('[ERROR] Stack trace:', error.stack);
     }
-    console.error('⚠️ Engine endpoints will not be available');
+    console.error('[WARN] Engine endpoints will not be available');
     
     // Record error in Chatterbox
     chatterbox.recordScriptError(appScriptId, error, {
@@ -879,11 +924,11 @@ async function initializeRawrZEngine() {
 // Start server
 app.listen(PORT, async () => {
   logger.info(`SaaS Backend Server started on port ${PORT}`);
-  console.log(`🚀 SaaS Backend Server running on port ${PORT}`);
-  console.log(`📊 Health check: http://localhost:${PORT}/health`);
-  console.log(`🔗 API Base: http://localhost:${PORT}/api`);
-  console.log(`🌐 Open in browser: http://localhost:${PORT}`);
-  console.log(`📝 Logs available in: ./logs/`);
+  console.log(`[START] SaaS Backend Server running on port ${PORT}`);
+  console.log(`[STATUS] Health check: http://localhost:${PORT}/health`);
+  console.log(`[CONNECT] API Base: http://localhost:${PORT}/api`);
+  console.log(`[WEB] Open in browser: http://localhost:${PORT}`);
+  console.log(`[LOG] Logs available in: ./logs/`);
   
   // Initialize RawrZ Engine after server starts
   await initializeRawrZEngine();

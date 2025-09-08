@@ -31,7 +31,7 @@ exports.handler = async (event, context) => {
           body: JSON.stringify({
             status: 'OK',
             timestamp: new Date().toISOString(),
-            message: '🔐 Cryptify API is running!',
+            message: '[CHAR][CHAR] Cryptify API is running!',
             endpoints: ['/health', '/encrypt', '/decrypt', '/hash'],
             crypto: 'Node.js built-in (no OpenSSL required)'
           })

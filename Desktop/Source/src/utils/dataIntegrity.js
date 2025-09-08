@@ -15,11 +15,13 @@ class DataIntegrityValidator {
         
         // Known malformity patterns
         this.knownPatterns = {
-            'ROE_FONT_CORRUPTION': /ROE.*font|font.*ROE/i,
-            'ENCODING_ISSUES': /[^\x00-\x7F]/g,
+            'ROE_FONT_CORRUPTION': /\/ROE|ROE.*font|font.*ROE/i,
+            'ENCODING_ISSUES': /[^\x00-\x7F]/g, // UTF-8 ONLY: Detect all non-ASCII
+            'UTF8_VIOLATION': /[^\x00-\x7F]/g, // Strict UTF-8 enforcement
             'MENU_CORRUPTION': /menu.*corrupt|corrupt.*menu/i,
             'JSON_MALFORMED': /[{}[\]]/g,
-            'UNICODE_ISSUES': /[\u2000-\u206F\u2E00-\u2E7F\u3000-\u303F]/g
+            'UNICODE_ISSUES': /[\u2000-\u206F\u2E00-\u2E7F\u3000-\u303F]/g,
+            'EMOJI_DETECTED': /[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu
         };
     }
 
@@ -34,6 +36,81 @@ class DataIntegrityValidator {
     calculateSHA256(data) {
         const buffer = Buffer.isBuffer(data) ? data : Buffer.from(data, 'utf8');
         return crypto.createHash('sha256').update(buffer).digest('hex');
+    }
+
+    // UTF-8 ONLY ENFORCEMENT - Master system for all components
+    enforceUTF8Only(data, source = 'unknown') {
+        const violations = [];
+        const dataStr = data.toString();
+        
+        // Check for any non-ASCII characters
+        const nonAsciiMatches = dataStr.match(/[^\x00-\x7F]/g);
+        if (nonAsciiMatches) {
+            violations.push({
+                type: 'UTF8_VIOLATION',
+                severity: 'CRITICAL',
+                source: source,
+                description: `Non-ASCII characters detected: ${nonAsciiMatches.slice(0, 10).join(', ')}`,
+                count: nonAsciiMatches.length,
+                timestamp: new Date().toISOString(),
+                position: dataStr.search(/[^\x00-\x7F]/)
+            });
+        }
+        
+        // Check for specific emoji patterns
+        const emojiMatches = dataStr.match(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu);
+        if (emojiMatches) {
+            violations.push({
+                type: 'EMOJI_DETECTED',
+                severity: 'HIGH',
+                source: source,
+                description: `Emojis detected: ${emojiMatches.slice(0, 5).join(', ')}`,
+                count: emojiMatches.length,
+                timestamp: new Date().toISOString()
+            });
+        }
+        
+        // Check for corrupted character patterns
+        const corruptedPatterns = [
+            /[CHAR][CHAR][[CHAR]-[CHAR]]/g,  // Corrupted characters like [CHAR][CHAR][CHAR]
+            /[CHAR][CHAR][[CHAR]-[CHAR]]/g,  // Corrupted characters like [CHAR][CHAR][CHAR][CHAR]
+            /[^\x00-\x7F]/g  // Any non-ASCII
+        ];
+        
+        corruptedPatterns.forEach((pattern, index) => {
+            const matches = dataStr.match(pattern);
+            if (matches) {
+                violations.push({
+                    type: 'CORRUPTED_CHARS',
+                    severity: 'CRITICAL',
+                    source: source,
+                    description: `Corrupted character pattern ${index + 1} detected: ${matches.slice(0, 5).join(', ')}`,
+                    count: matches.length,
+                    timestamp: new Date().toISOString()
+                });
+            }
+        });
+        
+        // Report violations to logger and reverse tracer
+        if (violations.length > 0) {
+            logger.error(`[UTF8_ENFORCEMENT] ${violations.length} violations detected in ${source}`, {
+                violations: violations,
+                service: 'rawrz-security-platform',
+                timestamp: new Date().toISOString()
+            });
+            
+            // Record in reverse tracer
+            violations.forEach(violation => {
+                reverseTracer.recordCorruption(violation.type, source, violation.description);
+            });
+        }
+        
+        return {
+            valid: violations.length === 0,
+            violations: violations,
+            source: source,
+            timestamp: new Date().toISOString()
+        };
     }
 
     // Validate data before encryption
@@ -412,12 +489,55 @@ class DataIntegrityValidator {
         return malformities;
     }
 
+    // Check if data is a console.log statement with emojis (false positive)
+    isConsoleLogWithEmojis(data) {
+        const dataStr = data.toString();
+        
+        // Check if it looks like a console.log output with emojis
+        const emojiPattern = /[\u1F300-\u1F9FF\u2600-\u26FF\u2700-\u27BF]/;
+        const consoleLogPatterns = [
+            /^[[SEARCH][SECURITY][CHAT][BOT][INFO][DEBUG][CONNECT][START][STATUS][LOG][OK][ERROR][WARN][ALERT]]/,
+            /RawrZ|MongoDB|Engine|Server|Database|API|Health|Logs/i
+        ];
+        
+        // If it contains emojis and looks like a console.log, it's likely a false positive
+        if (emojiPattern.test(dataStr)) {
+            for (const pattern of consoleLogPatterns) {
+                if (pattern.test(dataStr)) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+
     // Detect encoding corruption
     detectEncodingCorruption(data) {
         try {
             const buffer = Buffer.from(data, 'utf8');
             const roundTrip = buffer.toString('utf8');
-            return roundTrip !== data;
+            
+            // Check for actual encoding corruption (not just Unicode characters)
+            if (roundTrip !== data) {
+                return true;
+            }
+            
+            // Check for suspicious encoding patterns that aren't emojis
+            const suspiciousPatterns = [
+                /\uFFFD/g, // Replacement character (indicates encoding issues)
+                /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, // Control characters
+                /[\uFEFF]/g, // Byte order mark
+                /[\u200B-\u200D\uFEFF]/g // Zero-width characters
+            ];
+            
+            for (const pattern of suspiciousPatterns) {
+                if (pattern.test(data)) {
+                    return true;
+                }
+            }
+            
+            return false;
         } catch (error) {
             return true;
         }
@@ -459,7 +579,7 @@ class DataIntegrityValidator {
         reverseTracer.trackOperation('PRE_ENCRYPTION_CHECK', `Operation ${operationId}`, data);
 
         if (malformities.length > 0) {
-            logger.error(`🚨 PRE-ENCRYPTION MALFORMITIES DETECTED: ${operationId}`);
+            logger.error(`[ALERT] PRE-ENCRYPTION MALFORMITIES DETECTED: ${operationId}`);
             malformities.forEach(m => {
                 logger.error(`  - ${m.type} (${m.severity}): ${m.description}`);
                 reverseTracer.recordCorruption(
@@ -505,7 +625,7 @@ class DataIntegrityValidator {
             });
 
             if (comparison.issues.length > 0) {
-                logger.error(`🚨 ENCRYPTION PROCESS CORRUPTION: ${operationId}`);
+                logger.error(`[ALERT] ENCRYPTION PROCESS CORRUPTION: ${operationId}`);
                 comparison.issues.forEach(issue => {
                     logger.error(`  - ${issue}`);
                     reverseTracer.recordCorruption(
@@ -519,7 +639,7 @@ class DataIntegrityValidator {
         }
 
         if (malformities.length > 0) {
-            logger.error(`🚨 POST-ENCRYPTION MALFORMITIES DETECTED: ${operationId}`);
+            logger.error(`[ALERT] POST-ENCRYPTION MALFORMITIES DETECTED: ${operationId}`);
             malformities.forEach(m => {
                 logger.error(`  - ${m.type} (${m.severity}): ${m.description}`);
                 reverseTracer.recordCorruption(

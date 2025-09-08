@@ -10,16 +10,16 @@ Write-Host ""
 # Create deployment package
 try {
     Compress-Archive -Path 'src', 'public', 'scripts', 'package*.json', 'Dockerfile*', '*.md' -DestinationPath 'rawrz-deployment-bypass.zip' -Force
-    Write-Host "✅ Deployment package created: rawrz-deployment-bypass.zip" -ForegroundColor Green
+    Write-Host "[OK] Deployment package created: rawrz-deployment-bypass.zip" -ForegroundColor Green
 } catch {
-    Write-Host "❌ Error creating package: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "[ERROR] Error creating package: $($_.Exception.Message)" -ForegroundColor Red
     exit 1
 }
 
 Write-Host ""
-Write-Host "🚀 Opening DigitalOcean App Platform..." -ForegroundColor Cyan
+Write-Host "[START] Opening DigitalOcean App Platform..." -ForegroundColor Cyan
 Write-Host ""
-Write-Host "📋 DEPLOYMENT INSTRUCTIONS:" -ForegroundColor Yellow
+Write-Host "[LIST] DEPLOYMENT INSTRUCTIONS:" -ForegroundColor Yellow
 Write-Host "1. Click 'Create App'" -ForegroundColor White
 Write-Host "2. Choose 'Upload Source Code'" -ForegroundColor White
 Write-Host "3. Upload: rawrz-deployment-bypass.zip" -ForegroundColor White
@@ -29,7 +29,7 @@ Write-Host "6. Set Run Command: node src/app.js" -ForegroundColor White
 Write-Host "7. Set Port: 3000" -ForegroundColor White
 Write-Host "8. Deploy!" -ForegroundColor White
 Write-Host ""
-Write-Host "This bypasses git completely! 🎯" -ForegroundColor Green
+Write-Host "This bypasses git completely! [TARGET]" -ForegroundColor Green
 Write-Host ""
 
 # Open DigitalOcean

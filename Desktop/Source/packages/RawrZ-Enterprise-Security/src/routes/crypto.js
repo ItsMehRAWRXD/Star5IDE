@@ -24,20 +24,20 @@ let dualCryptoEngine = null;
 // Helper functions for lazy engine loading
 async function getCamelliaEngine() {
   if (!camelliaEngine) {
-    console.log('🔄 Loading Camellia engine on demand...');
+    console.log('[INFO] Loading Camellia engine on demand...');
     camelliaEngine = new CamelliaAssemblyEngine();
     await camelliaEngine.initialize();
-    console.log('✅ Camellia engine loaded successfully');
+    console.log('[OK] Camellia engine loaded successfully');
   }
   return camelliaEngine;
 }
 
 async function getDualCryptoEngine() {
   if (!dualCryptoEngine) {
-    console.log('🔄 Loading Dual Crypto engine on demand...');
+    console.log('[INFO] Loading Dual Crypto engine on demand...');
     dualCryptoEngine = new DualCryptoEngine();
     await dualCryptoEngine.initialize();
-    console.log('✅ Dual Crypto engine loaded successfully');
+    console.log('[OK] Dual Crypto engine loaded successfully');
   }
   return dualCryptoEngine;
 }

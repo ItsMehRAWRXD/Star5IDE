@@ -91,12 +91,12 @@ certbot --nginx -d screenpilot.dev -d www.screenpilot.dev --non-interactive --ag
 ## Architecture
 
 ```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   CloudFlare    │    │   DigitalOcean  │    │   RawrZ App     │
-│   (DNS/CDN)     │───▶│   Droplet       │───▶│   (Docker)      │
-│                 │    │   - Nginx       │    │   - Node.js     │
-│                 │    │   - SSL         │    │   - MongoDB     │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
+[CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR]    [CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR]    [CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR]
+[CHAR]   CloudFlare    [CHAR]    [CHAR]   DigitalOcean  [CHAR]    [CHAR]   RawrZ App     [CHAR]
+[CHAR]   (DNS/CDN)     [CHAR][CHAR][CHAR][CHAR][CHAR][CHAR]   Droplet       [CHAR][CHAR][CHAR][CHAR][CHAR][CHAR]   (Docker)      [CHAR]
+[CHAR]                 [CHAR]    [CHAR]   - Nginx       [CHAR]    [CHAR]   - Node.js     [CHAR]
+[CHAR]                 [CHAR]    [CHAR]   - SSL         [CHAR]    [CHAR]   - MongoDB     [CHAR]
+[CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR]    [CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR]    [CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR][CHAR]
 ```
 
 ## Services
@@ -191,10 +191,10 @@ mongodump --uri="mongodb://localhost:27017/rawrz_production" --out backup-db-$(d
 
 ## Next Steps
 
-1. ✅ Deploy to DigitalOcean
-2. 🔧 Configure monitoring alerts
-3. 📊 Set up analytics
-4. 🔒 Implement additional security measures
-5. 📈 Scale as needed
+1. [OK] Deploy to DigitalOcean
+2. [CHAR][CHAR] Configure monitoring alerts
+3. [STATUS] Set up analytics
+4. [LOCK] Implement additional security measures
+5. [CHAR][CHAR] Scale as needed
 
 Your RawrZ Security Platform will be available at: **https://screenpilot.dev**

@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 
-console.log('🔍 RawrZ Security Platform - Comprehensive Validation Check');
+console.log('[SEARCH] RawrZ Security Platform - Comprehensive Validation Check');
 console.log('===========================================================');
 
 let allChecksPassed = true;
@@ -11,7 +11,7 @@ const errors = [];
 const warnings = [];
 
 // 1. Check API endpoint URLs in UI files
-console.log('\n📱 Checking UI API endpoint URLs...');
+console.log('\n[CHAR][CHAR] Checking UI API endpoint URLs...');
 const uiFiles = [
     'public/advanced-ui.html',
     'public/admin-panel.html',
@@ -33,7 +33,7 @@ uiFiles.forEach(file => {
         malformedPatterns.forEach((pattern, index) => {
             const matches = content.match(pattern);
             if (matches) {
-                errors.push(`❌ ${file}: Malformed API_BASE URL found: ${matches.join(', ')}`);
+                errors.push(`[ERROR] ${file}: Malformed API_BASE URL found: ${matches.join(', ')}`);
                 allChecksPassed = false;
             }
         });
@@ -47,17 +47,17 @@ uiFiles.forEach(file => {
         
         const hasCorrectEndpoints = correctPatterns.some(pattern => pattern.test(content));
         if (!hasCorrectEndpoints && content.includes('API_BASE')) {
-            warnings.push(`⚠️  ${file}: No standard API endpoints found`);
+            warnings.push(`[WARN]  ${file}: No standard API endpoints found`);
         }
         
-        console.log(`  ✅ ${file} - API URLs checked`);
+        console.log(`  [OK] ${file} - API URLs checked`);
     } else {
-        warnings.push(`⚠️  ${file} - File not found`);
+        warnings.push(`[WARN]  ${file} - File not found`);
     }
 });
 
 // 2. Check JSON formatting in configuration files
-console.log('\n📄 Checking JSON configuration files...');
+console.log('\n[CHAR][CHAR] Checking JSON configuration files...');
 const jsonFiles = [
     'package.json',
     'app-spec.yaml'
@@ -68,26 +68,26 @@ jsonFiles.forEach(file => {
         try {
             if (file.endsWith('.json')) {
                 JSON.parse(fs.readFileSync(file, 'utf8'));
-                console.log(`  ✅ ${file} - Valid JSON`);
+                console.log(`  [OK] ${file} - Valid JSON`);
             } else if (file.endsWith('.yaml')) {
                 // Basic YAML syntax check
                 const content = fs.readFileSync(file, 'utf8');
                 if (content.includes('name:') && content.includes('services:')) {
-                    console.log(`  ✅ ${file} - Valid YAML structure`);
+                    console.log(`  [OK] ${file} - Valid YAML structure`);
                 } else {
-                    errors.push(`❌ ${file}: Invalid YAML structure`);
+                    errors.push(`[ERROR] ${file}: Invalid YAML structure`);
                     allChecksPassed = false;
                 }
             }
         } catch (e) {
-            errors.push(`❌ ${file}: JSON/YAML parse error - ${e.message}`);
+            errors.push(`[ERROR] ${file}: JSON/YAML parse error - ${e.message}`);
             allChecksPassed = false;
         }
     }
 });
 
 // 3. Check RawrZ Engine file structure
-console.log('\n🛡️ Checking RawrZ Engine structure...');
+console.log('\n[SECURITY] Checking RawrZ Engine structure...');
 const engineFile = 'src/engines/rawrz-engine.js';
 if (fs.existsSync(engineFile)) {
     const content = fs.readFileSync(engineFile, 'utf8');
@@ -116,26 +116,26 @@ if (fs.existsSync(engineFile)) {
     
     const missingMethods = requiredMethods.filter(method => !content.includes(method));
     if (missingMethods.length > 0) {
-        errors.push(`❌ RawrZ Engine: Missing methods - ${missingMethods.join(', ')}`);
+        errors.push(`[ERROR] RawrZ Engine: Missing methods - ${missingMethods.join(', ')}`);
         allChecksPassed = false;
     } else {
-        console.log(`  ✅ RawrZ Engine - All ${requiredMethods.length} methods present`);
+        console.log(`  [OK] RawrZ Engine - All ${requiredMethods.length} methods present`);
     }
     
     // Check for proper module export
     if (!content.includes('module.exports = rawrzEngine')) {
-        errors.push(`❌ RawrZ Engine: Missing module export`);
+        errors.push(`[ERROR] RawrZ Engine: Missing module export`);
         allChecksPassed = false;
     } else {
-        console.log(`  ✅ RawrZ Engine - Proper module export`);
+        console.log(`  [OK] RawrZ Engine - Proper module export`);
     }
 } else {
-    errors.push(`❌ RawrZ Engine file not found`);
+    errors.push(`[ERROR] RawrZ Engine file not found`);
     allChecksPassed = false;
 }
 
 // 4. Check server configuration
-console.log('\n⚙️ Checking server configuration...');
+console.log('\n[CHAR][CHAR] Checking server configuration...');
 const serverFile = 'src/app.js';
 if (fs.existsSync(serverFile)) {
     const content = fs.readFileSync(serverFile, 'utf8');
@@ -150,32 +150,32 @@ if (fs.existsSync(serverFile)) {
     
     const missingMiddleware = requiredMiddleware.filter(middleware => !content.includes(middleware));
     if (missingMiddleware.length > 0) {
-        warnings.push(`⚠️  Server: Missing middleware - ${missingMiddleware.join(', ')}`);
+        warnings.push(`[WARN]  Server: Missing middleware - ${missingMiddleware.join(', ')}`);
     } else {
-        console.log(`  ✅ Server - All required middleware present`);
+        console.log(`  [OK] Server - All required middleware present`);
     }
     
     // Check for engine initialization
     if (!content.includes('initializeRawrZEngine')) {
-        errors.push(`❌ Server: Missing RawrZ Engine initialization`);
+        errors.push(`[ERROR] Server: Missing RawrZ Engine initialization`);
         allChecksPassed = false;
     } else {
-        console.log(`  ✅ Server - RawrZ Engine initialization present`);
+        console.log(`  [OK] Server - RawrZ Engine initialization present`);
     }
     
     // Check for error handling
     if (!content.includes('errorTrackingMiddleware')) {
-        warnings.push(`⚠️  Server: Missing error tracking middleware`);
+        warnings.push(`[WARN]  Server: Missing error tracking middleware`);
     } else {
-        console.log(`  ✅ Server - Error handling present`);
+        console.log(`  [OK] Server - Error handling present`);
     }
 } else {
-    errors.push(`❌ Server file not found`);
+    errors.push(`[ERROR] Server file not found`);
     allChecksPassed = false;
 }
 
 // 5. Check package dependencies
-console.log('\n📦 Checking package dependencies...');
+console.log('\n[DEBUG] Checking package dependencies...');
 if (fs.existsSync('package.json')) {
     const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
     const requiredDeps = [
@@ -193,18 +193,18 @@ if (fs.existsSync('package.json')) {
     
     const missingDeps = requiredDeps.filter(dep => !packageJson.dependencies[dep]);
     if (missingDeps.length > 0) {
-        errors.push(`❌ Package: Missing dependencies - ${missingDeps.join(', ')}`);
+        errors.push(`[ERROR] Package: Missing dependencies - ${missingDeps.join(', ')}`);
         allChecksPassed = false;
     } else {
-        console.log(`  ✅ Package - All required dependencies present`);
+        console.log(`  [OK] Package - All required dependencies present`);
     }
 } else {
-    errors.push(`❌ package.json not found`);
+    errors.push(`[ERROR] package.json not found`);
     allChecksPassed = false;
 }
 
 // 6. Check for common syntax errors
-console.log('\n🔍 Checking for common syntax errors...');
+console.log('\n[SEARCH] Checking for common syntax errors...');
 const sourceFiles = [
     'src/app.js',
     'src/engines/rawrz-engine.js',
@@ -230,17 +230,17 @@ sourceFiles.forEach(file => {
         syntaxIssues.forEach(({ pattern, message }) => {
             const matches = content.match(pattern);
             if (matches) {
-                errors.push(`❌ ${file}: ${message} - ${matches.length} instances`);
+                errors.push(`[ERROR] ${file}: ${message} - ${matches.length} instances`);
                 allChecksPassed = false;
             }
         });
         
-        console.log(`  ✅ ${file} - Syntax check passed`);
+        console.log(`  [OK] ${file} - Syntax check passed`);
     }
 });
 
 // 7. Check deployment configuration
-console.log('\n🚀 Checking deployment configuration...');
+console.log('\n[START] Checking deployment configuration...');
 if (fs.existsSync('app-spec.yaml')) {
     const content = fs.readFileSync('app-spec.yaml', 'utf8');
     
@@ -255,48 +255,48 @@ if (fs.existsSync('app-spec.yaml')) {
     
     const missingFields = requiredFields.filter(field => !content.includes(field));
     if (missingFields.length > 0) {
-        errors.push(`❌ Deployment: Missing required fields - ${missingFields.join(', ')}`);
+        errors.push(`[ERROR] Deployment: Missing required fields - ${missingFields.join(', ')}`);
         allChecksPassed = false;
     } else {
-        console.log(`  ✅ Deployment - All required fields present`);
+        console.log(`  [OK] Deployment - All required fields present`);
     }
     
     // Check for correct port configuration
     if (!content.includes('http_port: 8088')) {
-        warnings.push(`⚠️  Deployment: Port not set to 8088`);
+        warnings.push(`[WARN]  Deployment: Port not set to 8088`);
     } else {
-        console.log(`  ✅ Deployment - Correct port configuration`);
+        console.log(`  [OK] Deployment - Correct port configuration`);
     }
 } else {
-    errors.push(`❌ app-spec.yaml not found`);
+    errors.push(`[ERROR] app-spec.yaml not found`);
     allChecksPassed = false;
 }
 
 // Summary
-console.log('\n📊 VALIDATION SUMMARY');
+console.log('\n[STATUS] VALIDATION SUMMARY');
 console.log('====================');
 
 if (errors.length > 0) {
-    console.log('\n❌ ERRORS FOUND:');
+    console.log('\n[ERROR] ERRORS FOUND:');
     errors.forEach(error => console.log(`  ${error}`));
 }
 
 if (warnings.length > 0) {
-    console.log('\n⚠️  WARNINGS:');
+    console.log('\n[WARN]  WARNINGS:');
     warnings.forEach(warning => console.log(`  ${warning}`));
 }
 
 if (allChecksPassed && errors.length === 0) {
-    console.log('\n🎉 ALL CHECKS PASSED!');
-    console.log('✅ RawrZ Security Platform is ready for deployment');
-    console.log('✅ All API endpoints properly configured');
-    console.log('✅ All dependencies present');
-    console.log('✅ All syntax checks passed');
-    console.log('✅ Deployment configuration valid');
+    console.log('\n[SUCCESS] ALL CHECKS PASSED!');
+    console.log('[OK] RawrZ Security Platform is ready for deployment');
+    console.log('[OK] All API endpoints properly configured');
+    console.log('[OK] All dependencies present');
+    console.log('[OK] All syntax checks passed');
+    console.log('[OK] Deployment configuration valid');
 } else {
-    console.log('\n❌ VALIDATION FAILED');
+    console.log('\n[ERROR] VALIDATION FAILED');
     console.log('Please fix the errors above before deployment');
     process.exit(1);
 }
 
-console.log('\n🚀 Ready for production deployment!');
+console.log('\n[START] Ready for production deployment!');

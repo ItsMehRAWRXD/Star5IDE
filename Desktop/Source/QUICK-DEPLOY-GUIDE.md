@@ -1,11 +1,11 @@
-# 🚀 RawrZ Security Platform - Quick Deploy Guide
+# [START] RawrZ Security Platform - Quick Deploy Guide
 
 ## Current Status
-✅ **Repository cleaned up** (removed 119,618 files of bloat!)  
-✅ **Deployment files ready** (Dockerfile.prod, docker-compose files)  
-✅ **Local code is clean and optimized**  
+[OK] **Repository cleaned up** (removed 119,618 files of bloat!)  
+[OK] **Deployment files ready** (Dockerfile.prod, docker-compose files)  
+[OK] **Local code is clean and optimized**  
 
-## 🎯 RECOMMENDED: Deploy to DigitalOcean App Platform
+## [TARGET] RECOMMENDED: Deploy to DigitalOcean App Platform
 
 ### Step 1: Create Deployment Package
 ```bash
@@ -28,7 +28,7 @@
 - Wait for deployment to complete
 - Get your app URL
 
-## 🌐 Domain Setup (screenpilot.dev)
+## [WEB] Domain Setup (screenpilot.dev)
 
 ### Current Domain Status
 - **Domain**: screenpilot.dev
@@ -52,7 +52,7 @@
    TTL: 3600
    ```
 
-## 🔧 Alternative: Deploy to Existing Droplet
+## [CHAR][CHAR] Alternative: Deploy to Existing Droplet
 
 ### Direct Droplet Deployment
 ```bash
@@ -68,7 +68,7 @@ docker build -f Dockerfile.prod -t rawrz-platform .
 docker run -d -p 3000:3000 --name rawrz-app rawrz-platform
 ```
 
-## 📋 Environment Variables
+## [LIST] Environment Variables
 ```env
 NODE_ENV=production
 PORT=3000
@@ -77,18 +77,18 @@ JWT_SECRET=your-super-secret-jwt-key-change-in-production
 FRONTEND_URL=https://screenpilot.dev
 ```
 
-## 🎉 Success Indicators
-- ✅ App accessible at DigitalOcean URL
-- ✅ RawrZ Security Platform loads
-- ✅ All crypto engines working
-- ✅ Domain points to app
-- ✅ SSL certificate active
+## [SUCCESS] Success Indicators
+- [OK] App accessible at DigitalOcean URL
+- [OK] RawrZ Security Platform loads
+- [OK] All crypto engines working
+- [OK] Domain points to app
+- [OK] SSL certificate active
 
-## 🆘 Troubleshooting
+## [CHAR][CHAR] Troubleshooting
 - **Git freezing**: Use direct upload method
 - **Docker build fails**: Check Dockerfile.prod syntax
 - **Domain not working**: Verify nameservers updated
 - **App not starting**: Check environment variables
 
 ---
-**Ready to deploy! Run `.\DEPLOY-NOW.bat` to start!** 🚀
+**Ready to deploy! Run `.\DEPLOY-NOW.bat` to start!** [START]

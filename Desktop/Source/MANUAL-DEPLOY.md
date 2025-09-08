@@ -76,8 +76,8 @@ ufw --force enable
 
 In your domain registrar (where you bought screenpilot.dev):
 
-1. Add A record: `@` → `YOUR_SERVER_IP`
-2. Add A record: `www` → `YOUR_SERVER_IP`
+1. Add A record: `@` [CHAR] `YOUR_SERVER_IP`
+2. Add A record: `www` [CHAR] `YOUR_SERVER_IP`
 3. Set TTL to 300 seconds
 
 ## Step 5: Test Deployment
@@ -129,11 +129,11 @@ curl -f https://screenpilot.dev/health
 
 ## What You'll Have After Deployment
 
-- ✅ RawrZ Security Platform running on https://screenpilot.dev
-- ✅ SSL certificates (Let's Encrypt)
-- ✅ Nginx reverse proxy
-- ✅ Docker containerization
-- ✅ Health monitoring
-- ✅ Firewall protection
+- [OK] RawrZ Security Platform running on https://screenpilot.dev
+- [OK] SSL certificates (Let's Encrypt)
+- [OK] Nginx reverse proxy
+- [OK] Docker containerization
+- [OK] Health monitoring
+- [OK] Firewall protection
 
-Your RawrZ Security Platform will be live at: **https://screenpilot.dev** 🚀
+Your RawrZ Security Platform will be live at: **https://screenpilot.dev** [START]

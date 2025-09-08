@@ -3,7 +3,7 @@ param(
     [string]$Command = "log --oneline -3"
 )
 
-Write-Host "🔧 Git Freeze Handler - Quick Recovery" -ForegroundColor Cyan
+Write-Host "[CHAR][CHAR] Git Freeze Handler - Quick Recovery" -ForegroundColor Cyan
 
 # Kill any hanging git processes immediately
 Write-Host "  - Killing hanging git processes..." -ForegroundColor Yellow
@@ -24,14 +24,14 @@ try {
     if ($result) {
         $output = Receive-Job $job
         Remove-Job $job
-        Write-Host "✅ Git working: $output" -ForegroundColor Green
+        Write-Host "[OK] Git working: $output" -ForegroundColor Green
     } else {
-        Write-Host "⏰ Git still frozen, killing job..." -ForegroundColor Red
+        Write-Host "[CHAR] Git still frozen, killing job..." -ForegroundColor Red
         Stop-Job $job -ErrorAction SilentlyContinue
         Remove-Job $job -ErrorAction SilentlyContinue
     }
 } catch {
-    Write-Host "❌ Git test failed: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "[ERROR] Git test failed: $($_.Exception.Message)" -ForegroundColor Red
 }
 
 # Get repository info without git log
@@ -39,12 +39,12 @@ Write-Host "  - Getting repository info..." -ForegroundColor Yellow
 try {
     $remoteUrl = git config --get remote.origin.url 2>$null
     if ($remoteUrl) {
-        Write-Host "📁 Repository: $remoteUrl" -ForegroundColor Green
+        Write-Host "[FOLDER] Repository: $remoteUrl" -ForegroundColor Green
     } else {
-        Write-Host "❌ Could not get repository URL" -ForegroundColor Red
+        Write-Host "[ERROR] Could not get repository URL" -ForegroundColor Red
     }
 } catch {
-    Write-Host "❌ Failed to get repository info" -ForegroundColor Red
+    Write-Host "[ERROR] Failed to get repository info" -ForegroundColor Red
 }
 
-Write-Host "✅ Freeze handler completed" -ForegroundColor Green
+Write-Host "[OK] Freeze handler completed" -ForegroundColor Green

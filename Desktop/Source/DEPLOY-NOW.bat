@@ -6,7 +6,7 @@ echo.
 
 echo Step 1: Creating deployment package...
 powershell -Command "Compress-Archive -Path 'src', 'public', 'package.json', 'Dockerfile', 'Dockerfile.prod' -DestinationPath 'rawrz-deployment.zip' -Force"
-echo ✅ Deployment package created: rawrz-deployment.zip
+echo [OK] Deployment package created: rawrz-deployment.zip
 
 echo.
 echo Step 2: Deployment Options:
@@ -27,7 +27,7 @@ echo   1. Go to: https://cloud.digitalocean.com/apps/60e7a755-da24-45f0-9f71-01b
 echo   2. Update source code
 echo.
 
-echo 🎯 RECOMMENDED: Option A - Create new app
+echo [RECOMMENDED] Option A - Create new app
 echo.
 echo Press any key to open DigitalOcean...
 pause >nul

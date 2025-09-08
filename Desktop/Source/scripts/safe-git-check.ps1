@@ -45,16 +45,16 @@ function Invoke-SafeGitCommand {
                 $error = $process.StandardError.ReadToEnd()
                 
                 if ($process.ExitCode -eq 0) {
-                    Write-Host "✅ Git command completed successfully" -ForegroundColor Green
+                    Write-Host "[OK] Git command completed successfully" -ForegroundColor Green
                     Write-Host $output
                     $success = $true
                 } else {
-                    Write-Host "❌ Git command failed with exit code: $($process.ExitCode)" -ForegroundColor Red
+                    Write-Host "[ERROR] Git command failed with exit code: $($process.ExitCode)" -ForegroundColor Red
                     Write-Host "Error: $error" -ForegroundColor Red
                 }
             } else {
                 $freezeCount++
-                Write-Host "⏰ Git command timed out after $TimeoutSec seconds (Freeze #$freezeCount)" -ForegroundColor Red
+                Write-Host "[CHAR] Git command timed out after $TimeoutSec seconds (Freeze #$freezeCount)" -ForegroundColor Red
                 
                 # Force kill the process
                 try {
@@ -64,12 +64,12 @@ function Invoke-SafeGitCommand {
                         $process.Kill($true)
                     }
                 } catch {
-                    Write-Host "⚠️ Process already terminated" -ForegroundColor Yellow
+                    Write-Host "[WARN] Process already terminated" -ForegroundColor Yellow
                 }
                 
                 # Auto-recovery actions after 2 freezes
                 if ($AutoRecover -and $freezeCount -ge 2) {
-                    Write-Host "🔧 Auto-recovery triggered after $freezeCount freezes" -ForegroundColor Cyan
+                    Write-Host "[CHAR][CHAR] Auto-recovery triggered after $freezeCount freezes" -ForegroundColor Cyan
                     Invoke-GitRecoveryActions
                 }
             }
@@ -77,12 +77,12 @@ function Invoke-SafeGitCommand {
             $process.Close()
             
         } catch {
-            Write-Host "❌ Exception occurred: $($_.Exception.Message)" -ForegroundColor Red
+            Write-Host "[ERROR] Exception occurred: $($_.Exception.Message)" -ForegroundColor Red
         }
         
         if (-not $success -and $attempt -lt $Retries) {
             $waitTime = if ($freezeCount -ge 2) { 5 } else { 2 }
-            Write-Host "⏳ Waiting $waitTime seconds before retry..." -ForegroundColor Yellow
+            Write-Host "[CHAR] Waiting $waitTime seconds before retry..." -ForegroundColor Yellow
             Start-Sleep -Seconds $waitTime
         }
         
@@ -90,9 +90,9 @@ function Invoke-SafeGitCommand {
     }
     
     if (-not $success) {
-        Write-Host "❌ All attempts failed. Git command may be hanging or repository corrupted." -ForegroundColor Red
+        Write-Host "[ERROR] All attempts failed. Git command may be hanging or repository corrupted." -ForegroundColor Red
         if ($AutoRecover) {
-            Write-Host "🔧 Attempting final recovery actions..." -ForegroundColor Cyan
+            Write-Host "[CHAR][CHAR] Attempting final recovery actions..." -ForegroundColor Cyan
             Invoke-GitRecoveryActions
         }
         return $false
@@ -102,7 +102,7 @@ function Invoke-SafeGitCommand {
 }
 
 function Invoke-GitRecoveryActions {
-    Write-Host "🔄 Performing Git recovery actions..." -ForegroundColor Cyan
+    Write-Host "[INFO] Performing Git recovery actions..." -ForegroundColor Cyan
     
     try {
         # Kill any hanging git processes
@@ -130,15 +130,15 @@ function Invoke-GitRecoveryActions {
         Write-Host "  - Clearing git cache..." -ForegroundColor Yellow
         git gc --prune=now 2>$null | Out-Null
         
-        Write-Host "✅ Recovery actions completed" -ForegroundColor Green
+        Write-Host "[OK] Recovery actions completed" -ForegroundColor Green
         
     } catch {
-        Write-Host "❌ Recovery actions failed: $($_.Exception.Message)" -ForegroundColor Red
+        Write-Host "[ERROR] Recovery actions failed: $($_.Exception.Message)" -ForegroundColor Red
     }
 }
 
 # Main execution
-Write-Host "🔍 Safe Git Check - Preventing Freezes" -ForegroundColor Cyan
+Write-Host "[SEARCH] Safe Git Check - Preventing Freezes" -ForegroundColor Cyan
 Write-Host "Command: git $Command" -ForegroundColor White
 Write-Host "Timeout: $TimeoutSeconds seconds" -ForegroundColor White
 Write-Host "Max Retries: $MaxRetries" -ForegroundColor White
@@ -148,9 +148,9 @@ $result = Invoke-SafeGitCommand -GitCommand $Command -TimeoutSec $TimeoutSeconds
 
 if ($result) {
     Write-Host ""
-    Write-Host "✅ Git check completed successfully" -ForegroundColor Green
+    Write-Host "[OK] Git check completed successfully" -ForegroundColor Green
 } else {
     Write-Host ""
-    Write-Host "❌ Git check failed after all retries" -ForegroundColor Red
+    Write-Host "[ERROR] Git check failed after all retries" -ForegroundColor Red
     exit 1
 }

@@ -8,7 +8,7 @@ param(
     [string]$SSHUser = "root"
 )
 
-Write-Host "🚀 Starting deployment to existing hosting for $Domain" -ForegroundColor Cyan
+Write-Host "[START] Starting deployment to existing hosting for $Domain" -ForegroundColor Cyan
 Write-Host "==================================================" -ForegroundColor Cyan
 
 # Configuration
@@ -29,38 +29,38 @@ function Test-Command {
 
 # Check dependencies
 function Test-Dependencies {
-    Write-Host "🔍 Checking dependencies..." -ForegroundColor Yellow
+    Write-Host "[SEARCH] Checking dependencies..." -ForegroundColor Yellow
     
     if (-not (Test-Command "docker")) {
-        Write-Host "❌ Docker is not installed. Please install it first." -ForegroundColor Red
+        Write-Host "[ERROR] Docker is not installed. Please install it first." -ForegroundColor Red
         exit 1
     }
     
     if (-not (Test-Command "ssh")) {
-        Write-Host "❌ SSH is not available. Please ensure SSH client is installed." -ForegroundColor Red
+        Write-Host "[ERROR] SSH is not available. Please ensure SSH client is installed." -ForegroundColor Red
         exit 1
     }
     
-    Write-Host "✅ All dependencies are installed" -ForegroundColor Green
+    Write-Host "[OK] All dependencies are installed" -ForegroundColor Green
 }
 
 # Test server connection
 function Test-ServerConnection {
-    Write-Host "🔗 Testing connection to server $ServerIP..." -ForegroundColor Yellow
+    Write-Host "[CONNECT] Testing connection to server $ServerIP..." -ForegroundColor Yellow
     
     try {
         # Test SSH connection
         $testResult = ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no "$SSHUser@$ServerIP" "echo 'Connection successful'"
         
         if ($testResult -match "Connection successful") {
-            Write-Host "✅ Server connection successful" -ForegroundColor Green
+            Write-Host "[OK] Server connection successful" -ForegroundColor Green
         } else {
-            Write-Host "❌ Server connection failed" -ForegroundColor Red
+            Write-Host "[ERROR] Server connection failed" -ForegroundColor Red
             exit 1
         }
         
     } catch {
-        Write-Host "❌ Failed to connect to server: $($_.Exception.Message)" -ForegroundColor Red
+        Write-Host "[ERROR] Failed to connect to server: $($_.Exception.Message)" -ForegroundColor Red
         Write-Host "Please ensure:" -ForegroundColor Yellow
         Write-Host "  - Server IP is correct: $ServerIP" -ForegroundColor White
         Write-Host "  - SSH key is properly configured" -ForegroundColor White
@@ -71,7 +71,7 @@ function Test-ServerConnection {
 
 # Setup domain DNS (manual instructions)
 function Show-DNSInstructions {
-    Write-Host "🌐 DNS Configuration for $Domain..." -ForegroundColor Yellow
+    Write-Host "[WEB] DNS Configuration for $Domain..." -ForegroundColor Yellow
     
     Write-Host "Please configure your DNS records manually:" -ForegroundColor Cyan
     Write-Host "  A Record: @ -> $ServerIP" -ForegroundColor White
@@ -84,12 +84,12 @@ function Show-DNSInstructions {
         exit 0
     }
     
-    Write-Host "✅ DNS configuration confirmed" -ForegroundColor Green
+    Write-Host "[OK] DNS configuration confirmed" -ForegroundColor Green
 }
 
 # Deploy application
 function Deploy-Application {
-    Write-Host "📦 Deploying application to server..." -ForegroundColor Yellow
+    Write-Host "[DEBUG] Deploying application to server..." -ForegroundColor Yellow
     
     try {
         # Create deployment directory
@@ -109,7 +109,7 @@ function Deploy-Application {
         
         foreach ($File in $FilesToCopy) {
             if (Test-Path $File) {
-                Write-Host "  📁 Copying $File..." -ForegroundColor Gray
+                Write-Host "  [FOLDER] Copying $File..." -ForegroundColor Gray
                 scp -r -o StrictHostKeyChecking=no $File "$SSHUser@$ServerIP`:$DeployDir/"
             }
         }
@@ -156,17 +156,17 @@ echo "/root/$AppName/logs/*.log {
         
         ssh -o StrictHostKeyChecking=no "$SSHUser@$ServerIP" $SSHCommands
         
-        Write-Host "✅ Application deployed successfully" -ForegroundColor Green
+        Write-Host "[OK] Application deployed successfully" -ForegroundColor Green
         
     } catch {
-        Write-Host "❌ Failed to deploy application: $($_.Exception.Message)" -ForegroundColor Red
+        Write-Host "[ERROR] Failed to deploy application: $($_.Exception.Message)" -ForegroundColor Red
         exit 1
     }
 }
 
 # Setup monitoring
 function Set-Monitoring {
-    Write-Host "📊 Setting up monitoring..." -ForegroundColor Yellow
+    Write-Host "[STATUS] Setting up monitoring..." -ForegroundColor Yellow
     
     try {
         $MonitoringCommands = @"
@@ -182,16 +182,16 @@ echo "*/1 * * * * curl -f http://localhost/health || systemctl restart docker" |
         
         ssh -o StrictHostKeyChecking=no "$SSHUser@$ServerIP" $MonitoringCommands
         
-        Write-Host "✅ Monitoring setup completed" -ForegroundColor Green
+        Write-Host "[OK] Monitoring setup completed" -ForegroundColor Green
         
     } catch {
-        Write-Host "❌ Failed to setup monitoring: $($_.Exception.Message)" -ForegroundColor Red
+        Write-Host "[ERROR] Failed to setup monitoring: $($_.Exception.Message)" -ForegroundColor Red
     }
 }
 
 # Main deployment function
 function Start-Deployment {
-    Write-Host "🚀 Starting deployment process..." -ForegroundColor Cyan
+    Write-Host "[START] Starting deployment process..." -ForegroundColor Cyan
     
     Test-Dependencies
     Test-ServerConnection
@@ -199,10 +199,10 @@ function Start-Deployment {
     Deploy-Application
     Set-Monitoring
     
-    Write-Host "🎉 Deployment completed successfully!" -ForegroundColor Green
-    Write-Host "🌐 Your application is now available at: https://$Domain" -ForegroundColor Cyan
-    Write-Host "🖥️ Server IP: $ServerIP" -ForegroundColor Cyan
-    Write-Host "🔑 SSH access: ssh $SSHUser@$ServerIP" -ForegroundColor Cyan
+    Write-Host "[SUCCESS] Deployment completed successfully!" -ForegroundColor Green
+    Write-Host "[WEB] Your application is now available at: https://$Domain" -ForegroundColor Cyan
+    Write-Host "[CHAR][CHAR][CHAR] Server IP: $ServerIP" -ForegroundColor Cyan
+    Write-Host "[CHAR][CHAR] SSH access: ssh $SSHUser@$ServerIP" -ForegroundColor Cyan
     
     Write-Host ""
     Write-Host "Next steps:" -ForegroundColor Yellow

@@ -65,32 +65,32 @@ function checkMemoryUsage() {
 // Main health check
 async function main() {
     try {
-        console.log('🔍 Running health checks...');
+        console.log('[SEARCH] Running health checks...');
         
         // Check application health
         await checkHealth();
-        console.log('✅ Application health check passed');
+        console.log('[OK] Application health check passed');
         
         // Check disk space
         if (checkDiskSpace()) {
-            console.log('✅ Disk space check passed');
+            console.log('[OK] Disk space check passed');
         } else {
-            console.log('❌ Disk space check failed');
+            console.log('[ERROR] Disk space check failed');
             process.exit(1);
         }
         
         // Check memory usage
         if (checkMemoryUsage()) {
-            console.log('✅ Memory usage check passed');
+            console.log('[OK] Memory usage check passed');
         } else {
-            console.log('⚠️ High memory usage detected');
+            console.log('[WARN] High memory usage detected');
         }
         
-        console.log('✅ All health checks passed');
+        console.log('[OK] All health checks passed');
         process.exit(0);
         
     } catch (error) {
-        console.error('❌ Health check failed:', error.message);
+        console.error('[ERROR] Health check failed:', error.message);
         process.exit(1);
     }
 }

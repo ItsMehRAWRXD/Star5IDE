@@ -1,7 +1,7 @@
 # PowerShell Script to Create Clean Deployment Package
 # Excludes .netlify and other bloat
 
-Write-Host "🚀 Creating clean deployment package..." -ForegroundColor Green
+Write-Host "[START] Creating clean deployment package..." -ForegroundColor Green
 
 # Set paths
 $sourcePath = "C:\Users\Garre\Desktop\Source"
@@ -13,7 +13,7 @@ if (Test-Path $deployPath) {
 }
 New-Item -ItemType Directory -Path $deployPath -Force
 
-Write-Host "📁 Created: $deployPath" -ForegroundColor Cyan
+Write-Host "[FOLDER] Created: $deployPath" -ForegroundColor Cyan
 
 # Copy essential items, excluding bloat
 $items = @("src", "public", "package.json", "Dockerfile", ".github")
@@ -24,9 +24,9 @@ foreach ($item in $items) {
     
     if (Test-Path $sourceItem) {
         Copy-Item $sourceItem $destItem -Recurse -Force
-        Write-Host "✅ Copied: $item" -ForegroundColor Green
+        Write-Host "[OK] Copied: $item" -ForegroundColor Green
     } else {
-        Write-Host "❌ Missing: $item" -ForegroundColor Red
+        Write-Host "[ERROR] Missing: $item" -ForegroundColor Red
     }
 }
 
@@ -34,9 +34,9 @@ foreach ($item in $items) {
 $size = (Get-ChildItem $deployPath -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB
 $files = (Get-ChildItem $deployPath -Recurse -File).Count
 
-Write-Host "✅ Clean deployment created!" -ForegroundColor Green
-Write-Host "📊 Size: $([math]::Round($size, 2)) MB" -ForegroundColor Green
-Write-Host "📄 Files: $files" -ForegroundColor Green
-Write-Host "🚫 Excluded: .netlify (54,000 files!)" -ForegroundColor Red
+Write-Host "[OK] Clean deployment created!" -ForegroundColor Green
+Write-Host "[STATUS] Size: $([math]::Round($size, 2)) MB" -ForegroundColor Green
+Write-Host "[CHAR][CHAR] Files: $files" -ForegroundColor Green
+Write-Host "[CHAR][CHAR] Excluded: .netlify (54,000 files!)" -ForegroundColor Red
 
 Read-Host "Press Enter..."

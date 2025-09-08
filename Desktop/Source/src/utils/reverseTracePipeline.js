@@ -17,7 +17,7 @@ class ReverseTracePipeline {
     }
 
     initializePipeline() {
-        logger.info('🔍 Reverse Trace Pipeline initialized');
+        logger.info('[SEARCH] Reverse Trace Pipeline initialized');
         
         // Monitor all critical data flows
         this.monitorDataFlows();
@@ -148,9 +148,9 @@ class ReverseTracePipeline {
         // Log critical malformities
         operation.malformities.forEach(m => {
             if (m.severity === 'CRITICAL' || m.severity === 'HIGH') {
-                logger.error(`🚨 CRITICAL MALFORMITY: ${m.type} in ${pipelineName}:${stage}`);
-                logger.error(`🚨 Description: ${m.description}`);
-                logger.error(`🚨 Operation ID: ${operation.id}`);
+                logger.error(`[ALERT] CRITICAL MALFORMITY: ${m.type} in ${pipelineName}:${stage}`);
+                logger.error(`[ALERT] Description: ${m.description}`);
+                logger.error(`[ALERT] Operation ID: ${operation.id}`);
                 
                 // Record in reverse tracer
                 reverseTracer.recordCorruption(
@@ -168,7 +168,7 @@ class ReverseTracePipeline {
 
     // Reverse trace to find source
     reverseTrace(pipelineName, stage, operation) {
-        logger.info(`🔍 REVERSE TRACING: ${pipelineName}:${stage} - Operation ${operation.id}`);
+        logger.info(`[SEARCH] REVERSE TRACING: ${pipelineName}:${stage} - Operation ${operation.id}`);
         
         const pipeline = this.pipeline.get(pipelineName);
         if (!pipeline) return;
@@ -181,7 +181,7 @@ class ReverseTracePipeline {
         // Check for malformity propagation
         for (const prevOp of previousOps) {
             if (this.hasMalformityPropagation(prevOp, operation)) {
-                logger.error(`🎯 MALFORMITY PROPAGATION DETECTED: ${prevOp.id} -> ${operation.id}`);
+                logger.error(`[TARGET] MALFORMITY PROPAGATION DETECTED: ${prevOp.id} -> ${operation.id}`);
                 this.traceMalformityPropagation(prevOp, operation);
             }
         }
@@ -223,7 +223,7 @@ class ReverseTracePipeline {
             timestamp: Date.now()
         };
 
-        logger.error(`🎯 MALFORMITY PROPAGATION CHAIN:`);
+        logger.error(`[TARGET] MALFORMITY PROPAGATION CHAIN:`);
         logger.error(`  Source: ${sourceOp.id} (${sourceOp.malformities.map(m => m.type).join(', ')})`);
         logger.error(`  Target: ${targetOp.id} (${targetOp.malformities.map(m => m.type).join(', ')})`);
         logger.error(`  Propagation Time: ${propagation.propagationTime}ms`);
@@ -248,7 +248,7 @@ class ReverseTracePipeline {
 
             for (const otherOp of recentOps) {
                 if (this.hasDataContamination(otherOp, operation)) {
-                    logger.error(`🎯 CROSS-PIPELINE CONTAMINATION: ${otherPipelineName} -> ${pipelineName}`);
+                    logger.error(`[TARGET] CROSS-PIPELINE CONTAMINATION: ${otherPipelineName} -> ${pipelineName}`);
                     this.traceCrossPipelineContamination(otherOp, operation, otherPipelineName, pipelineName);
                 }
             }
@@ -268,7 +268,7 @@ class ReverseTracePipeline {
 
     // Trace cross-pipeline contamination
     traceCrossPipelineContamination(sourceOp, targetOp, sourcePipeline, targetPipeline) {
-        logger.error(`🎯 CROSS-PIPELINE CONTAMINATION DETECTED:`);
+        logger.error(`[TARGET] CROSS-PIPELINE CONTAMINATION DETECTED:`);
         logger.error(`  Source Pipeline: ${sourcePipeline} (${sourceOp.id})`);
         logger.error(`  Target Pipeline: ${targetPipeline} (${targetOp.id})`);
         logger.error(`  Data CRC Match: ${sourceOp.checksums.crc32}`);
@@ -297,7 +297,7 @@ class ReverseTracePipeline {
             const curr = chain[i];
 
             if (this.hasTransformationIssue(prev, curr)) {
-                logger.error(`🎯 TRANSFORMATION ISSUE: ${prev.id} -> ${curr.id}`);
+                logger.error(`[TARGET] TRANSFORMATION ISSUE: ${prev.id} -> ${curr.id}`);
                 this.analyzeTransformationIssue(prev, curr);
             }
         }
@@ -331,7 +331,7 @@ class ReverseTracePipeline {
             timestamp: Date.now()
         };
 
-        logger.error(`🎯 TRANSFORMATION ISSUE ANALYSIS:`);
+        logger.error(`[TARGET] TRANSFORMATION ISSUE ANALYSIS:`);
         logger.error(`  Size Change Ratio: ${issue.sizeChange.toFixed(2)}`);
         logger.error(`  New Malformities: ${issue.newMalformities}`);
 
@@ -373,7 +373,7 @@ class ReverseTracePipeline {
 
     // Deep trace for critical points
     deepTrace(pipelineName, stage, operation) {
-        logger.info(`🔍 DEEP TRACE: ${pipelineName}:${stage} - Operation ${operation.id}`);
+        logger.info(`[SEARCH] DEEP TRACE: ${pipelineName}:${stage} - Operation ${operation.id}`);
         
         // Analyze data in detail
         if (operation.data) {
@@ -412,7 +412,7 @@ class ReverseTracePipeline {
         }
 
         if (analysis.suspicious.length > 0) {
-            logger.warn(`🔍 DATA ANALYSIS SUSPICIOUS: ${operationId}`);
+            logger.warn(`[SEARCH] DATA ANALYSIS SUSPICIOUS: ${operationId}`);
             analysis.suspicious.forEach(s => logger.warn(`  - ${s}`));
         }
     }
@@ -473,7 +473,7 @@ class ReverseTracePipeline {
         const patterns = this.detectPatterns(operation.data || '');
         
         if (patterns.length > 0) {
-            logger.warn(`🔍 PATTERNS DETECTED in ${pipelineName}: ${patterns.join(', ')}`);
+            logger.warn(`[SEARCH] PATTERNS DETECTED in ${pipelineName}: ${patterns.join(', ')}`);
             
             patterns.forEach(pattern => {
                 reverseTracer.recordCorruption(
@@ -490,7 +490,7 @@ class ReverseTracePipeline {
     validateAgainstKnownGoodStates(pipelineName, stage, operation) {
         // This would compare against known good states
         // For now, we'll just log the validation attempt
-        logger.info(`🔍 VALIDATION: ${pipelineName}:${stage} against known good states`);
+        logger.info(`[SEARCH] VALIDATION: ${pipelineName}:${stage} against known good states`);
     }
 
     // Setup automatic tracing
@@ -562,7 +562,7 @@ class ReverseTracePipeline {
         }
 
         if (health.issues.length > 0) {
-            logger.warn(`🔍 PIPELINE HEALTH ANALYSIS: ${health.overallHealth}`);
+            logger.warn(`[SEARCH] PIPELINE HEALTH ANALYSIS: ${health.overallHealth}`);
             health.issues.forEach(issue => logger.warn(`  - ${issue}`));
         }
     }

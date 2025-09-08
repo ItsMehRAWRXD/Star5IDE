@@ -1,10 +1,12 @@
 // Chatterbox Agent Helper - Monitor and communicate script status, especially requestID errors
+const EventEmitter = require('events');
 const { logger } = require('./logger');
 const { reverseTracer } = require('./reverseTracer');
 const { dataIntegrityValidator } = require('./dataIntegrity');
 
-class ChatterboxAgent {
+class ChatterboxAgent extends EventEmitter {
     constructor() {
+        super();
         this.activeScripts = new Map();
         this.errorLog = [];
         this.communicationChannels = new Map();
@@ -16,7 +18,7 @@ class ChatterboxAgent {
     }
 
     initializeChatterbox() {
-        logger.info('🗣️ Chatterbox Agent initialized - monitoring all scripts');
+        logger.info('[CHAT] Chatterbox Agent initialized - monitoring all scripts');
         
         // Set up communication channels
         this.setupCommunicationChannels();
@@ -54,8 +56,9 @@ class ChatterboxAgent {
             this.setupCommunicationChannel(script.communicationChannel);
         }
 
-        logger.info(`🗣️ Script registered: ${scriptId} (${script.name})`);
+        logger.info(`[CHAT] Script registered: ${scriptId} (${script.name})`);
         this.broadcastStatus('script_registered', { scriptId, script });
+        this.emit('script_registered', { scriptId, script });
         
         return scriptId;
     }
@@ -64,7 +67,7 @@ class ChatterboxAgent {
     updateScriptStatus(scriptId, status, data = {}) {
         const script = this.activeScripts.get(scriptId);
         if (!script) {
-            logger.warn(`🗣️ Attempted to update unknown script: ${scriptId}`);
+            logger.warn(`[CHAT] Attempted to update unknown script: ${scriptId}`);
             return false;
         }
 
@@ -78,8 +81,9 @@ class ChatterboxAgent {
 
         // Track status changes
         if (oldStatus !== status) {
-            logger.info(`🗣️ Script status change: ${scriptId} (${script.name}) - ${oldStatus} → ${status}`);
+            logger.info(`[CHAT] Script status change: ${scriptId} (${script.name}) - ${oldStatus} [CHAR] ${status}`);
             this.broadcastStatus('status_change', { scriptId, script, oldStatus, newStatus: status });
+            this.emit('status_change', { scriptId, script, oldStatus, newStatus: status });
         }
 
         // Check for stuck scripts
@@ -92,7 +96,7 @@ class ChatterboxAgent {
     recordScriptError(scriptId, error, context = {}) {
         const script = this.activeScripts.get(scriptId);
         if (!script) {
-            logger.warn(`🗣️ Attempted to record error for unknown script: ${scriptId}`);
+            logger.warn(`[CHAT] Attempted to record error for unknown script: ${scriptId}`);
             return false;
         }
 
@@ -121,8 +125,9 @@ class ChatterboxAgent {
             this.trackRequestIdError(context.requestId, errorRecord);
         }
 
-        logger.error(`🗣️ Script error recorded: ${scriptId} (${script.name}) - ${error.message}`);
+        logger.error(`[CHAT] Script error recorded: ${scriptId} (${script.name}) - ${error.message}`);
         this.broadcastStatus('script_error', errorRecord);
+        this.emit('script_error', errorRecord);
 
         // Record in reverse tracer
         reverseTracer.recordCorruption(
@@ -143,15 +148,17 @@ class ChatterboxAgent {
         
         this.requestIdErrors.get(requestId).push(errorRecord);
         
-        logger.error(`🗣️ RequestID Error tracked: ${requestId} - ${errorRecord.error}`);
+        logger.error(`[CHAT] RequestID Error tracked: ${requestId} - ${errorRecord.error}`);
         
         // Broadcast requestID error
-        this.broadcastStatus('requestid_error', {
+        const requestIdErrorData = {
             requestId,
             error: errorRecord.error,
             scriptId: errorRecord.scriptId,
             timestamp: errorRecord.timestamp
-        });
+        };
+        this.broadcastStatus('requestid_error', requestIdErrorData);
+        this.emit('requestid_error', requestIdErrorData);
     }
 
     // Check for stuck scripts
@@ -172,19 +179,23 @@ class ChatterboxAgent {
                         lastStatus: script.status
                     });
 
-                    logger.error(`🗣️ Script appears stuck: ${scriptId} (${script.name}) - ${timeSinceHeartbeat}ms since last heartbeat`);
-                    this.broadcastStatus('script_stuck', {
+                    logger.error(`[CHAT] Script appears stuck: ${scriptId} (${script.name}) - ${timeSinceHeartbeat}ms since last heartbeat`);
+                    const stuckData = {
                         scriptId,
                         scriptName: script.name,
                         duration: timeSinceHeartbeat,
                         lastStatus: script.status
-                    });
+                    };
+                    this.broadcastStatus('script_stuck', stuckData);
+                    this.emit('script_stuck', stuckData);
                 }
             } else if (this.stuckScripts.has(scriptId)) {
                 // Script is no longer stuck
                 this.stuckScripts.delete(scriptId);
-                logger.info(`🗣️ Script no longer stuck: ${scriptId} (${script.name})`);
-                this.broadcastStatus('script_unstuck', { scriptId, scriptName: script.name });
+                logger.info(`[CHAT] Script no longer stuck: ${scriptId} (${script.name})`);
+                const unstuckData = { scriptId, scriptName: script.name };
+                this.broadcastStatus('script_unstuck', unstuckData);
+                this.emit('script_unstuck', unstuckData);
             }
         }
     }
@@ -214,7 +225,7 @@ class ChatterboxAgent {
         };
 
         this.communicationChannels.set(channelName, channel);
-        logger.info(`🗣️ Communication channel setup: ${channelName}`);
+        logger.info(`[CHAT] Communication channel setup: ${channelName}`);
     }
 
     // Broadcast status to all channels
@@ -240,9 +251,9 @@ class ChatterboxAgent {
         try {
             // This would integrate with your MongoDB or other database
             // For now, we'll just log it
-            logger.info(`🗣️ Database log: ${message.eventType} - ${JSON.stringify(message.data)}`);
+            logger.info(`[CHAT] Database log: ${message.eventType} - ${JSON.stringify(message.data)}`);
         } catch (error) {
-            logger.error(`🗣️ Failed to log to database: ${error.message}`);
+            logger.error(`[CHAT] Failed to log to database: ${error.message}`);
         }
     }
 
@@ -252,7 +263,7 @@ class ChatterboxAgent {
             this.performHeartbeatCheck();
         }, 10000); // Every 10 seconds
 
-        logger.info('🗣️ Heartbeat monitoring started');
+        logger.info('[CHAT] Heartbeat monitoring started');
     }
 
     // Perform heartbeat check
@@ -264,12 +275,14 @@ class ChatterboxAgent {
             const timeSinceHeartbeat = now - script.lastHeartbeat;
             
             if (timeSinceHeartbeat > heartbeatThreshold) {
-                logger.warn(`🗣️ Script heartbeat overdue: ${scriptId} (${script.name}) - ${timeSinceHeartbeat}ms`);
-                this.broadcastStatus('heartbeat_overdue', {
+                logger.warn(`[CHAT] Script heartbeat overdue: ${scriptId} (${script.name}) - ${timeSinceHeartbeat}ms`);
+                const heartbeatData = {
                     scriptId,
                     scriptName: script.name,
                     timeSinceHeartbeat
-                });
+                };
+                this.broadcastStatus('heartbeat_overdue', heartbeatData);
+                this.emit('heartbeat_overdue', heartbeatData);
             }
         }
 
@@ -315,7 +328,7 @@ class ChatterboxAgent {
 
         this.trackRequestIdError(requestId, errorRecord);
         
-        logger.error(`🗣️ RequestID Error detected: ${requestId}`);
+        logger.error(`[CHAT] RequestID Error detected: ${requestId}`);
         this.broadcastStatus('requestid_error_detected', errorRecord);
     }
 
@@ -349,8 +362,9 @@ class ChatterboxAgent {
 
         this.errorLog.push(errorRecord);
         
-        logger.error(`🗣️ Process error: ${type} - ${errorRecord.error}`);
+        logger.error(`[CHAT] Process error: ${type} - ${errorRecord.error}`);
         this.broadcastStatus('process_error', errorRecord);
+        this.emit('process_error', errorRecord);
 
         // Record in reverse tracer
         reverseTracer.recordCorruption(
@@ -454,7 +468,7 @@ class ChatterboxAgent {
         }
         
         this.broadcastStatus('chatterbox_shutdown', { timestamp: Date.now() });
-        logger.info('🗣️ Chatterbox Agent shutdown');
+        logger.info('[CHAT] Chatterbox Agent shutdown');
     }
 }
 

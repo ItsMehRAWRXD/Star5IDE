@@ -3,14 +3,14 @@
 Deploy the RawrZ Security Platform as a panel to your existing DigitalOcean app:
 **https://lionfish-app-ey7kn.ondigitalocean.app/panel**
 
-## 🎯 What This Does
+## [TARGET] What This Does
 
 - Attaches RawrZ Security Platform as a `/panel` route to your existing app
 - Maintains your main app functionality
 - Adds advanced security tools and crypto engines
 - Provides a unified interface
 
-## 🚀 Quick Deploy
+## [START] Quick Deploy
 
 ### Option 1: Automated Script
 ```bash
@@ -62,19 +62,19 @@ chmod +x scripts/deploy-panel.sh
    systemctl restart nginx
    ```
 
-## 📁 File Structure
+## [FOLDER] File Structure
 
 ```
 lionfish-app-ey7kn.ondigitalocean.app/
-├── /                    # Your main app
-└── /panel               # RawrZ Security Platform
-    ├── /api/            # Security APIs
-    ├── /crypto/         # Crypto engines
-    ├── /tools/          # Security tools
-    └── /health          # Health check
+[CHAR][CHAR][CHAR] /                    # Your main app
+[CHAR][CHAR][CHAR] /panel               # RawrZ Security Platform
+    [CHAR][CHAR][CHAR] /api/            # Security APIs
+    [CHAR][CHAR][CHAR] /crypto/         # Crypto engines
+    [CHAR][CHAR][CHAR] /tools/          # Security tools
+    [CHAR][CHAR][CHAR] /health          # Health check
 ```
 
-## 🔧 Configuration
+## [CHAR][CHAR] Configuration
 
 The panel is configured to:
 - Run on port 3001 (to avoid conflicts)
@@ -82,7 +82,7 @@ The panel is configured to:
 - Integrate with your existing domain
 - Maintain separate database (`rawrz_panel`)
 
-## 🛡️ Features Available
+## [SECURITY] Features Available
 
 - **Dual Crypto Engine** (AES + Camellia)
 - **Advanced Encryption** tools
@@ -91,7 +91,7 @@ The panel is configured to:
 - **Security Analysis** tools
 - **File Processing** utilities
 
-## 🔍 Testing
+## [SEARCH] Testing
 
 1. **Health Check:**
    ```bash
@@ -108,7 +108,7 @@ The panel is configured to:
    https://lionfish-app-ey7kn.ondigitalocean.app/panel/api/
    ```
 
-## 📊 Monitoring
+## [STATUS] Monitoring
 
 ```bash
 # View logs
@@ -124,7 +124,7 @@ systemctl status nginx
 curl https://lionfish-app-ey7kn.ondigitalocean.app/panel/health
 ```
 
-## 🔄 Updates
+## [INFO] Updates
 
 ```bash
 # Update panel
@@ -134,7 +134,7 @@ git pull origin main
 docker-compose -f docker-compose.panel.yml up -d --build
 ```
 
-## 🚨 Troubleshooting
+## [ALERT] Troubleshooting
 
 ### Panel not loading:
 ```bash
@@ -161,14 +161,14 @@ systemctl restart nginx
 certbot certificates
 ```
 
-## 🎉 Result
+## [SUCCESS] Result
 
 After deployment, you'll have:
-- ✅ Your main app at: `https://lionfish-app-ey7kn.ondigitalocean.app/`
-- ✅ RawrZ Security Panel at: `https://lionfish-app-ey7kn.ondigitalocean.app/panel`
-- ✅ Unified interface with advanced security tools
-- ✅ Separate databases and configurations
-- ✅ Independent scaling and monitoring
+- [OK] Your main app at: `https://lionfish-app-ey7kn.ondigitalocean.app/`
+- [OK] RawrZ Security Panel at: `https://lionfish-app-ey7kn.ondigitalocean.app/panel`
+- [OK] Unified interface with advanced security tools
+- [OK] Separate databases and configurations
+- [OK] Independent scaling and monitoring
 
 Your RawrZ Security Platform will be accessible at:
-**https://lionfish-app-ey7kn.ondigitalocean.app/panel** 🚀
+**https://lionfish-app-ey7kn.ondigitalocean.app/panel** [START]

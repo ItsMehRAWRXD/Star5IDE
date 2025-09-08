@@ -5,7 +5,7 @@
 
 set -e
 
-echo "🚀 Deploying RawrZ Security Platform as Panel"
+echo "[START] Deploying RawrZ Security Platform as Panel"
 echo "=============================================="
 echo "Target: https://lionfish-app-ey7kn.ondigitalocean.app/panel"
 echo ""
@@ -104,10 +104,10 @@ ssh -o StrictHostKeyChecking=no "$SSH_USER@$SERVER_IP" << EOF
     ufw allow 443
     ufw --force enable
     
-    echo "✅ Panel deployment completed"
+    echo "[OK] Panel deployment completed"
 EOF
 
-print_success "🎉 RawrZ Security Platform deployed as panel!"
+print_success "[SUCCESS] RawrZ Security Platform deployed as panel!"
 print_status "Panel URL: https://$DOMAIN$PANEL_PATH"
 print_status "Health Check: https://$DOMAIN$PANEL_PATH/health"
 print_status "SSH Access: ssh $SSH_USER@$SERVER_IP"

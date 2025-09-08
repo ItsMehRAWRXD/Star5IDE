@@ -10,11 +10,11 @@ REM Create deployment package
 powershell -Command "Compress-Archive -Path 'src', 'public', 'scripts', 'package*.json', 'Dockerfile*', '*.md' -DestinationPath 'rawrz-deployment-bypass.zip' -Force"
 
 echo.
-echo ✅ Deployment package created: rawrz-deployment-bypass.zip
+echo [OK] Deployment package created: rawrz-deployment-bypass.zip
 echo.
-echo 🚀 Opening DigitalOcean App Platform...
+echo [START] Opening DigitalOcean App Platform...
 echo.
-echo 📋 DEPLOYMENT INSTRUCTIONS:
+echo [LIST] DEPLOYMENT INSTRUCTIONS:
 echo 1. Click "Create App" 
 echo 2. Choose "Upload Source Code"
 echo 3. Upload: rawrz-deployment-bypass.zip
@@ -24,7 +24,7 @@ echo 6. Set Run Command: node src/app.js
 echo 7. Set Port: 3000
 echo 8. Deploy!
 echo.
-echo This bypasses git completely! 🎯
+echo This bypasses git completely! [TARGET]
 echo.
 
 start https://cloud.digitalocean.com/apps/new

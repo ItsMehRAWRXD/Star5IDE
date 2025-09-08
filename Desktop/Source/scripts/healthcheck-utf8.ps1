@@ -8,7 +8,7 @@ param(
 )
 
 # Set default if not provided
-if (-not $TestString) { $TestString = "Hello 世界 🌍 Ñoël" }
+if (-not $TestString) { $TestString = "Hello [CHAR][CHAR] [CHAR][CHAR] [CHAR]o[CHAR]l" }
 
 $result = @{
     OriginalString = $TestString

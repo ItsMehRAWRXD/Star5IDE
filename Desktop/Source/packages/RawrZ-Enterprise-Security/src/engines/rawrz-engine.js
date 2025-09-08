@@ -96,7 +96,7 @@ class RawrZEngine extends EventEmitter {
         }
         
         try {
-            console.log(`🔄 Loading ${moduleName} on demand...`);
+            console.log(`[INFO] Loading ${moduleName} on demand...`);
             const modulePath = path.join(__dirname, moduleName);
             const module = require(modulePath);
             
@@ -106,10 +106,10 @@ class RawrZEngine extends EventEmitter {
             
             // Cache the loaded module
             this.modules.set(moduleName, module);
-            console.log(`✅ Module ${moduleName} loaded successfully`);
+            console.log(`[OK] Module ${moduleName} loaded successfully`);
             return module;
         } catch (error) {
-            console.log(`⚠️ Failed to load module ${moduleName}:`, error.message);
+            console.log(`[WARN] Failed to load module ${moduleName}:`, error.message);
             // Set to null to prevent repeated attempts
             this.modules.set(moduleName, null);
             return null;
