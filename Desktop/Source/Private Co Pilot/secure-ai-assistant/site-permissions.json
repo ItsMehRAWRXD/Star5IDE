@@ -1,0 +1,192 @@
+{
+  "version": "1.0.0",
+  "description": "Site permissions configuration for AI Desktop Helper",
+  "lastUpdated": "2024-01-15",
+  "permissions": {
+    "allowed": {
+      "description": "Sites that AI helpers are allowed to access",
+      "categories": {
+        "ai_apis": {
+          "description": "AI and Machine Learning APIs",
+          "sites": [
+            "https://api.openai.com",
+            "https://api.anthropic.com",
+            "https://api.cohere.ai",
+            "https://api.huggingface.co",
+            "https://api.replicate.com"
+          ]
+        },
+        "development_apis": {
+          "description": "Development and Code APIs",
+          "sites": [
+            "https://api.github.com",
+            "https://api.gitlab.com",
+            "https://api.bitbucket.org",
+            "https://registry.npmjs.org",
+            "https://pypi.org",
+            "https://crates.io",
+            "https://maven.apache.org",
+            "https://packagist.org"
+          ]
+        },
+        "documentation": {
+          "description": "Official documentation sites",
+          "sites": [
+            "https://developer.mozilla.org",
+            "https://docs.microsoft.com",
+            "https://docs.python.org",
+            "https://nodejs.org",
+            "https://reactjs.org",
+            "https://vuejs.org",
+            "https://angular.io",
+            "https://docs.docker.com",
+            "https://kubernetes.io"
+          ]
+        },
+        "cloud_services": {
+          "description": "Cloud service APIs",
+          "sites": [
+            "https://api.digitalocean.com",
+            "https://api.aws.amazon.com",
+            "https://api.cloud.google.com",
+            "https://api.azure.microsoft.com",
+            "https://api.heroku.com",
+            "https://api.netlify.com",
+            "https://api.vercel.com"
+          ]
+        },
+        "security_apis": {
+          "description": "Security and authentication APIs",
+          "sites": [
+            "https://api.stripe.com",
+            "https://api.paypal.com",
+            "https://api.auth0.com",
+            "https://api.firebase.google.com",
+            "https://api.sendgrid.com",
+            "https://api.twilio.com"
+          ]
+        },
+        "data_apis": {
+          "description": "Data and database APIs",
+          "sites": [
+            "https://api.mongodb.com",
+            "https://api.postgresql.org",
+            "https://api.redis.io",
+            "https://api.elastic.co",
+            "https://api.splunk.com"
+          ]
+        }
+      }
+    },
+    "blocked": {
+      "description": "Sites that AI helpers are blocked from accessing",
+      "categories": {
+        "malicious": {
+          "description": "Known malicious or suspicious sites",
+          "sites": [
+            "*.malware.com",
+            "*.phishing.com",
+            "*.scam.com",
+            "*.virus.com"
+          ]
+        },
+        "advertising": {
+          "description": "Advertising and tracking sites",
+          "sites": [
+            "*.doubleclick.net",
+            "*.googleadservices.com",
+            "*.googlesyndication.com",
+            "*.facebook.com/tr",
+            "*.amazon-adsystem.com"
+          ]
+        },
+        "social_media": {
+          "description": "Social media platforms (unless specifically needed)",
+          "sites": [
+            "https://facebook.com",
+            "https://twitter.com",
+            "https://instagram.com",
+            "https://tiktok.com",
+            "https://snapchat.com"
+          ]
+        },
+        "entertainment": {
+          "description": "Entertainment and streaming sites",
+          "sites": [
+            "https://youtube.com",
+            "https://netflix.com",
+            "https://spotify.com",
+            "https://twitch.tv",
+            "https://discord.com"
+          ]
+        },
+        "gambling": {
+          "description": "Gambling and betting sites",
+          "sites": [
+            "*.bet",
+            "*.casino",
+            "*.poker",
+            "*.lottery"
+          ]
+        },
+        "adult_content": {
+          "description": "Adult content sites",
+          "sites": [
+            "*.porn",
+            "*.adult",
+            "*.xxx"
+          ]
+        }
+      }
+    },
+    "restricted": {
+      "description": "Sites that require special permission or monitoring",
+      "categories": {
+        "financial": {
+          "description": "Financial services (require explicit permission)",
+          "sites": [
+            "https://api.bankofamerica.com",
+            "https://api.wellsfargo.com",
+            "https://api.chase.com",
+            "https://api.citi.com"
+          ]
+        },
+        "government": {
+          "description": "Government and official sites",
+          "sites": [
+            "https://api.irs.gov",
+            "https://api.ssa.gov",
+            "https://api.fda.gov",
+            "https://api.cdc.gov"
+          ]
+        },
+        "healthcare": {
+          "description": "Healthcare and medical APIs",
+          "sites": [
+            "https://api.healthcare.gov",
+            "https://api.fda.gov",
+            "https://api.cdc.gov"
+          ]
+        }
+      }
+    }
+  },
+  "rules": {
+    "default_behavior": "block",
+    "allow_localhost": true,
+    "allow_private_ips": false,
+    "require_https": true,
+    "log_all_requests": true,
+    "rate_limiting": {
+      "enabled": true,
+      "requests_per_minute": 60,
+      "burst_limit": 10
+    }
+  },
+  "monitoring": {
+    "log_blocked_requests": true,
+    "alert_on_suspicious_activity": true,
+    "daily_report": true,
+    "retention_days": 30
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "rawrz-frontend",
+  "version": "1.0.0",
+  "description": "RawrZ Security Platform Frontend",
+  "main": "index.js",
+  "scripts": {
+    "start": "echo 'Frontend placeholder'"
+  },
+  "dependencies": {}
+}

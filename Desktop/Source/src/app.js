@@ -6,6 +6,9 @@ const rateLimit = require('express-rate-limit');
 const compression = require('compression');
 const config = require('../config');
 const { logger, requestLogger } = require('./utils/logger');
+const { healthCheckMiddleware, errorTrackingMiddleware, healthChecker } = require('./middleware/healthCheck');
+const { processMonitor, connectionTrackingMiddleware } = require('./middleware/processMonitor');
+const { startupManager } = require('./startup');
 require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
@@ -14,6 +17,10 @@ const cryptoRoutes = require('./routes/crypto');
 const securityRoutes = require('./routes/security');
 const imageRoutes = require('./routes/images');
 const ideRoutes = require('./routes/ide');
+const processRoutes = require('./routes/process');
+
+// RawrZ Engine Integration
+const rawrzEngine = require('./engines/rawrz-engine');
 
 const app = express();
 
@@ -23,6 +30,10 @@ app.use(cors());
 app.use(compression()); // Enable gzip compression
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+// Health check and monitoring middleware
+app.use(healthCheckMiddleware);
+app.use(connectionTrackingMiddleware);
 
 // Request logging middleware
 app.use((req, res, next) => {
@@ -88,6 +99,190 @@ app.use('/api/crypto', cryptoRoutes);
 app.use('/api/security', securityRoutes);
 app.use('/api/images', imageRoutes);
 app.use('/api/ide', ideRoutes);
+app.use('/api/process', processRoutes);
+
+// RawrZ Engine API routes
+app.get('/api/engine/status', async (req, res) => {
+  try {
+    const status = rawrzEngine.getStatus();
+    res.json({ status: 'healthy', data: status });
+  } catch (error) {
+    res.status(500).json({ status: 'error', error: error.message });
+  }
+});
+
+app.post('/api/engine/compress', async (req, res) => {
+  try {
+    const { data, algorithm } = req.body;
+    const result = await rawrzEngine.compress(data, algorithm);
+    res.json({ status: 'success', data: result });
+  } catch (error) {
+    res.status(500).json({ status: 'error', error: error.message });
+  }
+});
+
+app.post('/api/engine/stealth', async (req, res) => {
+  try {
+    const { mode } = req.body;
+    const result = await rawrzEngine.enableStealth(mode);
+    res.json({ status: 'success', data: result });
+  } catch (error) {
+    res.status(500).json({ status: 'error', error: error.message });
+  }
+});
+
+app.post('/api/engine/stub', async (req, res) => {
+  try {
+    const { target, options } = req.body;
+    const result = await rawrzEngine.generateStub(target, options);
+    res.json({ status: 'success', data: result });
+  } catch (error) {
+    res.status(500).json({ status: 'error', error: error.message });
+  }
+});
+
+app.post('/api/engine/dual-generators', async (req, res) => {
+  try {
+    const { config } = req.body;
+    const result = await rawrzEngine.runDualGenerators(config);
+    res.json({ status: 'success', data: result });
+  } catch (error) {
+    res.status(500).json({ status: 'error', error: error.message });
+  }
+});
+
+app.post('/api/engine/patch', async (req, res) => {
+  try {
+    const { target, patch } = req.body;
+    const result = await rawrzEngine.applyHotPatch(target, patch);
+    res.json({ status: 'success', data: result });
+  } catch (error) {
+    res.status(500).json({ status: 'error', error: error.message });
+  }
+});
+
+app.post('/api/engine/assemble', async (req, res) => {
+  try {
+    const { code, architecture } = req.body;
+    const result = await rawrzEngine.assembleCode(code, architecture);
+    res.json({ status: 'success', data: result });
+  } catch (error) {
+    res.status(500).json({ status: 'error', error: error.message });
+  }
+});
+
+app.post('/api/engine/polymorphize', async (req, res) => {
+  try {
+    const { code, options } = req.body;
+    const result = await rawrzEngine.polymorphizeCode(code, options);
+    res.json({ status: 'success', data: result });
+  } catch (error) {
+    res.status(500).json({ status: 'error', error: error.message });
+  }
+});
+
+app.post('/api/engine/anti-analysis', async (req, res) => {
+  try {
+    const { target } = req.body;
+    const result = await rawrzEngine.runAntiAnalysis(target);
+    res.json({ status: 'success', data: result });
+  } catch (error) {
+    res.status(500).json({ status: 'error', error: error.message });
+  }
+});
+
+app.post('/api/engine/memory-optimize', async (req, res) => {
+  try {
+    const result = await rawrzEngine.optimizeMemory();
+    res.json({ status: 'success', data: result });
+  } catch (error) {
+    res.status(500).json({ status: 'error', error: error.message });
+  }
+});
+
+app.post('/api/engine/backup', async (req, res) => {
+  try {
+    const { target, options } = req.body;
+    const result = await rawrzEngine.createBackup(target, options);
+    res.json({ status: 'success', data: result });
+  } catch (error) {
+    res.status(500).json({ status: 'error', error: error.message });
+  }
+});
+
+app.post('/api/engine/mobile-analyze', async (req, res) => {
+  try {
+    const { target } = req.body;
+    const result = await rawrzEngine.analyzeMobile(target);
+    res.json({ status: 'success', data: result });
+  } catch (error) {
+    res.status(500).json({ status: 'error', error: error.message });
+  }
+});
+
+app.post('/api/engine/network-analyze', async (req, res) => {
+  try {
+    const { target } = req.body;
+    const result = await rawrzEngine.analyzeNetwork(target);
+    res.json({ status: 'success', data: result });
+  } catch (error) {
+    res.status(500).json({ status: 'error', error: error.message });
+  }
+});
+
+app.post('/api/engine/encrypt', async (req, res) => {
+  try {
+    console.log('Engine encrypt endpoint called');
+    console.log('Request body:', req.body);
+    const { data, options } = req.body;
+    console.log('Data:', data, 'Options:', options);
+    const result = await rawrzEngine.encryptAdvanced(data, options);
+    console.log('Result:', result);
+    res.json({ status: 'success', data: result });
+  } catch (error) {
+    console.error('Engine encrypt error:', error);
+    res.status(500).json({ status: 'error', error: error.message });
+  }
+});
+
+app.post('/api/engine/reverse-engineer', async (req, res) => {
+  try {
+    const { target } = req.body;
+    const result = await rawrzEngine.reverseEngineer(target);
+    res.json({ status: 'success', data: result });
+  } catch (error) {
+    res.status(500).json({ status: 'error', error: error.message });
+  }
+});
+
+app.post('/api/engine/forensics', async (req, res) => {
+  try {
+    const { target } = req.body;
+    const result = await rawrzEngine.performForensics(target);
+    res.json({ status: 'success', data: result });
+  } catch (error) {
+    res.status(500).json({ status: 'error', error: error.message });
+  }
+});
+
+app.post('/api/engine/malware-analyze', async (req, res) => {
+  try {
+    const { target } = req.body;
+    const result = await rawrzEngine.analyzeMalware(target);
+    res.json({ status: 'success', data: result });
+  } catch (error) {
+    res.status(500).json({ status: 'error', error: error.message });
+  }
+});
+
+app.get('/api/engine/status/all', async (req, res) => {
+  try {
+    const result = await rawrzEngine.getAPIStatus();
+    res.json({ status: 'success', data: result });
+  } catch (error) {
+    res.status(500).json({ status: 'error', error: error.message });
+  }
+});
 
 // Advanced UI routes (keeping existing Camellia server)
 app.get('/advanced-ui', (req, res) => {
@@ -144,6 +339,11 @@ app.get('/ide', (req, res) => {
   res.sendFile('custom-ide.html', { root: 'public' });
 });
 
+// System Monitor - Real-time monitoring dashboard
+app.get('/monitor', (req, res) => {
+  res.sendFile('monitor.html', { root: 'public' });
+});
+
 // Main Dashboard - Central Hub
 app.get('/', (req, res) => {
   res.sendFile('index.html', { root: 'public' });
@@ -172,6 +372,7 @@ app.get('/api', (req, res) => {
       security: '/api/security',
       images: '/api/images',
       ide: '/api/ide',
+      process: '/api/process',
       advanced_ui: '/advanced-ui',
       rawrz_ui: '/rawrz',
       saas_platform: '/saas',
@@ -194,21 +395,40 @@ app.get('/health', (req, res) => {
 // This route is now handled above as the main IDE dashboard
 
 // Error handling middleware
+app.use(errorTrackingMiddleware);
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  console.error('Global error handler caught error:', err.message);
+  console.error('Stack:', err.stack);
+  console.error('Request URL:', req.url);
+  console.error('Request method:', req.method);
   res.status(500).json({ message: 'Something went wrong!' });
 });
 
 const PORT = config.PORT;
 
+// Initialize RawrZ Engine
+async function initializeRawrZEngine() {
+  try {
+    await rawrzEngine.initializeModules();
+    logger.info('RawrZ Engine initialized successfully');
+    console.log('🛡️ RawrZ Security Engine initialized');
+  } catch (error) {
+    logger.error('Failed to initialize RawrZ Engine:', error);
+    console.error('❌ RawrZ Engine initialization failed:', error.message);
+  }
+}
+
 // Start server
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   logger.info(`SaaS Backend Server started on port ${PORT}`);
   console.log(`🚀 SaaS Backend Server running on port ${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/health`);
   console.log(`🔗 API Base: http://localhost:${PORT}/api`);
   console.log(`🌐 Open in browser: http://localhost:${PORT}`);
   console.log(`📝 Logs available in: ./logs/`);
+  
+  // Initialize RawrZ Engine after server starts
+  await initializeRawrZEngine();
 });
 
 module.exports = app;

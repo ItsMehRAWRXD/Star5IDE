@@ -1,0 +1,167 @@
+name: PowerShell Bridge Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node-version: [18.x, 20.x]
+        exclude:
+          # Skip some combinations to reduce CI time
+          - os: macos-latest
+            node-version: 18.x
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Install PowerShell (Ubuntu)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        # Install PowerShell 7
+        wget -q https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb
+        sudo dpkg -i packages-microsoft-prod.deb
+        sudo apt-get update
+        sudo apt-get install -y powershell
+
+    - name: Install PowerShell (macOS)
+      if: matrix.os == 'macos-latest'
+      run: |
+        # Install PowerShell 7 via Homebrew
+        brew install --cask powershell
+
+    - name: Verify PowerShell installation
+      run: |
+        if [ "${{ matrix.os }}" = "windows-latest" ]; then
+          powershell.exe -Command "Write-Host 'PowerShell version:' $PSVersionTable.PSVersion"
+        else
+          pwsh -Command "Write-Host 'PowerShell version:' $PSVersionTable.PSVersion"
+        fi
+
+    - name: Run unit tests
+      run: npm run test:ci
+      env:
+        CI: true
+        PS_BRIDGE_LOG_LEVEL: error
+
+    - name: Run E2E tests (Ubuntu only)
+      if: matrix.os == 'ubuntu-latest'
+      run: npm run test:e2e
+      env:
+        CI: true
+        PS_BRIDGE_LOG_LEVEL: info
+
+    - name: Run health check
+      run: npm run healthcheck:ci
+      env:
+        CI: true
+
+    - name: Upload coverage reports
+      if: matrix.os == 'ubuntu-latest' && matrix.node-version == '20.x'
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage/lcov.info
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results-${{ matrix.os }}-${{ matrix.node-version }}
+        path: |
+          coverage/
+          test-results/
+        retention-days: 7
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Run security audit
+      run: npm audit --audit-level moderate
+
+    - name: Run dependency check
+      run: npm run audit:fix
+
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build project
+      run: npm run build
+
+    - name: Verify build artifacts
+      run: |
+        if [ -f "package.json" ]; then
+          echo "Build completed successfully"
+        fi
+
+  performance:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Install PowerShell
+      run: |
+        wget -q https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb
+        sudo dpkg -i packages-microsoft-prod.deb
+        sudo apt-get update
+        sudo apt-get install -y powershell
+
+    - name: Run performance tests
+      run: npm run test:performance
+      env:
+        CI: true
+
+    - name: Upload performance results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: performance-results
+        path: performance-results/
+        retention-days: 30

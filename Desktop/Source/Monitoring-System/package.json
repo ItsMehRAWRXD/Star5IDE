@@ -1,0 +1,32 @@
+{
+  "name": "comprehensive-monitoring-system",
+  "version": "1.0.0",
+  "description": "Comprehensive monitoring system to prevent all types of hanging and freezing",
+  "main": "monitor-startup.js",
+  "scripts": {
+    "start": "node monitor-startup.js",
+    "monitor": "node monitor-startup.js",
+    "dashboard": "node monitor-dashboard.js",
+    "test": "node test-monitoring.js",
+    "clean": "rm -rf *.log",
+    "status": "node -e \"console.log(require('./monitor-startup').getStatus())\""
+  },
+  "keywords": [
+    "monitoring",
+    "timeout",
+    "prevention",
+    "hanging",
+    "freezing",
+    "operations",
+    "safety"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "fs": "^0.0.1-security"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

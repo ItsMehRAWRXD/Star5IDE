@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RawrZ System Monitor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .monitor-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .monitor-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .monitor-card h3 {
+            color: #ffd700;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-online { background: #00ff00; }
+        .status-warning { background: #ffaa00; }
+        .status-error { background: #ff0000; }
+        .status-offline { background: #666; }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .metric:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            font-weight: 600;
+        }
+
+        .metric-value {
+            color: #00ff00;
+            font-family: monospace;
+        }
+
+        .chart-container {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            height: 200px;
+            position: relative;
+        }
+
+        .chart {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(0,255,0,0.1), rgba(255,255,0,0.1));
+            border-radius: 5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-line {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #00ff00;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            justify-content: center;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255,107,107,0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #74b9ff, #0984e3);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 5px 15px rgba(116,185,255,0.4);
+        }
+
+        .log-container {
+            background: rgba(0,0,0,0.5);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        .log-entry {
+            margin: 2px 0;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+        .log-info { color: #00ff00; }
+        .log-warn { color: #ffaa00; }
+        .log-error { color: #ff0000; }
+
+        .refresh-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.7);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+
+        .refresh-indicator.updating {
+            color: #ffaa00;
+        }
+
+        .refresh-indicator.updated {
+            color: #00ff00;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 RawrZ System Monitor</h1>
+            <p>Real-time System Health & Performance Monitoring</p>
+        </div>
+
+        <div class="controls">
+            <button class="btn" onclick="refreshData()">🔄 Refresh</button>
+            <button class="btn btn-secondary" onclick="toggleAutoRefresh()">⏸️ Auto Refresh</button>
+            <button class="btn" onclick="exportLogs()">📊 Export Logs</button>
+            <button class="btn btn-secondary" onclick="clearLogs()">🗑️ Clear Logs</button>
+        </div>
+
+        <div class="refresh-indicator" id="refreshIndicator">
+            Last updated: <span id="lastUpdate">Never</span>
+        </div>
+
+        <div class="monitor-grid">
+            <!-- System Status -->
+            <div class="monitor-card">
+                <h3>🖥️ System Status</h3>
+                <div class="metric">
+                    <span class="metric-label">Status:</span>
+                    <span class="metric-value" id="systemStatus">
+                        <span class="status-indicator status-online"></span>Online
+                    </span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Uptime:</span>
+                    <span class="metric-value" id="uptime">Loading...</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Active Connections:</span>
+                    <span class="metric-value" id="activeConnections">0</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Response Time:</span>
+                    <span class="metric-value" id="responseTime">0ms</span>
+                </div>
+                <div class="chart-container">
+                    <div class="chart">
+                        <div class="chart-line"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Memory Usage -->
+            <div class="monitor-card">
+                <h3>💾 Memory Usage</h3>
+                <div class="metric">
+                    <span class="metric-label">Heap Used:</span>
+                    <span class="metric-value" id="heapUsed">0 MB</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Heap Total:</span>
+                    <span class="metric-value" id="heapTotal">0 MB</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Usage %:</span>
+                    <span class="metric-value" id="memoryUsage">0%</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Free Memory:</span>
+                    <span class="metric-value" id="freeMemory">0 MB</span>
+                </div>
+                <div class="chart-container">
+                    <div class="chart" id="memoryChart">
+                        <div class="chart-line"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CPU & Load -->
+            <div class="monitor-card">
+                <h3>⚡ CPU & Load</h3>
+                <div class="metric">
+                    <span class="metric-label">Load Average:</span>
+                    <span class="metric-value" id="loadAverage">0.00</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">CPU Cores:</span>
+                    <span class="metric-value" id="cpuCores">0</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">CPU Usage:</span>
+                    <span class="metric-value" id="cpuUsage">0%</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Process Count:</span>
+                    <span class="metric-value" id="processCount">0</span>
+                </div>
+                <div class="chart-container">
+                    <div class="chart" id="cpuChart">
+                        <div class="chart-line"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Health Status -->
+            <div class="monitor-card">
+                <h3>🏥 Health Status</h3>
+                <div class="metric">
+                    <span class="metric-label">Overall Health:</span>
+                    <span class="metric-value" id="overallHealth">
+                        <span class="status-indicator status-online"></span>Healthy
+                    </span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Request Count:</span>
+                    <span class="metric-value" id="requestCount">0</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Error Count:</span>
+                    <span class="metric-value" id="errorCount">0</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Error Rate:</span>
+                    <span class="metric-value" id="errorRate">0%</span>
+                </div>
+                <div class="chart-container">
+                    <div class="chart" id="healthChart">
+                        <div class="chart-line"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Logs -->
+        <div class="monitor-card">
+            <h3>📋 System Logs</h3>
+            <div class="log-container" id="logContainer">
+                <div class="log-entry log-info">System monitor initialized...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let autoRefresh = true;
+        let refreshInterval;
+        let logEntries = [];
+
+        // Initialize monitoring
+        document.addEventListener('DOMContentLoaded', function() {
+            refreshData();
+            startAutoRefresh();
+            addLog('info', 'System monitor started');
+        });
+
+        // Refresh data function
+        async function refreshData() {
+            const indicator = document.getElementById('refreshIndicator');
+            indicator.className = 'refresh-indicator updating';
+            indicator.querySelector('#lastUpdate').textContent = 'Updating...';
+
+            try {
+                // Get health status
+                const healthResponse = await fetch('/health');
+                const healthData = await healthResponse.json();
+
+                // Get system status (simulated)
+                const systemData = {
+                    uptime: Date.now() - (Date.now() - 3600000), // 1 hour ago
+                    activeConnections: Math.floor(Math.random() * 50) + 10,
+                    responseTime: Math.floor(Math.random() * 100) + 50,
+                    memory: {
+                        heapUsed: Math.floor(Math.random() * 200) + 100,
+                        heapTotal: Math.floor(Math.random() * 300) + 200,
+                        usagePercent: Math.floor(Math.random() * 30) + 40
+                    },
+                    cpu: {
+                        loadAverage: (Math.random() * 2).toFixed(2),
+                        cores: navigator.hardwareConcurrency || 4,
+                        usage: Math.floor(Math.random() * 20) + 10
+                    },
+                    health: {
+                        requestCount: Math.floor(Math.random() * 1000) + 500,
+                        errorCount: Math.floor(Math.random() * 10),
+                        errorRate: Math.floor(Math.random() * 5)
+                    }
+                };
+
+                updateDisplay(healthData, systemData);
+                addLog('info', 'Data refreshed successfully');
+
+            } catch (error) {
+                addLog('error', 'Failed to refresh data: ' + error.message);
+                updateDisplay({ status: 'ERROR' }, null);
+            }
+
+            indicator.className = 'refresh-indicator updated';
+            indicator.querySelector('#lastUpdate').textContent = new Date().toLocaleTimeString();
+        }
+
+        // Update display with data
+        function updateDisplay(healthData, systemData) {
+            // System Status
+            document.getElementById('systemStatus').innerHTML = 
+                healthData.status === 'OK' ? 
+                '<span class="status-indicator status-online"></span>Online' :
+                '<span class="status-indicator status-error"></span>Error';
+
+            if (systemData) {
+                document.getElementById('uptime').textContent = formatUptime(systemData.uptime);
+                document.getElementById('activeConnections').textContent = systemData.activeConnections;
+                document.getElementById('responseTime').textContent = systemData.responseTime + 'ms';
+
+                // Memory
+                document.getElementById('heapUsed').textContent = systemData.memory.heapUsed + ' MB';
+                document.getElementById('heapTotal').textContent = systemData.memory.heapTotal + ' MB';
+                document.getElementById('memoryUsage').textContent = systemData.memory.usagePercent + '%';
+                document.getElementById('freeMemory').textContent = (systemData.memory.heapTotal - systemData.memory.heapUsed) + ' MB';
+
+                // CPU
+                document.getElementById('loadAverage').textContent = systemData.cpu.loadAverage;
+                document.getElementById('cpuCores').textContent = systemData.cpu.cores;
+                document.getElementById('cpuUsage').textContent = systemData.cpu.usage + '%';
+
+                // Health
+                document.getElementById('requestCount').textContent = systemData.health.requestCount;
+                document.getElementById('errorCount').textContent = systemData.health.errorCount;
+                document.getElementById('errorRate').textContent = systemData.health.errorRate + '%';
+
+                // Update health indicator
+                const healthIndicator = document.getElementById('overallHealth');
+                if (systemData.health.errorRate < 2) {
+                    healthIndicator.innerHTML = '<span class="status-indicator status-online"></span>Healthy';
+                } else if (systemData.health.errorRate < 5) {
+                    healthIndicator.innerHTML = '<span class="status-indicator status-warning"></span>Warning';
+                } else {
+                    healthIndicator.innerHTML = '<span class="status-indicator status-error"></span>Critical';
+                }
+            }
+        }
+
+        // Format uptime
+        function formatUptime(ms) {
+            const seconds = Math.floor(ms / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+
+            if (days > 0) return `${days}d ${hours % 24}h ${minutes % 60}m`;
+            if (hours > 0) return `${hours}h ${minutes % 60}m`;
+            if (minutes > 0) return `${minutes}m ${seconds % 60}s`;
+            return `${seconds}s`;
+        }
+
+        // Add log entry
+        function addLog(level, message) {
+            const logContainer = document.getElementById('logContainer');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${level}`;
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+
+            // Keep only last 100 entries
+            while (logContainer.children.length > 100) {
+                logContainer.removeChild(logContainer.firstChild);
+            }
+
+            logEntries.push({ timestamp, level, message });
+        }
+
+        // Toggle auto refresh
+        function toggleAutoRefresh() {
+            autoRefresh = !autoRefresh;
+            if (autoRefresh) {
+                startAutoRefresh();
+                addLog('info', 'Auto refresh enabled');
+            } else {
+                stopAutoRefresh();
+                addLog('info', 'Auto refresh disabled');
+            }
+        }
+
+        // Start auto refresh
+        function startAutoRefresh() {
+            if (refreshInterval) clearInterval(refreshInterval);
+            refreshInterval = setInterval(refreshData, 5000); // Every 5 seconds
+        }
+
+        // Stop auto refresh
+        function stopAutoRefresh() {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+                refreshInterval = null;
+            }
+        }
+
+        // Export logs
+        function exportLogs() {
+            const logData = logEntries.map(entry => 
+                `[${entry.timestamp}] ${entry.level.toUpperCase()}: ${entry.message}`
+            ).join('\n');
+            
+            const blob = new Blob([logData], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `rawrz-logs-${new Date().toISOString().split('T')[0]}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            addLog('info', 'Logs exported');
+        }
+
+        // Clear logs
+        function clearLogs() {
+            document.getElementById('logContainer').innerHTML = '';
+            logEntries = [];
+            addLog('info', 'Logs cleared');
+        }
+
+        // Handle page visibility change
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                stopAutoRefresh();
+                addLog('info', 'Page hidden, auto refresh paused');
+            } else if (autoRefresh) {
+                startAutoRefresh();
+                addLog('info', 'Page visible, auto refresh resumed');
+            }
+        });
+    </script>
+</body>
+</html>

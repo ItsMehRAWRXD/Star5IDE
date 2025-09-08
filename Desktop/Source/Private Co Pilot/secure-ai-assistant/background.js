@@ -3,6 +3,7 @@ class BackgroundService {
     constructor() {
         this.conversationHistory = [];
         this.rateLimitMap = new Map();
+        this.sitePermissions = new SitePermissions();
         this.init();
     }
 

@@ -2,44 +2,54 @@ name: Deploy to DigitalOcean
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, security/cleanup ]
+  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Install doctl
-        uses: digitalocean/action-doctl@v2
-        with:
-          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-
-      - name: Build container images
-        run: |
-          docker build -t registry.digitalocean.com/star5ide/rawrz -f Dockerfile.rawrz .
-          docker build -t registry.digitalocean.com/star5ide/web -f Dockerfile.web .
-
-      - name: Log in to DigitalOcean Container Registry
-        run: doctl registry login --expiry-seconds 600
-
-      - name: Push images to DigitalOcean Container Registry
-        run: |
-          docker push registry.digitalocean.com/star5ide/rawrz
-          docker push registry.digitalocean.com/star5ide/web
-
-      - name: Update deployment file
-        run: |
-          TAG=$(echo $GITHUB_SHA | head -c7)
-          sed -i 's|<IMAGE>|registry.digitalocean.com/star5ide/rawrz:'${TAG}'|' $GITHUB_WORKSPACE/config/deployment.yml
-          sed -i 's|<IMAGE>|registry.digitalocean.com/star5ide/web:'${TAG}'|' $GITHUB_WORKSPACE/config/deployment.yml
-
-      - name: Save DigitalOcean kubeconfig
-        run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 star5ide-cluster
-
-      - name: Deploy to DigitalOcean Kubernetes
-        run: kubectl apply -f $GITHUB_WORKSPACE/config/deployment.yml
-
-      - name: Verify deployment
-        run: kubectl rollout status deployment/star5ide-web
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run tests
+      run: npm test --if-present
+      
+    - name: Build application
+      run: |
+        npm run build --if-present
+        echo "Application built successfully"
+        
+    - name: Deploy to DigitalOcean
+      uses: appleboy/ssh-action@v0.1.5
+      with:
+        host: ${{ secrets.DROPLET_IP }}
+        username: root
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          cd /root/rawrz-security-platform
+          git pull origin main
+          docker-compose -f docker-compose.prod.yml down
+          docker-compose -f docker-compose.prod.yml up -d --build
+          docker system prune -f
+          
+    - name: Health Check
+      run: |
+        sleep 30
+        curl -f https://screenpilot.dev/health || exit 1
+        
+    - name: Notify deployment
+      if: success()
+      run: |
+        echo "✅ Deployment to screenpilot.dev completed successfully!"
+        echo "🌐 Application is live at: https://screenpilot.dev"

@@ -1,1 +1,0 @@
-// Fileless C# Stub Compiler

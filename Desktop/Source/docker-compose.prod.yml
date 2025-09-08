@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  rawrz-app:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    container_name: screenpilot-rawrz
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DOMAIN=screenpilot.dev
+      - SSL_ENABLED=true
+    env_file:
+      - .env.production
+    volumes:
+      - ./logs:/app/logs
+      - ./uploads:/app/uploads
+    networks:
+      - rawrz-network
+    healthcheck:
+      test: ["CMD", "node", "scripts/healthcheck.js"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  nginx:
+    image: nginx:alpine
+    container_name: screenpilot-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./logs/nginx:/var/log/nginx
+    depends_on:
+      - rawrz-app
+    networks:
+      - rawrz-network
+
+networks:
+  rawrz-network:
+    driver: bridge
+
+volumes:
+  logs:
+  uploads:

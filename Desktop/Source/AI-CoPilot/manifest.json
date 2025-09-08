@@ -1,0 +1,64 @@
+{
+  "manifest_version": 3,
+  "name": "AI Co-Pilot for IDE",
+  "version": "1.0.0",
+  "description": "Intelligent AI assistant for your custom IDE development environment",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://api.openai.com/*",
+    "https://api.anthropic.com/*",
+    "https://api.cohere.ai/*",
+    "https://api.huggingface.co/*",
+    "https://developer.mozilla.org/*",
+    "https://docs.microsoft.com/*",
+    "https://docs.python.org/*",
+    "https://nodejs.org/*",
+    "https://reactjs.org/*",
+    "https://vuejs.org/*",
+    "https://angular.io/*",
+    "https://api.github.com/*",
+    "https://registry.npmjs.org/*",
+    "https://pypi.org/*",
+    "https://crates.io/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "AI Co-Pilot",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["popup.html", "popup.js", "content.js"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self';"
+  }
+}

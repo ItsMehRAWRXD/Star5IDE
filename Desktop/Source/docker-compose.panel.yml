@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  rawrz-panel:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    container_name: rawrz-security-panel
+    restart: unless-stopped
+    ports:
+      - "3001:3000"  # Different port to avoid conflicts
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DOMAIN=lionfish-app-ey7kn.ondigitalocean.app
+      - PANEL_PATH=/panel
+      - BASE_URL=https://lionfish-app-ey7kn.ondigitalocean.app
+      - SSL_ENABLED=true
+    env_file:
+      - .env.production
+    volumes:
+      - ./logs:/app/logs
+      - ./uploads:/app/uploads
+    networks:
+      - lionfish-network
+    healthcheck:
+      test: ["CMD", "node", "scripts/healthcheck.js"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  lionfish-network:
+    driver: bridge
+    external: true  # Connect to existing network
+
+volumes:
+  logs:
+  uploads:

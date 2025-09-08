@@ -1,7 +1,0 @@
-crypting-saas/
-├── frontend/                 # React + TailwindCSS
-├── backend/                  # Python Flask API
-├── stub-engine/             # C++ polymorphic stub
-├── docker-compose.yml
-├── setup.sh
-└── README.md

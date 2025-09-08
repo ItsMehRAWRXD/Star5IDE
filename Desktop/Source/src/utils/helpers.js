@@ -55,14 +55,24 @@ const hashData = (data, algorithm = 'sha256') => {
 
 const encryptData = (data, key) => {
   const iv = crypto.randomBytes(16);
-  const cipher = crypto.createCipher('aes-256-cbc', key);
+  // Handle both hex and base64 keys
+  let keyBuffer;
+  if (Buffer.isBuffer(key)) {
+    keyBuffer = key;
+  } else if (key.length === 64) { // hex key (32 bytes = 64 hex chars)
+    keyBuffer = Buffer.from(key, 'hex');
+  } else { // base64 key
+    keyBuffer = Buffer.from(key, 'base64');
+  }
+  const cipher = crypto.createCipheriv('aes-256-cbc', keyBuffer, iv);
   let encrypted = cipher.update(data, 'utf8', 'hex');
   encrypted += cipher.final('hex');
   return { encrypted, iv: iv.toString('hex') };
 };
 
 const decryptData = (encryptedData, key, iv) => {
-  const decipher = crypto.createDecipher('aes-256-cbc', key);
+  const keyBuffer = Buffer.isBuffer(key) ? key : Buffer.from(key, 'hex');
+  const decipher = crypto.createDecipheriv('aes-256-cbc', keyBuffer, Buffer.from(iv, 'hex'));
   let decrypted = decipher.update(encryptedData, 'hex', 'utf8');
   decrypted += decipher.final('utf8');
   return decrypted;
