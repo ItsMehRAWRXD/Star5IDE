@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SaaS Pricing - Cryptify Style</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .pricing-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.15);
+        }
+
+        .pricing-card.popular {
+            border: 3px solid #ff6b6b;
+            transform: scale(1.05);
+        }
+
+        .pricing-card.popular::before {
+            content: 'POPULAR';
+            position: absolute;
+            top: 20px;
+            right: -30px;
+            background: #ff6b6b;
+            color: white;
+            padding: 8px 40px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            transform: rotate(45deg);
+        }
+
+        .plan-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .price {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .duration {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .crypts {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .features {
+            list-style: none;
+            margin-bottom: 30px;
+        }
+
+        .features li {
+            padding: 8px 0;
+            color: #555;
+            border-bottom: 1px solid #eee;
+        }
+
+        .features li:last-child {
+            border-bottom: none;
+        }
+
+        .buy-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            width: 100%;
+        }
+
+        .buy-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .note {
+            text-align: center;
+            color: white;
+            opacity: 0.8;
+            font-style: italic;
+        }
+
+        .api-test {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .api-test h3 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .test-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .test-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .test-btn:hover {
+            background: #218838;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Get ready for your journey</h1>
+            <p>Choose the perfect plan for your encryption needs</p>
+        </div>
+
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <div class="plan-name">START</div>
+                <div class="price">$29</div>
+                <div class="duration">1 Week Access</div>
+                <div class="crypts">5 Crypts per day</div>
+                <ul class="features">
+                    <li>Hidden startup</li>
+                    <li>Undetectable</li>
+                    <li>Semi Private Stub</li>
+                    <li>Output .vbs .bat</li>
+                    <li>Support Included</li>
+                </ul>
+                <button class="buy-btn">Buy now</button>
+            </div>
+
+            <div class="pricing-card popular">
+                <div class="plan-name">PRO</div>
+                <div class="price">$59</div>
+                <div class="duration">1 Month Access</div>
+                <div class="crypts">10 Crypts per day</div>
+                <ul class="features">
+                    <li>Hidden Startup</li>
+                    <li>Undetectable</li>
+                    <li>Semi Private Stub</li>
+                    <li>Output .vbs .bat</li>
+                    <li>Support Included</li>
+                </ul>
+                <button class="buy-btn">Buy now</button>
+            </div>
+
+            <div class="pricing-card">
+                <div class="plan-name">BUSINESS</div>
+                <div class="price">$249</div>
+                <div class="duration">1 Month Access</div>
+                <div class="crypts">10 Crypts per day</div>
+                <ul class="features">
+                    <li>Hidden Startup</li>
+                    <li>Fully Undetectable</li>
+                    <li>Private Stub</li>
+                    <li>Output .vbs .bat .js</li>
+                    <li>Support Included</li>
+                </ul>
+                <button class="buy-btn">Buy now</button>
+            </div>
+
+            <div class="pricing-card">
+                <div class="plan-name">SPECIAL</div>
+                <div class="price">$499</div>
+                <div class="duration">3 Months Access</div>
+                <div class="crypts">20 Crypts per day</div>
+                <ul class="features">
+                    <li>Hidden Startup</li>
+                    <li>Fully Undetectable</li>
+                    <li>Private Stub</li>
+                    <li>Output .vbs .bat .js</li>
+                    <li>Custom Options</li>
+                    <li>Support Included</li>
+                </ul>
+                <button class="buy-btn">Buy now</button>
+            </div>
+        </div>
+
+        <div class="note">
+            Prices can change anytime without any notice.
+        </div>
+
+        <div class="api-test">
+            <h3>Test Your API Endpoints</h3>
+            <div class="test-buttons">
+                <button class="test-btn" onclick="testPlans()">Test Plans API</button>
+                <button class="test-btn" onclick="testHealth()">Test Health API</button>
+                <button class="test-btn" onclick="testEncrypt()">Test Encrypt API</button>
+            </div>
+            <div class="result" id="result">Click a button to test the API...</div>
+        </div>
+    </div>
+
+    <script>
+        async function testPlans() {
+            try {
+                const response = await fetch('/api/subscriptions/plans');
+                const data = await response.json();
+                document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('result').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function testHealth() {
+            try {
+                const response = await fetch('/api/health');
+                const data = await response.json();
+                document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('result').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function testEncrypt() {
+            try {
+                const response = await fetch('/api/encrypt', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        text: 'Hello World!',
+                        key: 'test-key-123'
+                    })
+                });
+                const data = await response.json();
+                document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('result').textContent = 'Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

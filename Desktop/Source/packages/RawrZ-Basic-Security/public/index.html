@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RawrZ Security Platform - Main Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .dashboard-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255,255,255,0.2);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .dashboard-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #ffd700;
+        }
+
+        .dashboard-card p {
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+
+        .btn {
+            display: inline-block;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255,107,107,0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #74b9ff, #0984e3);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 5px 15px rgba(116,185,255,0.4);
+        }
+
+        .status-bar {
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .status-item {
+            display: inline-block;
+            margin: 0 20px;
+            text-align: center;
+        }
+
+        .status-item .label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .status-item .value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #00b894;
+        }
+
+        .api-status {
+            background: rgba(0,0,0,0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+
+        .api-status h3 {
+            margin-bottom: 15px;
+            color: #74b9ff;
+        }
+
+        .endpoint-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .endpoint {
+            background: rgba(255,255,255,0.1);
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .status-item {
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 RawrZ Security Platform</h1>
+            <p>Advanced Cryptography & Security Tools Dashboard</p>
+        </div>
+
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="label">Server Status</div>
+                <div class="value" id="serverStatus">Checking...</div>
+            </div>
+            <div class="status-item">
+                <div class="label">Database</div>
+                <div class="value" id="dbStatus">Checking...</div>
+            </div>
+            <div class="status-item">
+                <div class="label">API Endpoints</div>
+                <div class="value" id="apiCount">Loading...</div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="dashboard-card">
+                <h3>🔐 RawrZ Engine</h3>
+                <p>Advanced cryptography engine with polymorphic encryption, anti-analysis features, and custom stub generation.</p>
+                <a href="/rawrz" class="btn">Launch RawrZ Engine</a>
+            </div>
+
+            <div class="dashboard-card">
+                <h3>🛡️ Security Tools</h3>
+                <p>Comprehensive security analysis, stealth code generation, and anti-detection utilities.</p>
+                <a href="/advanced-ui" class="btn">Security Platform</a>
+            </div>
+
+            <div class="dashboard-card">
+                <h3>💼 SaaS Platform</h3>
+                <p>Full-featured SaaS application with TypeScript frontend and enterprise-grade backend.</p>
+                <a href="/saas" class="btn btn-secondary">SaaS Dashboard</a>
+            </div>
+
+            <div class="dashboard-card">
+                <h3>🎮 Code Playground</h3>
+                <p>Interactive coding environment for testing and development with real-time collaboration.</p>
+                <a href="/playground" class="btn">Open Playground</a>
+            </div>
+
+            <div class="dashboard-card">
+                <h3>🔧 Project Mixer</h3>
+                <p>Combine different technologies and frameworks in a unified development environment.</p>
+                <a href="/mixer" class="btn">Project Mixer</a>
+            </div>
+
+            <div class="dashboard-card">
+                <h3>⚙️ Admin Panel</h3>
+                <p>System administration, user management, and platform configuration tools.</p>
+                <a href="/admin" class="btn btn-secondary">Admin Panel</a>
+            </div>
+
+            <div class="dashboard-card">
+                <h3>💻 Custom IDE</h3>
+                <p>Your own development platform built from scratch - no licensing issues, complete control.</p>
+                <a href="/custom-ide" class="btn">Launch Custom IDE</a>
+            </div>
+
+            <div class="dashboard-card">
+                <h3>🔍 System Monitor</h3>
+                <p>Real-time system health monitoring, performance metrics, and comprehensive logging.</p>
+                <a href="/monitor" class="btn btn-secondary">Open Monitor</a>
+            </div>
+        </div>
+
+        <div class="api-status">
+            <h3>🔗 Available API Endpoints</h3>
+            <div class="endpoint-list" id="endpointList">
+                <div class="endpoint">Loading endpoints...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check server status
+        async function checkServerStatus() {
+            try {
+                const response = await fetch('/health');
+                const data = await response.json();
+                
+                document.getElementById('serverStatus').textContent = 'Online';
+                document.getElementById('dbStatus').textContent = data.database === 'connected' ? 'Connected' : 'Disconnected';
+                
+                // Update API count
+                const apiResponse = await fetch('/api');
+                const apiData = await apiResponse.json();
+                document.getElementById('apiCount').textContent = Object.keys(apiData.endpoints).length;
+                
+                // Update endpoint list
+                const endpointList = document.getElementById('endpointList');
+                endpointList.innerHTML = '';
+                
+                Object.entries(apiData.endpoints).forEach(([name, path]) => {
+                    const endpoint = document.createElement('div');
+                    endpoint.className = 'endpoint';
+                    endpoint.innerHTML = `<strong>${name}:</strong> ${path}`;
+                    endpointList.appendChild(endpoint);
+                });
+                
+            } catch (error) {
+                document.getElementById('serverStatus').textContent = 'Offline';
+                document.getElementById('dbStatus').textContent = 'Unknown';
+                document.getElementById('apiCount').textContent = '0';
+                document.getElementById('endpointList').innerHTML = '<div class="endpoint">Unable to load endpoints</div>';
+            }
+        }
+
+        // Check status on page load
+        document.addEventListener('DOMContentLoaded', checkServerStatus);
+        
+        // Refresh status every 30 seconds
+        setInterval(checkServerStatus, 30000);
+    </script>
+</body>
+</html>

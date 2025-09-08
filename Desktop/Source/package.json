@@ -4,7 +4,14 @@
   "description": "RawrZ Advanced Security Platform - Production Build",
   "main": "src/app.js",
   "scripts": {
-    "start": "node src/app.js"
+    "start": "node src/app.js",
+    "build:basic": "node scripts/build-packages.js basic",
+    "build:standard": "node scripts/build-packages.js standard", 
+    "build:advanced": "node scripts/build-packages.js advanced",
+    "build:enterprise": "node scripts/build-packages.js enterprise",
+    "build:all": "npm run build:basic && npm run build:standard && npm run build:advanced && npm run build:enterprise",
+    "test:engine": "node -e \"const engine = require('./src/engines/rawrz-engine'); console.log('✅ Engine loaded:', Object.keys(engine).length, 'methods');\"",
+    "test:server": "node -e \"const app = require('./src/app'); console.log('✅ Server ready');\""
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
