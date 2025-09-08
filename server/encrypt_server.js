@@ -140,13 +140,64 @@ const server = http.createServer(async (req, res) => {
     return res.end(JSON.stringify({ ok: true }));
   }
 
+  /* liveness */
+  if (method === "GET" && pathname === "/health/live") {
+    setCors(res, origin);
+    const mem = process.memoryUsage();
+    const payload = {
+      ok: true,
+      uptime_s: Math.floor(process.uptime()),
+      rss: mem.rss,
+      heapUsed: mem.heapUsed,
+      timestamp: new Date().toISOString()
+    };
+    res.writeHead(200, { "content-type": "application/json" });
+    return res.end(JSON.stringify(payload));
+  }
+
+  /* readiness: ensure CLI and openssl available */
+  if (method === "GET" && pathname === "/health/ready") {
+    setCors(res, origin);
+    const cp = require("child_process");
+    let cli = false, openssl = false;
+    try { cp.execFileSync(process.execPath, [CLI, "--help"], { stdio: "ignore" }); cli = true; } catch {}
+    try { cp.execFileSync("openssl", ["version"], { stdio: "ignore" }); openssl = true; } catch {}
+    const ok = cli && openssl;
+    res.writeHead(ok ? 200 : 503, { "content-type": "application/json" });
+    return res.end(JSON.stringify({ ok, cli, openssl }));
+  }
+
+  /* metrics */
+  if (method === "GET" && pathname === "/health/metrics") {
+    setCors(res, origin);
+    const mem = process.memoryUsage();
+    const cpu = process.cpuUsage();
+    const payload = {
+      rss: mem.rss,
+      heapTotal: mem.heapTotal,
+      heapUsed: mem.heapUsed,
+      external: mem.external,
+      arrayBuffers: mem.arrayBuffers,
+      cpuUser: cpu.user,
+      cpuSystem: cpu.system,
+      uptime_s: Math.floor(process.uptime()),
+      timestamp: new Date().toISOString()
+    };
+    res.writeHead(200, { "content-type": "application/json" });
+    return res.end(JSON.stringify(payload));
+  }
+
   /* panel */
   if (method === "GET" && pathname === "/panel") {
     try {
       const candidates = [
         path.join(__dirname, "public", "panel.html"),
         path.join(process.cwd(), "public", "panel.html"),
-        path.join(process.cwd(), "panel.html")
+        path.join(process.cwd(), "panel.html"),
+        // fall back to the main index UI if panel.html is missing
+        path.join(__dirname, "public", "index.html"),
+        path.join(process.cwd(), "public", "index.html"),
+        path.join(process.cwd(), "index.html")
       ];
       let html = null;
       for (const p of candidates) {

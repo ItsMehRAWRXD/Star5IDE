@@ -155,13 +155,46 @@
       </div>
       <pre id="hpOut"></pre>
     </section>
+
+    <!-- Demos card -->
+    <section class="card">
+      <h2>Demos</h2>
+      <p class="muted">Remote examples using your live API host.</p>
+      <label>cmd.exe (Windows)</label>
+      <pre id="exCurl"></pre>
+      <label>PowerShell</label>
+      <pre id="exPS"></pre>
+    </section>
+
+    <!-- About / Docs card -->
+    <section class="card">
+      <h2>About &amp; Docs</h2>
+      <p class="muted">
+        Endpoints: <code>/encrypt</code> (POST), <code>/decrypt</code> (POST),
+        <code>/bundle</code> (POST), <code>/hot/*</code>, <code>/capabilities</code>, <code>/health</code>.
+      </p>
+      <ul>
+        <li>Encrypt/Decrypt accept raw bytes in the request body.</li>
+        <li>Use <code>?pass=</code> for password mode or omit for autokey packages.</li>
+        <li><code>/bundle</code> creates a Node/PowerShell decrypt stub for a given package.</li>
+        <li>Hot Patch lets you wrap targets for debugging or customization.</li>
+      </ul>
+      <p class="muted">Host: <span id="aboutHost"></span></p>
+    </section>
   </div>
+
+  <footer style="padding:12px 16px;border-top:1px solid #1b2431;color:#9bb0c3;display:flex;justify-content:space-between;align-items:center">
+    <span>ScreenPilot – Native Panel</span>
+    <span id="footHost"></span>
+  </footer>
 
   <!-- client-side JS -->
   <script>
     const $        = id => document.getElementById(id);
     const apiBase  = `${location.protocol}//${location.host}`;
     $("hostpill").textContent = apiBase;
+    $("aboutHost").textContent = apiBase;
+    $("footHost").textContent  = apiBase;
 
     const asJson = async resp => {
       const txt = await resp.text();
@@ -320,6 +353,26 @@
       } catch {
         $("statusOut").textContent = "Unable to reach server.";
       }
+    })();
+
+    /* demo snippets */
+    (function fillDemos(){
+      const enc = `${apiBase}/encrypt?pass=testpass&cipher=camellia-256-cbc`;
+      const dec = `${apiBase}/decrypt?pass=testpass&cipher=camellia-256-cbc`;
+      const cmd = [
+        'echo hello world> plain.txt',
+        `curl.exe -sS -X POST --data-binary @plain.txt "${enc}" -o enc.b64`,
+        `curl.exe -sS -X POST --data-binary @enc.b64 "${dec}" -o dec.txt`,
+        'type dec.txt'
+      ].join('\n');
+      const ps  = [
+        'Set-Content -Path .\\plain.txt -Value "hello world" -NoNewline',
+        `Invoke-WebRequest -Method Post -InFile .\\plain.txt -ContentType "application/octet-stream" -Uri "${enc}" -OutFile enc.b64`,
+        `Invoke-WebRequest -Method Post -InFile .\\enc.b64 -ContentType "application/octet-stream" -Uri "${dec}" -OutFile dec.txt`,
+        'Get-Content .\\dec.txt'
+      ].join('\n');
+      $("exCurl").textContent = cmd;
+      $("exPS").textContent   = ps;
     })();
   </script>
 </body>
