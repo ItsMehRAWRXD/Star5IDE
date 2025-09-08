@@ -1,24 +1,14 @@
 [build]
-  command = "npm run build"
-  publish = "public"
+  command = "npm run build:all"
   functions = "netlify/functions"
+  publish = "public"
 
 [build.environment]
   NODE_VERSION = "18"
 
 [[redirects]]
   from = "/api/*"
-  to = "/.netlify/functions/api/:splat"
-  status = 200
-
-[[redirects]]
-  from = "/api/auth/*"
-  to = "/.netlify/functions/auth/:splat"
-  status = 200
-
-[[redirects]]
-  from = "/api/subscriptions/*"
-  to = "/.netlify/functions/subscriptions/:splat"
+  to = "/.netlify/functions/api"
   status = 200
 
 [[redirects]]
@@ -27,12 +17,4 @@
   status = 200
 
 [functions]
-  directory = "netlify/functions"
   node_bundler = "esbuild"
-  external_node_modules = []
-
-[dev]
-  port = 8888
-  publish = "public"
-  functions = "netlify/functions"
-  functionsPort = 9999 

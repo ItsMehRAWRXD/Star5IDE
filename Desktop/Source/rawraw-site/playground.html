@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Playground - RawrZ Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .playground-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            height: 70vh;
+        }
+
+        .code-panel {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .code-panel h3 {
+            margin-bottom: 15px;
+            color: #f39c12;
+        }
+
+        .code-editor {
+            flex: 1;
+            background: #1e1e1e;
+            border: 1px solid #444;
+            border-radius: 5px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: #fff;
+            resize: none;
+            outline: none;
+        }
+
+        .output-panel {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .output-panel h3 {
+            margin-bottom: 15px;
+            color: #27ae60;
+        }
+
+        .output {
+            flex: 1;
+            background: #1e1e1e;
+            border: 1px solid #444;
+            border-radius: 5px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: #fff;
+            overflow-y: auto;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231,76,60,0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 5px 15px rgba(52,152,219,0.4);
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        @media (max-width: 768px) {
+            .playground-grid {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+            
+            .code-panel, .output-panel {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="/" class="back-btn">← Back to Dashboard</a>
+    
+    <div class="container">
+        <div class="header">
+            <h1>🎮 Code Playground</h1>
+            <p>Interactive coding environment for testing and development</p>
+        </div>
+
+        <div class="playground-grid">
+            <div class="code-panel">
+                <h3>📝 Code Editor</h3>
+                <textarea class="code-editor" id="codeEditor" placeholder="// Enter your code here...
+console.log('Hello RawrZ Platform!');
+
+// Test API calls
+fetch('/api/health')
+  .then(response => response.json())
+  .then(data => console.log(data));">// RawrZ Platform Code Playground
+console.log('Welcome to the RawrZ Code Playground!');
+
+// Test the crypto API
+async function testCrypto() {
+    try {
+        const response = await fetch('/api/crypto/encrypt', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                text: 'Hello RawrZ!',
+                algorithm: 'aes-256-cbc'
+            })
+        });
+        
+        const result = await response.json();
+        console.log('Encryption result:', result);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+// Run the test
+testCrypto();</textarea>
+            </div>
+
+            <div class="output-panel">
+                <h3>📊 Output</h3>
+                <div class="output" id="output"></div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" onclick="runCode()">▶️ Run Code</button>
+            <button class="btn btn-secondary" onclick="clearOutput()">🗑️ Clear</button>
+            <button class="btn btn-secondary" onclick="loadExample()">📚 Load Example</button>
+        </div>
+    </div>
+
+    <script>
+        const codeEditor = document.getElementById('codeEditor');
+        const output = document.getElementById('output');
+
+        // Override console.log to show in output
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+
+        function addToOutput(message, type = 'log') {
+            const timestamp = new Date().toLocaleTimeString();
+            const div = document.createElement('div');
+            div.style.marginBottom = '5px';
+            div.style.padding = '5px';
+            div.style.borderRadius = '3px';
+            
+            if (type === 'error') {
+                div.style.backgroundColor = 'rgba(231,76,60,0.2)';
+                div.style.borderLeft = '3px solid #e74c3c';
+            } else if (type === 'warn') {
+                div.style.backgroundColor = 'rgba(241,196,15,0.2)';
+                div.style.borderLeft = '3px solid #f1c40f';
+            } else {
+                div.style.backgroundColor = 'rgba(46,204,113,0.2)';
+                div.style.borderLeft = '3px solid #2ecc71';
+            }
+            
+            div.innerHTML = `<span style="color: #95a5a6;">[${timestamp}]</span> ${message}`;
+            output.appendChild(div);
+            output.scrollTop = output.scrollHeight;
+        }
+
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addToOutput(args.join(' '), 'log');
+        };
+
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addToOutput(args.join(' '), 'error');
+        };
+
+        console.warn = function(...args) {
+            originalWarn.apply(console, args);
+            addToOutput(args.join(' '), 'warn');
+        };
+
+        function runCode() {
+            const code = codeEditor.value;
+            output.innerHTML = '';
+            
+            try {
+                // Create a safe execution environment
+                const func = new Function(code);
+                func();
+            } catch (error) {
+                console.error('Execution error:', error.message);
+            }
+        }
+
+        function clearOutput() {
+            output.innerHTML = '';
+        }
+
+        function loadExample() {
+            const examples = [
+                `// RawrZ Crypto API Test
+async function testEncryption() {
+    const response = await fetch('/api/crypto/encrypt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            text: 'Secret message',
+            algorithm: 'aes-256-cbc'
+        })
+    });
+    const result = await response.json();
+    console.log('Encrypted:', result);
+}
+testEncryption();`,
+
+                `// Image Processing Test
+async function testImageProcessing() {
+    const formData = new FormData();
+    // Note: You would need an actual image file for this
+    console.log('Image processing API available at /api/images/process');
+    console.log('Supported operations: resize, compress, watermark, optimize');
+}
+testImageProcessing();`,
+
+                `// System Status Check
+async function checkSystemStatus() {
+    const health = await fetch('/health');
+    const api = await fetch('/api');
+    
+    const healthData = await health.json();
+    const apiData = await api.json();
+    
+    console.log('System Health:', healthData);
+    console.log('Available APIs:', Object.keys(apiData.endpoints));
+}
+checkSystemStatus();`
+            ];
+            
+            const randomExample = examples[Math.floor(Math.random() * examples.length)];
+            codeEditor.value = randomExample;
+        }
+
+        // Add keyboard shortcut for running code
+        codeEditor.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                runCode();
+            }
+        });
+    </script>
+</body>
+</html>

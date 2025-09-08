@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AIDesktopHelper.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d7e89f998366a03f57360e287ae3cb684dac7b92")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bd23b2c730c912a789c7a013aeac100c0c87d976")]
 [assembly: System.Reflection.AssemblyProductAttribute("AIDesktopHelper.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AIDesktopHelper.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

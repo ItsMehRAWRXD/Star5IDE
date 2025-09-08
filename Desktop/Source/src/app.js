@@ -100,13 +100,13 @@ app.get('/rawrz', (req, res) => {
   res.sendFile('advanced-ui.html', { root: 'rawraw-site' });
 });
 
-// TypeScript SaaS Platform routes
+// TypeScript SaaS Platform routes - Fixed routing
 app.get('/saas', (req, res) => {
-  res.sendFile('index.html', { root: 'rawraw-site/SaaS Crypting Platform/SaaSEncryptionSecurity/1/out' });
+  res.sendFile('index.html', { root: 'rawraw-site/SaaS Crypting Platform/SaaSEncryptionSecurity/1/public' });
 });
 
 app.get('/saas/*', (req, res) => {
-  res.sendFile('index.html', { root: 'rawraw-site/SaaS Crypting Platform/SaaSEncryptionSecurity/1/out' });
+  res.sendFile('index.html', { root: 'rawraw-site/SaaS Crypting Platform/SaaSEncryptionSecurity/1/public' });
 });
 
 // Code Playground - Interactive coding environment
@@ -133,9 +133,9 @@ app.get('/panel', (req, res) => {
   res.sendFile('admin-panel.html', { root: 'public' });
 });
 
-// Main IDE Dashboard - The Fun Coding Interface!
+// Main Dashboard - Central Hub
 app.get('/', (req, res) => {
-  res.sendFile('ide-dashboard.html', { root: 'rawraw-site' });
+  res.sendFile('index.html', { root: 'public' });
 });
 
 // Legacy API endpoint for programmatic access
