@@ -1,0 +1,32 @@
+name: rawrz-security-platform-v2
+services:
+- name: rawrz-web
+  source_dir: Desktop/Source
+  github:
+    repo: ItsMehRAWRXD/Star5IDE
+    branch: security/cleanup
+  run_command: node src/app.js
+  environment_slug: node-js
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  http_port: 8088
+  health_check:
+    http_path: /health
+  routes:
+  - path: /
+  envs:
+  - key: NODE_ENV
+    value: production
+  - key: PORT
+    value: "8088"
+  - key: JWT_SECRET
+    value: rawrz-security-platform-jwt-secret-2024-production
+  - key: FRONTEND_URL
+    value: https://creenpilot.dev
+  - key: ALLOWED_ORIGINS
+    value: https://creenpilot.dev,https://rawrz-security-platform-v2-k2wey.ondigitalocean.app,https://whale-app-eraw5.ondigitalocean.app
+  - key: MONGODB_URI
+    value: mongodb+srv://doadmin:81RXD27gr035w9Km@rawrz-mongodb-fb68631a.mongo.ondigitalocean.com/rawrz-security-platform?tls=true&authSource=admin&replicaSet=rawrz-mongodb
+  - key: TRUST_PROXY
+    value: "true"
+  build_command: npm install
