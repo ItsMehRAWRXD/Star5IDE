@@ -1,0 +1,23 @@
+spec:
+  name: rawrz-security-platform
+  services:
+    - name: api
+      environment_slug: node-js
+      instance_count: 1
+      instance_size_slug: basic-xxs
+      http_port: 8080
+      routes:
+        - path: /
+      envs:
+        - key: NODE_ENV
+          value: production
+        - key: PORT
+          value: "8080"
+        - key: API_KEY
+          value: "${API_KEY}"
+          scope: RUN_AND_BUILD_TIME
+      git:
+        branch: main
+        repo_clone_url: "${REPO_CLONE_URL}"
+      build_command: npm ci --omit=dev
+      run_command: npm start

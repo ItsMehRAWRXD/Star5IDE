@@ -198,7 +198,10 @@ class RawrZStandalone {
     // Network Commands
     async ping(host, saveToFile = false, extension = '.ping') {
         try {
-            const { stdout } = await execAsync(`ping -n 4 ${host}`);
+            const isWindows = process.platform === 'win32';
+            const countFlag = isWindows ? '-n' : '-c';
+            const pingCmd = `ping ${countFlag} 4 ${host}`;
+            const { stdout } = await execAsync(pingCmd);
             console.log(`[OK] Ping results for ${host}:`);
             console.log(stdout);
             
@@ -259,7 +262,9 @@ class RawrZStandalone {
 
     async listProcesses() {
         try {
-            const { stdout } = await execAsync('tasklist');
+            const isWindows = process.platform === 'win32';
+            const cmd = isWindows ? 'tasklist' : 'ps aux';
+            const { stdout } = await execAsync(cmd);
             console.log(`[OK] Running processes:`);
             console.log(stdout);
             return { success: true, output: stdout };
@@ -612,7 +617,9 @@ class RawrZStandalone {
     async traceroute(host) {
         try {
             console.log(`[OK] Tracing route to ${host}...`);
-            const { stdout } = await execAsync(`tracert -h 10 ${host}`);
+            const isWindows = process.platform === 'win32';
+            const traceCmd = isWindows ? `tracert -h 10 ${host}` : `traceroute -m 10 ${host}`;
+            const { stdout } = await execAsync(traceCmd);
             console.log(stdout);
             return { success: true, host, output: stdout };
         } catch (error) {
