@@ -2,15 +2,17 @@
   "name": "rawrz-security-platform",
   "version": "2.0.0",
   "description": "Complete Standalone Security Platform - 110+ Security Features with Enterprise-Level Capabilities",
-  "main": "rawrz-standalone.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node rawrz-standalone.js",
+    "start": "node server.js",
+    "cli": "node rawrz-standalone.js",
     "help": "node rawrz-standalone.js help",
     "test": "node rawrz-standalone.js sysinfo"
   },
   "dependencies": {
     "crc32": "^0.2.2",
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "express": "^4.21.1"
   },
   "keywords": [
     "security",

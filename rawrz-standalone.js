@@ -198,7 +198,9 @@ class RawrZStandalone {
     // Network Commands
     async ping(host, saveToFile = false, extension = '.ping') {
         try {
-            const { stdout } = await execAsync(`ping -n 4 ${host}`);
+            const isWindows = process.platform === 'win32';
+            const pingCommand = isWindows ? `ping -n 4 ${host}` : `ping -c 4 ${host}`;
+            const { stdout } = await execAsync(pingCommand);
             console.log(`[OK] Ping results for ${host}:`);
             console.log(stdout);
             
@@ -259,7 +261,9 @@ class RawrZStandalone {
 
     async listProcesses() {
         try {
-            const { stdout } = await execAsync('tasklist');
+            const isWindows = process.platform === 'win32';
+            const psCommand = isWindows ? 'tasklist' : 'ps aux';
+            const { stdout } = await execAsync(psCommand);
             console.log(`[OK] Running processes:`);
             console.log(stdout);
             return { success: true, output: stdout };
@@ -612,9 +616,24 @@ class RawrZStandalone {
     async traceroute(host) {
         try {
             console.log(`[OK] Tracing route to ${host}...`);
-            const { stdout } = await execAsync(`tracert -h 10 ${host}`);
-            console.log(stdout);
-            return { success: true, host, output: stdout };
+            const isWindows = process.platform === 'win32';
+            const primaryCommand = isWindows ? `tracert -h 10 ${host}` : `traceroute -m 10 ${host}`;
+            try {
+                const { stdout } = await execAsync(primaryCommand);
+                console.log(stdout);
+                return { success: true, host, output: stdout };
+            } catch (primaryError) {
+                if (!isWindows) {
+                    try {
+                        const { stdout } = await execAsync(`tracepath -m 10 ${host}`);
+                        console.log(stdout);
+                        return { success: true, host, output: stdout };
+                    } catch (fallbackError) {
+                        throw primaryError;
+                    }
+                }
+                throw primaryError;
+            }
         } catch (error) {
             console.log(`[ERROR] Traceroute failed: ${error.message}`);
             return { success: false, error: error.message };
