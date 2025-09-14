@@ -75,7 +75,7 @@ class RawrZStandalone {
         }
     }
 
-    async decrypt(algorithm, input, key = null, extension = '.bin') {
+    async decrypt(algorithm, input, key = null, iv = null, extension = '.bin') {
         try {
             let dataToDecrypt;
             
@@ -96,7 +96,26 @@ class RawrZStandalone {
                 dataToDecrypt = await this.readLocalFile(input);
             }
 
-            const result = await this.performDecryption(dataToDecrypt, algorithm, key);
+            // If input looks like our encrypted JSON format, auto-extract key/iv/algorithm
+            let dataBuffer = dataToDecrypt;
+            try {
+                const text = Buffer.isBuffer(dataToDecrypt) ? dataToDecrypt.toString('utf8') : String(dataToDecrypt);
+                const parsed = JSON.parse(text);
+                if (parsed && parsed.metadata && parsed.data) {
+                    algorithm = (parsed.metadata.algorithm || algorithm || 'aes256');
+                    key = key || parsed.metadata.key;
+                    iv = iv || parsed.metadata.iv;
+                    dataBuffer = Buffer.from(parsed.data, 'base64');
+                }
+            } catch (_) {
+                // not JSON, keep as raw buffer
+            }
+
+            if (!iv) {
+                throw new Error('Decryption IV required (or provide encrypted JSON with metadata)');
+            }
+
+            const result = await this.performDecryption(dataBuffer, algorithm, key, iv);
             const filename = await this.saveDecryptedFile(result, algorithm, extension);
             
             console.log(`[OK] Decryption successful!`);

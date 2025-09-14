@@ -127,8 +127,8 @@ app.listen(port, () => {
 app.post('/decrypt', requireAuth, async (req, res) => {
   try {
     const { algorithm, input, key, iv, extension } = req.body || {};
-    if (!algorithm || !input || !key || !iv) return res.status(400).json({ error: 'algorithm, input, key, iv are required' });
-    const result = await rawrz.decrypt(algorithm, input, key, extension);
+    if (!algorithm || !input) return res.status(400).json({ error: 'algorithm and input are required' });
+    const result = await rawrz.decrypt(algorithm, input, key, iv, extension);
     res.json(result);
   } catch (e) {
     res.status(500).json({ error: e.message });
