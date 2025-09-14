@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  rawrz-security:
+    build: .
+    container_name: rawrz-security-platform
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./uploads:/app/uploads
+      - ./data:/app/data
+      - ./logs:/app/logs
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    networks:
+      - rawrz-network
+    healthcheck:
+      test: ["CMD", "node", "rawrz-standalone.js", "sysinfo"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  nginx:
+    image: nginx:alpine
+    container_name: rawrz-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - rawrz-security
+    networks:
+      - rawrz-network
+
+networks:
+  rawrz-network:
+    driver: bridge
+
+volumes:
+  uploads:
+  data:
+  logs:
