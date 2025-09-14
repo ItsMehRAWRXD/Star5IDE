@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  rawrz-security:
+    build: .
+    container_name: rawrz-security-platform
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - TZ=UTC
+    volumes:
+      # Mount for persistent data and logs
+      - ./data:/app/data
+      - ./logs:/app/logs
+      # Mount for file operations (optional)
+      - ./uploads:/app/uploads
+      - ./downloads:/app/downloads
+    ports:
+      # Expose port for potential web interface
+      - "3000:3000"
+    networks:
+      - rawrz-network
+    healthcheck:
+      test: ["CMD", "node", "rawrz-standalone.js", "sysinfo"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+
+  # Optional: Nginx reverse proxy for web interface
+  nginx:
+    image: nginx:alpine
+    container_name: rawrz-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - rawrz-security
+    networks:
+      - rawrz-network
+
+networks:
+  rawrz-network:
+    driver: bridge
+
+volumes:
+  rawrz-data:
+  rawrz-logs:
