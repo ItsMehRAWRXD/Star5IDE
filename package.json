@@ -4,13 +4,17 @@
   "description": "Complete Standalone Security Platform - 110+ Security Features with Enterprise-Level Capabilities",
   "main": "rawrz-standalone.js",
   "scripts": {
-    "start": "node rawrz-standalone.js",
+    "start": "node server.js",
+    "cli": "node rawrz-standalone.js",
     "help": "node rawrz-standalone.js help",
     "test": "node rawrz-standalone.js sysinfo"
   },
   "dependencies": {
     "crc32": "^0.2.2",
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "morgan": "^1.10.0"
   },
   "keywords": [
     "security",
@@ -39,5 +43,8 @@
   "license": "MIT",
   "bin": {
     "rawrz": "./rawrz-standalone.js"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }

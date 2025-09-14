@@ -1,0 +1,22 @@
+spec:
+  name: rawrz-security-platform
+  services:
+    - name: web
+      environment_slug: node-js
+      instance_count: 1
+      instance_size_slug: basic-xxs
+      http_port: 8080
+      routes:
+        - path: /
+      github:
+        repo: your-org-or-user/your-repo
+        branch: main
+        deploy_on_push: true
+      build_command: npm ci
+      run_command: npm start
+      envs:
+        - key: NODE_ENV
+          value: production
+        - key: PORT
+          value: "8080"
+

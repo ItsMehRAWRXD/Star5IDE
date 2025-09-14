@@ -75,9 +75,15 @@ cd rawrz-security-platform
 npm install
 ```
 
-3. Run the platform
+3. Run the CLI
 ```bash
 node rawrz-standalone.js help
+```
+
+4. Run the HTTP API (local)
+```bash
+npm start
+# Visit http://localhost:8080/ and http://localhost:8080/healthz
 ```
 
 ## 🎯 Usage
@@ -111,7 +117,7 @@ node rawrz-standalone.js hash calc.exe sha256 true .hash
 
 ### Using npm scripts:
 ```bash
-npm start                    # Show help
+npm run cli                  # CLI help
 npm run help                 # Show help
 npm test                     # System info test
 ```
@@ -219,10 +225,28 @@ node rawrz-standalone.js math "sqrt(16) + pow(2, 3)"
 ## 🏗️ Architecture
 
 ### Core Components:
-- **Main CLI**: `rawrz-standalone.js` - Primary interface
+- **Main CLI**: `rawrz-standalone.js` - Primary interface (npm run cli)
+- **HTTP Server**: `server.js` - Minimal API for App Platform
 - **Engine Modules**: `src/engines/` - 21 specialized engines
 - **Utilities**: `src/utils/` - Logging and helper functions
 - **Batch Files**: `rawrz-standalone.bat` - Windows batch interface
+## 🚀 Deploy to DigitalOcean App Platform
+
+1) Push this repo to GitHub and update `.do/app.yaml` `repo` and `branch`.
+
+2) From your local machine:
+```bash
+doctl apps create --spec .do/app.yaml
+```
+
+3) Or use the DigitalOcean control panel: Apps -> Create App -> GitHub repo -> Autodetected Node.js -> Run command `npm start`.
+
+Environment:
+- `PORT=8080` (App Platform injects this)
+- `NODE_ENV=production`
+
+Health check: `GET /healthz` should return `{ status: 'ok' }`.
+
 
 ### Engine Modules:
 ```
