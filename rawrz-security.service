@@ -1,0 +1,46 @@
+[Unit]
+Description=RawrZ Security Platform
+Documentation=https://github.com/yourusername/rawrz-security-platform
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=rawrz
+Group=rawrz
+WorkingDirectory=/opt/rawrz-security
+ExecStart=/usr/bin/node rawrz-standalone.js
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
+RestartSec=5
+StartLimitInterval=60s
+StartLimitBurst=3
+
+# Environment
+Environment=NODE_ENV=production
+Environment=PORT=3000
+EnvironmentFile=-/opt/rawrz-security/.env.production
+
+# Security settings
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/opt/rawrz-security/uploads /opt/rawrz-security/data /opt/rawrz-security/logs
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictRealtime=yes
+RestrictNamespaces=yes
+
+# Resource limits
+LimitNOFILE=65536
+LimitNPROC=4096
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=rawrz-security
+
+[Install]
+WantedBy=multi-user.target
