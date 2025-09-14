@@ -123,3 +123,200 @@ app.listen(port, () => {
   console.log(`[OK] RawrZ API listening on port ${port}`);
 });
 
+// Expanded API surface to mirror CLI commands
+app.post('/decrypt', requireAuth, async (req, res) => {
+  try {
+    const { algorithm, input, key, iv, extension } = req.body || {};
+    if (!algorithm || !input || !key || !iv) return res.status(400).json({ error: 'algorithm, input, key, iv are required' });
+    const result = await rawrz.decrypt(algorithm, input, key, extension);
+    res.json(result);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.post('/keygen', requireAuth, async (req, res) => {
+  try {
+    const { algorithm = 'aes256', length = 256, save = false, extension } = req.body || {};
+    const result = await rawrz.generateKey(algorithm, parseInt(length) || 256, Boolean(save), extension);
+    res.json(result);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.get('/dns', requireAuth, async (req, res) => {
+  try {
+    const { hostname } = req.query;
+    if (!hostname) return res.status(400).json({ error: 'hostname is required' });
+    const result = await rawrz.dnsLookup(hostname);
+    res.json(result);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.get('/ping', requireAuth, async (req, res) => {
+  try {
+    const { host, save = 'false', extension } = req.query;
+    if (!host) return res.status(400).json({ error: 'host is required' });
+    const result = await rawrz.ping(String(host), save === 'true', extension);
+    res.json(result);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.get('/portscan', requireAuth, async (req, res) => {
+  try {
+    const { host, start = '1', end = '1000' } = req.query;
+    if (!host) return res.status(400).json({ error: 'host is required' });
+    const result = await rawrz.portScan(String(host), parseInt(start) || 1, parseInt(end) || 1000);
+    res.json(result);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.get('/traceroute', requireAuth, async (req, res) => {
+  try {
+    const { host } = req.query;
+    if (!host) return res.status(400).json({ error: 'host is required' });
+    const result = await rawrz.traceroute(String(host));
+    res.json(result);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.get('/whois', requireAuth, async (req, res) => {
+  try {
+    const { domain } = req.query;
+    if (!domain) return res.status(400).json({ error: 'domain is required' });
+    const result = await rawrz.whois(String(domain));
+    res.json(result);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.post('/analyze', requireAuth, async (req, res) => {
+  try {
+    const { input } = req.body || {};
+    if (!input) return res.status(400).json({ error: 'input is required' });
+    const result = await rawrz.analyzeFile(input);
+    res.json(result);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.post('/textops', requireAuth, async (req, res) => {
+  try {
+    const { operation, input } = req.body || {};
+    if (!operation || !input) return res.status(400).json({ error: 'operation and input are required' });
+    const result = await rawrz.textOperations(operation, input);
+    res.json(result);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.post('/validate', requireAuth, async (req, res) => {
+  try {
+    const { input, type } = req.body || {};
+    if (!input || !type) return res.status(400).json({ error: 'input and type are required' });
+    const result = await rawrz.validate(input, type);
+    res.json(result);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.post('/encode', requireAuth, async (req, res) => {
+  try {
+    const { type, input } = req.body || {};
+    if (!type || !input) return res.status(400).json({ error: 'type and input are required' });
+    let result;
+    if (type === 'base64') result = await rawrz.base64Encode(input);
+    else if (type === 'hex') result = await rawrz.hexEncode(input);
+    else if (type === 'url') result = await rawrz.urlEncode(input);
+    else return res.status(400).json({ error: 'unknown encode type' });
+    res.json(result);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/decode', requireAuth, async (req, res) => {
+  try {
+    const { type, input } = req.body || {};
+    if (!type || !input) return res.status(400).json({ error: 'type and input are required' });
+    let result;
+    if (type === 'base64') result = await rawrz.base64Decode(input);
+    else if (type === 'hex') result = await rawrz.hexDecode(input);
+    else if (type === 'url') result = await rawrz.urlDecode(input);
+    else return res.status(400).json({ error: 'unknown decode type' });
+    res.json(result);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.get('/random', requireAuth, async (req, res) => {
+  try {
+    const { length = '32' } = req.query;
+    const result = await rawrz.generateRandom(parseInt(length) || 32);
+    res.json(result);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.get('/password', requireAuth, async (req, res) => {
+  try {
+    const { length = '16', special = 'true' } = req.query;
+    const result = await rawrz.generatePassword(parseInt(length) || 16, special !== 'false');
+    res.json(result);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/sign', requireAuth, async (req, res) => {
+  try {
+    const { input, privateKey } = req.body || {};
+    if (!input) return res.status(400).json({ error: 'input is required' });
+    const result = await rawrz.signData(input, privateKey || null);
+    res.json(result);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/verify', requireAuth, async (req, res) => {
+  try {
+    const { input, signature, publicKey } = req.body || {};
+    if (!input || !signature || !publicKey) return res.status(400).json({ error: 'input, signature, publicKey are required' });
+    const result = await rawrz.verifySignature(input, signature, publicKey);
+    res.json(result);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/fileops', requireAuth, async (req, res) => {
+  try {
+    const { operation, input, output } = req.body || {};
+    if (!operation || !input) return res.status(400).json({ error: 'operation and input are required' });
+    const result = await rawrz.fileOperations(operation, input, output);
+    res.json(result);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/upload', requireAuth, async (req, res) => {
+  try {
+    const { filename, base64 } = req.body || {};
+    if (!filename || !base64) return res.status(400).json({ error: 'filename and base64 are required' });
+    const result = await rawrz.uploadFile(filename, base64);
+    res.json(result);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.get('/download', requireAuth, async (req, res) => {
+  try {
+    const filename = String(req.query.filename || '');
+    if (!filename) return res.status(400).json({ error: 'filename is required' });
+    const full = require('path').join(__dirname, 'uploads', filename);
+    return res.download(full, filename);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
