@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const cors = require('cors');
 const helmet = require('helmet');
 require('dotenv').config();
@@ -12,6 +13,7 @@ const authToken = process.env.AUTH_TOKEN || '';
 app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: '5mb' }));
+app.use('/static', express.static(path.join(__dirname, 'public')));
 
 function requireAuth(req, res, next) {
   if (!authToken) {
@@ -106,6 +108,14 @@ app.get('/files', requireAuth, async (req, res) => {
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
+});
+
+app.get('/panel', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'panel.html'));
+});
+
+app.get('/', (req, res) => {
+  res.redirect('/panel');
 });
 
 app.listen(port, () => {

@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RawrZ Panel</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; background: #0b1020; color: #e6e9ef; }
+    header { padding: 16px 20px; background: #11162a; border-bottom: 1px solid #222a45; }
+    h1 { margin: 0; font-size: 18px; }
+    .container { max-width: 960px; margin: 0 auto; padding: 20px; }
+    .card { background: #12192f; border: 1px solid #20284a; border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    input, select, button { background: #0f1530; color: #e6e9ef; border: 1px solid #263056; border-radius: 8px; padding: 10px 12px; }
+    input, select { flex: 1; min-width: 180px; }
+    button { cursor: pointer; }
+    pre { background: #0a0f24; border: 1px solid #1d2444; padding: 12px; border-radius: 8px; overflow: auto; max-height: 380px; }
+    .muted { color: #9aa3b2; font-size: 12px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+    .badge { background: #1a2245; padding: 2px 8px; border-radius: 999px; border: 1px solid #2a366b; font-size: 12px; }
+  </style>
+  <script>
+    async function api(path, options) {
+      const token = localStorage.getItem('authToken') || '';
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = 'Bearer ' + token;
+      const res = await fetch(path, { ...options, headers });
+      const text = await res.text();
+      try { return { status: res.status, json: JSON.parse(text) }; } catch { return { status: res.status, text }; }
+    }
+    async function checkHealth() {
+      const r = await api('/health');
+      render('healthOutput', r);
+    }
+    async function getSysinfo() {
+      const r = await api('/sysinfo');
+      render('sysinfoOutput', r);
+    }
+    async function getTime() {
+      const r = await api('/time');
+      render('timeOutput', r);
+    }
+    async function getUuid() {
+      const r = await api('/uuid');
+      render('uuidOutput', r);
+    }
+    async function postHash() {
+      const input = document.getElementById('hashInput').value;
+      const algorithm = document.getElementById('hashAlgo').value;
+      const r = await api('/hash', { method: 'POST', body: JSON.stringify({ input, algorithm, save: false }) });
+      render('hashOutput', r);
+    }
+    async function postEncrypt() {
+      const algorithm = document.getElementById('encAlgo').value;
+      const input = document.getElementById('encInput').value;
+      const ext = document.getElementById('encExt').value || undefined;
+      const r = await api('/encrypt', { method: 'POST', body: JSON.stringify({ algorithm, input, extension: ext }) });
+      render('encOutput', r);
+    }
+    async function listFiles() {
+      const r = await api('/files');
+      render('filesOutput', r);
+    }
+    function saveToken() {
+      const t = document.getElementById('authToken').value.trim();
+      localStorage.setItem('authToken', t);
+      document.getElementById('savedNote').textContent = t ? 'Saved' : 'Cleared';
+    }
+    function render(id, obj) {
+      const el = document.getElementById(id);
+      el.textContent = JSON.stringify(obj, null, 2);
+    }
+    window.addEventListener('DOMContentLoaded', checkHealth);
+  </script>
+  </head>
+  <body>
+    <header>
+      <div class="container">
+        <h1>RawrZ Security Platform Panel <span class="badge">beta</span></h1>
+      </div>
+    </header>
+    <div class="container">
+      <div class="card">
+        <div class="row">
+          <input id="authToken" placeholder="Auth token (optional if API unsecured)" />
+          <button onclick="saveToken()">Save Token</button>
+          <span id="savedNote" class="muted"></span>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Health</h3>
+          <button onclick="checkHealth()">Check</button>
+          <pre id="healthOutput"></pre>
+        </div>
+        <div class="card">
+          <h3>System Info</h3>
+          <button onclick="getSysinfo()">Fetch</button>
+          <pre id="sysinfoOutput"></pre>
+        </div>
+        <div class="card">
+          <h3>Time</h3>
+          <button onclick="getTime()">Get Time</button>
+          <pre id="timeOutput"></pre>
+        </div>
+        <div class="card">
+          <h3>UUID</h3>
+          <button onclick="getUuid()">Generate</button>
+          <pre id="uuidOutput"></pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Hash</h3>
+        <div class="row">
+          <input id="hashInput" placeholder="Text or path or file:filename" />
+          <select id="hashAlgo">
+            <option value="sha256">sha256</option>
+            <option value="md5">md5</option>
+            <option value="sha1">sha1</option>
+            <option value="sha512">sha512</option>
+          </select>
+          <button onclick="postHash()">Compute</button>
+        </div>
+        <pre id="hashOutput"></pre>
+      </div>
+
+      <div class="card">
+        <h3>Encrypt</h3>
+        <div class="row">
+          <select id="encAlgo">
+            <option value="aes256">aes256</option>
+            <option value="aes192">aes192</option>
+            <option value="aes128">aes128</option>
+            <option value="blowfish">blowfish</option>
+          </select>
+          <input id="encInput" placeholder="Text, URL, absolute path, or file:filename" />
+          <input id="encExt" placeholder="Extension (e.g. .enc)" />
+          <button onclick="postEncrypt()">Run</button>
+        </div>
+        <pre id="encOutput"></pre>
+      </div>
+
+      <div class="card">
+        <h3>Files</h3>
+        <button onclick="listFiles()">List</button>
+        <pre id="filesOutput"></pre>
+      </div>
+
+      <p class="muted">Endpoints require Authorization header if AUTH_TOKEN is set on the server.</p>
+    </div>
+  </body>
+  </html>
+
