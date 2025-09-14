@@ -5,6 +5,7 @@ const helmet = require('helmet');
 require('dotenv').config();
 
 const RawrZStandalone = require('./rawrz-standalone');
+const rawrzEngine = require('./src/engines/rawrz-engine');
 
 const app = express();
 const port = parseInt(process.env.PORT, 10) || 8080;
@@ -30,6 +31,18 @@ function requireAuth(req, res, next) {
 }
 
 const rawrz = new RawrZStandalone();
+
+// Initialize core engine (lazy modules)
+(async () => {
+  try {
+    await rawrzEngine.initializeModules();
+    // eslint-disable-next-line no-console
+    console.log('[OK] RawrZ core engine initialized');
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error('[WARN] Failed to initialize core engine:', e.message);
+  }
+})();
 
 app.get('/health', (req, res) => {
   res.json({ ok: true, status: 'healthy' });
@@ -121,6 +134,126 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
   // eslint-disable-next-line no-console
   console.log(`[OK] RawrZ API listening on port ${port}`);
+});
+
+// ===== RawrZ Core Engine endpoints =====
+app.get('/engine/status', requireAuth, (req, res) => {
+  try { res.json({ success: true, status: rawrzEngine.getStatus() }); }
+  catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/engine/compress', requireAuth, async (req, res) => {
+  try {
+    const { data, algorithm } = req.body || {};
+    if (data === undefined) return res.status(400).json({ error: 'data is required' });
+    const buf = Buffer.isBuffer(data) ? data : Buffer.from(String(data));
+    const result = await rawrzEngine.compress(buf, algorithm || null);
+    // Return base64 for binary data
+    res.json({ success: true, algorithm: result.algorithm, originalSize: result.originalSize, compressedSize: result.compressedSize, compressionRatio: result.compressionRatio, data: result.data.toString('base64') });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/engine/decompress', requireAuth, async (req, res) => {
+  try {
+    const { data, algorithm } = req.body || {};
+    if (!data) return res.status(400).json({ error: 'data (base64) is required' });
+    const moduleObj = await rawrzEngine.loadModule('compression');
+    if (!moduleObj) return res.status(500).json({ error: 'compression module unavailable' });
+    const buf = Buffer.from(String(data), 'base64');
+    const result = await moduleObj.decompress(buf, algorithm || 'gzip');
+    res.json({ success: true, algorithm: result.algorithm, originalSize: result.originalSize, data: result.data.toString('base64') });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/engine/advanced/encrypt', requireAuth, async (req, res) => {
+  try {
+    const { data, options } = req.body || {};
+    if (data === undefined) return res.status(400).json({ error: 'data is required' });
+    const buf = Buffer.isBuffer(data) ? data : Buffer.from(String(data));
+    const result = await rawrzEngine.encryptAdvanced(buf, options || {});
+    res.json({ success: true, ...result, data: Buffer.isBuffer(result.data) ? result.data.toString('base64') : result.data });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/engine/advanced/decrypt', requireAuth, async (req, res) => {
+  try {
+    const { data, options } = req.body || {};
+    if (!data) return res.status(400).json({ error: 'data (base64) is required' });
+    const buf = Buffer.from(String(data), 'base64');
+    const result = await rawrzEngine.decryptAdvanced(buf, options || {});
+    res.json({ success: true, data: Buffer.isBuffer(result) ? result.toString('base64') : result });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/engine/assemble', requireAuth, async (req, res) => {
+  try {
+    const { code, architecture = 'x64' } = req.body || {};
+    if (!code) return res.status(400).json({ error: 'code is required' });
+    const result = await rawrzEngine.assembleCode(String(code), String(architecture));
+    res.json({ success: true, result });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/engine/polymorphize', requireAuth, async (req, res) => {
+  try {
+    const { code, options } = req.body || {};
+    if (!code) return res.status(400).json({ error: 'code is required' });
+    const result = await rawrzEngine.polymorphizeCode(String(code), options || {});
+    res.json({ success: true, result });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/engine/anti-analysis', requireAuth, async (req, res) => {
+  try {
+    const { target } = req.body || {};
+    if (!target) return res.status(400).json({ error: 'target is required' });
+    const result = await rawrzEngine.runAntiAnalysis(String(target));
+    res.json({ success: true, result });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/engine/memory/optimize', requireAuth, async (_req, res) => {
+  try { const result = await rawrzEngine.optimizeMemory(); res.json({ success: true, result }); }
+  catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/engine/backup', requireAuth, async (req, res) => {
+  try {
+    const { target, options } = req.body || {};
+    if (!target) return res.status(400).json({ error: 'target is required' });
+    const result = await rawrzEngine.createBackup(String(target), options || {});
+    res.json({ success: true, result });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/engine/mobile/analyze', requireAuth, async (req, res) => {
+  try { const { target } = req.body || {}; if (!target) return res.status(400).json({ error: 'target is required' }); const result = await rawrzEngine.analyzeMobile(String(target)); res.json({ success: true, result }); }
+  catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/engine/network/analyze', requireAuth, async (req, res) => {
+  try { const { target } = req.body || {}; if (!target) return res.status(400).json({ error: 'target is required' }); const result = await rawrzEngine.analyzeNetwork(String(target)); res.json({ success: true, result }); }
+  catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/engine/reverse', requireAuth, async (req, res) => {
+  try { const { target } = req.body || {}; if (!target) return res.status(400).json({ error: 'target is required' }); const result = await rawrzEngine.reverseEngineer(String(target)); res.json({ success: true, result }); }
+  catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/engine/forensics', requireAuth, async (req, res) => {
+  try { const { target } = req.body || {}; if (!target) return res.status(400).json({ error: 'target is required' }); const result = await rawrzEngine.performForensics(String(target)); res.json({ success: true, result }); }
+  catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/engine/malware/analyze', requireAuth, async (req, res) => {
+  try { const { target } = req.body || {}; if (!target) return res.status(400).json({ error: 'target is required' }); const result = await rawrzEngine.analyzeMalware(String(target)); res.json({ success: true, result }); }
+  catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.get('/engine/api-status', requireAuth, async (_req, res) => {
+  try { const result = await rawrzEngine.getAPIStatus(); res.json({ success: true, result }); }
+  catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 // Expanded API surface to mirror CLI commands
