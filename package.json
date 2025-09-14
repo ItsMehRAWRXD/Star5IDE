@@ -5,12 +5,16 @@
   "main": "rawrz-standalone.js",
   "scripts": {
     "start": "node rawrz-standalone.js",
+    "start:web": "node server.js",
     "help": "node rawrz-standalone.js help",
     "test": "node rawrz-standalone.js sysinfo"
   },
   "dependencies": {
+    "cors": "^2.8.5",
     "crc32": "^0.2.2",
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "express": "^4.19.2",
+    "helmet": "^7.1.0"
   },
   "keywords": [
     "security",

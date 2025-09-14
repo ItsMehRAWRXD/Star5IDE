@@ -285,3 +285,44 @@ For issues, questions, or contributions, please open an issue on GitHub.
 ---
 
 **RawrZ Security Platform v2.0.0** - Enterprise-level security tools in a standalone package.
+
+## 🌐 Deploy to DigitalOcean (App Platform)
+
+This repository now includes a minimal HTTP API and deployment config for DigitalOcean App Platform.
+
+### What was added
+- `server.js` – Express API exposing health, sysinfo, time, uuid, hash, encrypt, files
+- `.do/app.yaml` – App Platform spec (uses `Dockerfile`)
+- `Dockerfile` and `.dockerignore`
+- `npm run start:web` – Starts the API server locally
+
+### Configure and deploy
+1) Push this repo to GitHub/GitLab.
+
+2) In DigitalOcean:
+- Create New App → Connect your repository
+- App Platform will detect `.do/app.yaml`
+- Set environment variables:
+  - `AUTH_TOKEN` (secret) – optional bearer token to secure endpoints
+  - `NODE_ENV=production`
+- Deploy
+
+App runs on port `8080` inside the container and is exposed by App Platform.
+
+### Verify
+```bash
+curl https://<your-app-domain>/health
+# -> {"ok":true,"status":"healthy"}
+
+curl -H "Authorization: Bearer <AUTH_TOKEN>" \
+  https://<your-app-domain>/sysinfo
+```
+
+### Local run
+```bash
+npm install
+node server.js
+# then visit http://localhost:8080/health
+```
+
+Note: Some CLI features that shell out to platform-specific tools (e.g., `tracert`, `tasklist`, Windows-style `ping -n`) may not work in Linux containers. The HTTP API surfaces only cross-platform-safe operations by default.
